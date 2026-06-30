@@ -383,16 +383,40 @@ function maEnglishLike(core) {
 
 // ---- Emit SQL ------------------------------------------------------------
 
+import { researched } from './researchedSubjects.mjs';
+
 const esc = (s) => s.replace(/'/g, "''");
 let sql = `-- ============================================================
 -- MDU Papers — Subjects seed for ALL courses (semester-wise)
--- Based on standard MDU / Indian university curricula.
--- Edit/add/remove subjects anytime via the admin panel.
+-- Researched real MDU data for 10 major courses (BCA, BBA, BCom, BA,
+-- BSc-CS, B.Tech CSE, MBA, MCA, MA English, MCom). Others use standard
+-- curricula as a starting point. Edit/add/remove via the admin panel.
 -- Safe to re-run: ON CONFLICT (course_id, semester, slug) DO NOTHING.
 -- Run AFTER seed-courses.sql.
 -- ============================================================
 
 `;
+
+// Merge researched data over the generic COURSES map (researched wins).
+for (const [slug, sems] of Object.entries(researched)) {
+  const converted = {};
+  for (const [sem, rows] of Object.entries(sems)) {
+    converted[sem] = rows.map((r) => (Array.isArray(r) ? r[0] : r));
+  }
+  COURSES[slug] = converted;
+}
+
+// Build a code lookup for researched subjects: `${slug}|${sem}|${name}` -> code
+const codeLookup = {};
+for (const [slug, sems] of Object.entries(researched)) {
+  for (const [sem, rows] of Object.entries(sems)) {
+    for (const r of rows) {
+      const name = Array.isArray(r) ? r[0] : r;
+      const code = Array.isArray(r) && r[1] ? r[1] : '';
+      if (code) codeLookup[`${slug}|${sem}|${name}`] = code;
+    }
+  }
+}
 
 let total = 0;
 for (const [slug, sems] of Object.entries(COURSES)) {
@@ -400,7 +424,9 @@ for (const [slug, sems] of Object.entries(COURSES)) {
   for (const [sem, subjects] of Object.entries(sems)) {
     for (const name of subjects) {
       const subjectSlug = slugify(name);
-      sql += `INSERT INTO subjects (course_id, semester, name, slug) SELECT id, ${sem}, '${esc(name)}', '${subjectSlug}' FROM courses WHERE slug='${slug}' ON CONFLICT (course_id, semester, slug) DO NOTHING;\n`;
+      const code = codeLookup[`${slug}|${sem}|${name}`] || '';
+      const codeVal = code ? `'${esc(code)}'` : 'NULL';
+      sql += `INSERT INTO subjects (course_id, semester, name, subject_code, slug) SELECT id, ${sem}, '${esc(name)}', ${codeVal}, '${subjectSlug}' FROM courses WHERE slug='${slug}' ON CONFLICT (course_id, semester, slug) DO NOTHING;\n`;
       total++;
     }
   }
