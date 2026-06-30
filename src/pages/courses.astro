@@ -9,6 +9,7 @@ import { getVisibleCourses } from '@lib/data';
 const courses = await getVisibleCourses();
 const ugCourses = courses.filter((c) => c.degree_type === 'UG');
 const pgCourses = courses.filter((c) => c.degree_type === 'PG');
+const othersCourses = courses.filter((c) => c.degree_type === 'Others');
 ---
 
 <BaseLayout
@@ -45,6 +46,9 @@ const pgCourses = courses.filter((c) => c.degree_type === 'PG');
       <button class="tab-btn" role="tab" data-tab="pg" aria-selected="false">
         Postgraduate ({pgCourses.length})
       </button>
+      <button class="tab-btn" role="tab" data-tab="others" aria-selected="false">
+        Others ({othersCourses.length})
+      </button>
     </div>
 
     <section id="panel-ug" class="tab-panel">
@@ -56,6 +60,12 @@ const pgCourses = courses.filter((c) => c.degree_type === 'PG');
     <section id="panel-pg" class="tab-panel" hidden>
       <div class="grid grid-cols-2 grid-cols-3 course-grid">
         {pgCourses.map((course) => <CourseCard course={course} />)}
+      </div>
+    </section>
+
+    <section id="panel-others" class="tab-panel" hidden>
+      <div class="grid grid-cols-2 grid-cols-3 course-grid">
+        {othersCourses.map((course) => <CourseCard course={course} />)}
       </div>
     </section>
 
@@ -78,6 +88,7 @@ const pgCourses = courses.filter((c) => c.degree_type === 'PG');
   const panels = {
     ug: document.getElementById('panel-ug'),
     pg: document.getElementById('panel-pg'),
+    others: document.getElementById('panel-others'),
   };
   tabs.forEach((tab) => {
     tab.addEventListener('click', () => {
@@ -87,9 +98,10 @@ const pgCourses = courses.filter((c) => c.degree_type === 'PG');
       });
       tab.classList.add('active');
       tab.setAttribute('aria-selected', 'true');
-      const key = tab.dataset.tab as 'ug' | 'pg';
+      const key = tab.dataset.tab as 'ug' | 'pg' | 'others';
       panels.ug?.toggleAttribute('hidden', key !== 'ug');
       panels.pg?.toggleAttribute('hidden', key !== 'pg');
+      panels.others?.toggleAttribute('hidden', key !== 'others');
     });
   });
 
