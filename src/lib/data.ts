@@ -64,7 +64,7 @@ export async function getCourses(): Promise<Course[]> {
       return await attachRealPaperCounts(data as Course[]);
     }
   }
-  return attachCoursePaperCounts(structuredClone(mockCourses));
+  return isSupabaseConfigured ? [] : attachCoursePaperCounts(structuredClone(mockCourses));
 }
 
 export async function getCourseBySlug(slug: string): Promise<Course | null> {
@@ -123,7 +123,7 @@ export async function getSubjectsByCourse(courseId: number): Promise<Subject[]> 
       .order('semester');
     if (!error && data) return data as Subject[];
   }
-  return mockSubjects.filter((s) => s.course_id === courseId);
+  return isSupabaseConfigured ? [] : mockSubjects.filter((s) => s.course_id === courseId);
 }
 
 /**
@@ -170,7 +170,7 @@ export async function getPapersBySubject(subjectId: number): Promise<Paper[]> {
       .order('year', { ascending: false });
     if (!error && data) return data as Paper[];
   }
-  return mockPapers
+  return isSupabaseConfigured ? [] : mockPapers
     .filter((p) => p.subject_id === subjectId)
     .sort((a, b) => b.year - a.year || a.exam_session.localeCompare(b.exam_session));
 }
@@ -387,7 +387,7 @@ export async function getSolutionByPaper(paperId: number): Promise<Solution | nu
     if (!error && data) return data as Solution;
     if (!error) return null;
   }
-  return mockSolutions.find((s) => s.paper_id === paperId && s.is_published) ?? null;
+  return isSupabaseConfigured ? null : mockSolutions.find((s) => s.paper_id === paperId && s.is_published) ?? null;
 }
 
 /** Set of paper IDs that have a published solution (for badges). */
@@ -399,7 +399,7 @@ export async function getPaperIdsWithSolutions(): Promise<Set<number>> {
       .eq('is_published', true);
     if (!error && data) return new Set(data.map((r) => (r as { paper_id: number }).paper_id));
   }
-  return new Set(mockSolutions.filter((s) => s.is_published).map((s) => s.paper_id));
+  return isSupabaseConfigured ? new Set<number>() : new Set(mockSolutions.filter((s) => s.is_published).map((s) => s.paper_id));
 }
 
 
