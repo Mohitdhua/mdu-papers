@@ -23,7 +23,6 @@ export interface Subject {
   course_id: number;
   semester: number;
   name: string;
-  subject_code: string | null;
   slug: string;
   paper_count: number;
   created_at?: string;
@@ -83,7 +82,6 @@ export interface SearchEntry {
   courseSlug: string;
   semester: number;
   subject: string;
-  subjectCode: string | null;
   year: number;
   session: ExamSession;
   url: string;

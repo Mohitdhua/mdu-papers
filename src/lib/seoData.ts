@@ -125,7 +125,7 @@ export async function buildSeoIndex(): Promise<SeoEntry[]> {
       entries.push({
         path: `/${course.slug}/${semesterToSlug(subject.semester)}/${subject.slug}`,
         title: composeTitle(`${course.name} ${semLabel} ${subject.name} Papers — Download PDF`),
-        description: `Download free ${subject.name} (${subject.subject_code ?? course.name}) previous year question papers for ${course.name} ${semLabel}, MDU Rohtak. ${papers.length} papers available.`,
+        description: `Download free ${subject.name} previous year question papers for ${course.name} ${semLabel}, MDU Rohtak. ${papers.length} papers available.`,
         type: 'subject',
       });
     }
@@ -139,9 +139,9 @@ export async function buildSeoIndex(): Promise<SeoEntry[]> {
     entries.push({
       path: url,
       title: composeTitle(
-        `${course.name} ${subject.name} ${examLabel} Question Paper${subject.subject_code ? ` (${subject.subject_code})` : ''} — Download PDF`
+        `${course.name} ${subject.name} ${examLabel} Question Paper — Download PDF`
       ),
-      description: `Download the ${course.name} ${semLabel} ${subject.name} previous year question paper for ${examLabel}${subject.subject_code ? `, subject code ${subject.subject_code}` : ''}, MDU Rohtak. Free PDF preview and download.`,
+      description: `Download the ${course.name} ${semLabel} ${subject.name} previous year question paper for ${examLabel}, MDU Rohtak. Free PDF preview and download.`,
       type: 'paper',
     });
   }

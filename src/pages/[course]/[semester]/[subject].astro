@@ -36,7 +36,7 @@ export async function getStaticPaths() {
 
 const { course, subject } = Astro.props;
 const papers = await getPapersBySubject(subject.id);
-const slugMap = await getPaperSlugMap(subject.id, subject.subject_code);
+const slugMap = await getPaperSlugMap(subject.id);
 
 // Related subjects in the same semester.
 const semesterSubjects = await getSubjectsBySemester(course.id, subject.semester);
@@ -67,7 +67,7 @@ const jsonLd = {
 
 <BaseLayout
   title={`${course.name} ${semLabel} ${subject.name} Papers — Download PDF`}
-  description={`Download free ${subject.name} (${subject.subject_code ?? course.name}) previous year question papers for ${course.name} ${semLabel}, MDU Rohtak. ${papers.length} papers available.`}
+  description={`Download free ${subject.name} previous year question papers for ${course.name} ${semLabel}, MDU Rohtak. ${papers.length} papers available.`}
   jsonLd={jsonLd}
 >
   <div class="container">
@@ -82,7 +82,6 @@ const jsonLd = {
 
     <header class="page-header">
       <h1><Icon name="file-text" /> {subject.name}</h1>
-      {subject.subject_code && <p>Subject Code: <strong>{subject.subject_code}</strong></p>}
       <div class="page-header-meta">
         <span class="badge">{course.name}</span>
         <span class="badge badge-secondary">{semLabel}</span>

@@ -22,7 +22,6 @@ CREATE TABLE IF NOT EXISTS subjects (
   course_id INTEGER NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
   semester INTEGER NOT NULL CHECK (semester >= 1 AND semester <= 10),
   name TEXT NOT NULL,
-  subject_code TEXT,
   slug TEXT NOT NULL,
   paper_count INTEGER DEFAULT 0,
   created_at TIMESTAMPTZ DEFAULT NOW(),

@@ -17,7 +17,6 @@ const href = subjectUrl(courseSlug, subject.semester, subject.slug);
   <div class="subject-card-main">
     <h3>{subject.name}</h3>
     <div class="subject-card-meta">
-      {subject.subject_code && <span class="badge badge-secondary">{subject.subject_code}</span>}
       <span><Icon name="file-text" size={14} /> {subject.paper_count} papers</span>
       {yearsRange && <span><Icon name="calendar" size={14} /> {yearsRange}</span>}
     </div>

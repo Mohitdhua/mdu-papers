@@ -29,7 +29,7 @@ export function buildPaperContent(
 ): PaperContent {
   const semLabel = semesterLabel(subject.semester);
   const examLabel = `${paper.exam_session} ${paper.year}`;
-  const code = subject.subject_code ? ` (subject code ${subject.subject_code})` : '';
+  const code = '';
   const pages = paper.page_count ? `${paper.page_count}-page` : '';
 
   // Parse admin-entered topics (comma or newline separated).
@@ -99,14 +99,6 @@ export function buildPaperContent(
       `This ${subject.name}${code} paper was set by Maharshi Dayanand University (MDU), ` +
       `Rohtak for the ${course.name} ${semLabel} course in the ${examLabel} session.`,
   });
-
-  // Q5 — subject code (only if available).
-  if (subject.subject_code) {
-    faqs.push({
-      question: `What is the subject code for ${subject.name} in ${course.name}?`,
-      answer: `The subject code for ${subject.name} in ${course.name} ${semLabel} is ${subject.subject_code}.`,
-    });
-  }
 
   return { intro, howToUse, faqs };
 }

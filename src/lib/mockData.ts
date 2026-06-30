@@ -256,7 +256,6 @@ for (const course of mockCourses) {
         course_id: course.id,
         semester,
         name: sub.name,
-        subject_code: sub.code,
         slug: slugify(sub.name),
         paper_count: papersForSubject.length,
       });

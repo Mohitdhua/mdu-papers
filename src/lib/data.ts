@@ -274,7 +274,6 @@ export async function buildSearchIndex(): Promise<SearchEntry[]> {
     courseSlug: course.slug,
     semester: subject.semester,
     subject: subject.name,
-    subjectCode: subject.subject_code,
     year: paper.year,
     session: paper.exam_session,
     url, // now links directly to the individual paper page
@@ -303,26 +302,12 @@ export interface PaperWithContext {
   url: string;
 }
 
-/** Build the unique paper slug, disambiguating collisions within a subject. */
-function computePaperSlugs(papers: Paper[], subjectCode: string | null): Map<number, string> {
+/** Build the unique paper slug (session + year), disambiguating collisions. */
+function computePaperSlugs(papers: Paper[]): Map<number, string> {
   const slugs = new Map<number, string>();
-  const counts = new Map<string, number>();
-
-  // First pass: count base slugs (session + year) to detect collisions.
-  for (const p of papers) {
-    const base = paperSlug({ year: p.year, session: p.exam_session });
-    counts.set(base, (counts.get(base) ?? 0) + 1);
-  }
-
-  // Second pass: append subject code (and id if still colliding) when needed.
   const used = new Set<string>();
   for (const p of papers) {
-    const base = paperSlug({ year: p.year, session: p.exam_session });
-    let slug = base;
-    if ((counts.get(base) ?? 0) > 1) {
-      slug = paperSlug({ year: p.year, session: p.exam_session, code: subjectCode });
-    }
-    // Final guard against any remaining duplicates.
+    let slug = paperSlug({ year: p.year, session: p.exam_session });
     while (used.has(slug)) {
       slug = `${slug}-${p.id}`;
     }
@@ -367,7 +352,7 @@ export async function getAllPapersWithContext(): Promise<PaperWithContext[]> {
     if (!subject) continue;
     const course = courseById.get(subject.course_id);
     if (!course) continue;
-    const slugs = computePaperSlugs(subjectPapers, subject.subject_code);
+    const slugs = computePaperSlugs(subjectPapers);
     for (const paper of subjectPapers) {
       const slug = slugs.get(paper.id)!;
       result.push({
@@ -383,12 +368,9 @@ export async function getAllPapersWithContext(): Promise<PaperWithContext[]> {
 }
 
 /** Map of paperId -> slug for a single subject (used on the subject page). */
-export async function getPaperSlugMap(
-  subjectId: number,
-  subjectCode: string | null
-): Promise<Map<number, string>> {
+export async function getPaperSlugMap(subjectId: number): Promise<Map<number, string>> {
   const papers = await getPapersBySubject(subjectId);
-  return computePaperSlugs(papers, subjectCode);
+  return computePaperSlugs(papers);
 }
 
 // ---------- Solutions ----------

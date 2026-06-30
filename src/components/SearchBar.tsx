@@ -57,8 +57,7 @@ export default function SearchBar({
       new Fuse(index, {
         keys: [
           { name: 'subject', weight: 0.5 },
-          { name: 'course', weight: 0.3 },
-          { name: 'subjectCode', weight: 0.1 },
+          { name: 'course', weight: 0.4 },
           { name: 'year', weight: 0.1 },
         ],
         threshold: 0.4,
@@ -198,7 +197,6 @@ export default function SearchBar({
                   <br />
                   <span class="search-result-meta">
                     {item.course} · Sem {item.semester}
-                    {item.subjectCode ? ` · ${item.subjectCode}` : ''}
                   </span>
                 </span>
                 <span class="badge badge-secondary">View</span>
@@ -241,7 +239,6 @@ export default function SearchBar({
                         <div class="search-result-title">{item.subject}</div>
                         <div class="search-result-meta" style="margin-top: 0.5rem;">
                           Sem {item.semester} · {item.year} · {item.session}
-                          {item.subjectCode ? ` · ${item.subjectCode}` : ''}
                         </div>
                       </a>
                     ))}

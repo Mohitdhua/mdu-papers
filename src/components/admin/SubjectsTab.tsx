@@ -14,7 +14,6 @@ export default function SubjectsTab() {
     course_id: '' as number | '',
     semester: 1,
     name: '',
-    subject_code: '',
     slug: '',
   });
 
@@ -56,14 +55,13 @@ export default function SubjectsTab() {
       course_id: form.course_id as number,
       semester: form.semester,
       name: form.name,
-      subject_code: form.subject_code || null,
       slug: form.slug || slugify(form.name),
     });
     setBusy(false);
     if (error) setMsg({ type: 'error', text: error.message });
     else {
       setMsg({ type: 'success', text: `Subject "${form.name}" added.` });
-      setForm({ ...form, name: '', subject_code: '', slug: '' });
+      setForm({ ...form, name: '', slug: '' });
       loadSubjects();
     }
   };
@@ -113,7 +111,7 @@ export default function SubjectsTab() {
               </select>
             </div>
           </div>
-          <div class="form-row cols-3">
+          <div class="form-row cols-2">
             <div class="form-group">
               <label>Subject Name</label>
               <input
@@ -122,15 +120,6 @@ export default function SubjectsTab() {
                 value={form.name}
                 onInput={(e) => set('name', (e.target as HTMLInputElement).value)}
                 required
-              />
-            </div>
-            <div class="form-group">
-              <label>Subject Code (optional)</label>
-              <input
-                class="form-control"
-                placeholder="BCA-301"
-                value={form.subject_code}
-                onInput={(e) => set('subject_code', (e.target as HTMLInputElement).value)}
               />
             </div>
             <div class="form-group">
@@ -174,7 +163,6 @@ export default function SubjectsTab() {
                 <th>Subject</th>
                 <th>Course</th>
                 <th>Sem</th>
-                <th>Code</th>
                 <th>Papers</th>
                 <th></th>
               </tr>
@@ -185,7 +173,6 @@ export default function SubjectsTab() {
                   <td>{s.name}</td>
                   <td>{courseName(s.course_id)}</td>
                   <td>{s.semester}</td>
-                  <td>{s.subject_code ?? '—'}</td>
                   <td>{s.paper_count}</td>
                   <td>
                     <button class="btn btn-danger btn-sm" onClick={() => remove(s)}>

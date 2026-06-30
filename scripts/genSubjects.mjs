@@ -406,27 +406,13 @@ for (const [slug, sems] of Object.entries(researched)) {
   COURSES[slug] = converted;
 }
 
-// Build a code lookup for researched subjects: `${slug}|${sem}|${name}` -> code
-const codeLookup = {};
-for (const [slug, sems] of Object.entries(researched)) {
-  for (const [sem, rows] of Object.entries(sems)) {
-    for (const r of rows) {
-      const name = Array.isArray(r) ? r[0] : r;
-      const code = Array.isArray(r) && r[1] ? r[1] : '';
-      if (code) codeLookup[`${slug}|${sem}|${name}`] = code;
-    }
-  }
-}
-
 let total = 0;
 for (const [slug, sems] of Object.entries(COURSES)) {
   sql += `-- ${slug}\n`;
   for (const [sem, subjects] of Object.entries(sems)) {
     for (const name of subjects) {
       const subjectSlug = slugify(name);
-      const code = codeLookup[`${slug}|${sem}|${name}`] || '';
-      const codeVal = code ? `'${esc(code)}'` : 'NULL';
-      sql += `INSERT INTO subjects (course_id, semester, name, subject_code, slug) SELECT id, ${sem}, '${esc(name)}', ${codeVal}, '${subjectSlug}' FROM courses WHERE slug='${slug}' ON CONFLICT (course_id, semester, slug) DO NOTHING;\n`;
+      sql += `INSERT INTO subjects (course_id, semester, name, slug) SELECT id, ${sem}, '${esc(name)}', '${subjectSlug}' FROM courses WHERE slug='${slug}' ON CONFLICT (course_id, semester, slug) DO NOTHING;\n`;
       total++;
     }
   }

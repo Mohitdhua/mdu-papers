@@ -38,7 +38,7 @@ const previewTitle = `${subject.name} — ${examLabel}`;
 
 // Other papers of the same subject for quick navigation.
 const allPapers = await getPapersBySubject(subject.id);
-const slugMap = await getPaperSlugMap(subject.id, subject.subject_code);
+const slugMap = await getPaperSlugMap(subject.id);
 const otherPapers = allPapers
   .filter((p) => p.id !== paper.id)
   .map((p) => ({
@@ -47,8 +47,8 @@ const otherPapers = allPapers
   }));
 
 // Rich, keyword-targeted title and description (mirrors high-ranking PYQ sites).
-const seoTitle = `${course.name} ${subject.name} ${examLabel} Question Paper${subject.subject_code ? ` (${subject.subject_code})` : ''} — Download PDF`;
-const seoDesc = `Download the ${course.name} ${semLabel} ${subject.name} previous year question paper for ${examLabel}${subject.subject_code ? `, subject code ${subject.subject_code}` : ''}, MDU Rohtak. Free PDF preview and download.`;
+const seoTitle = `${course.name} ${subject.name} ${examLabel} Question Paper — Download PDF`;
+const seoDesc = `Download the ${course.name} ${semLabel} ${subject.name} previous year question paper for ${examLabel}, MDU Rohtak. Free PDF preview and download.`;
 
 // Unique, content-rich copy + FAQs (fights thin-content).
 const pageContent = buildPaperContent(paper, subject, course);
@@ -107,7 +107,6 @@ const jsonLd = [
       <h1><Icon name="file-text" /> {subject.name} — {examLabel}</h1>
       <p>
         {course.name} · {semLabel} previous year question paper
-        {subject.subject_code && <> · Code: <strong>{subject.subject_code}</strong></>}
       </p>
       <div class="page-header-meta">
         <span class="badge">{course.name}</span>
