@@ -3,7 +3,6 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 import Breadcrumb from '@components/Breadcrumb.astro';
 import Icon from '@components/Icon.astro';
 import AdBanner from '@components/AdBanner.astro';
-import PdfViewer from '@components/PdfViewer.tsx';
 import { SITE } from '@lib/config';
 import { getAllPapersWithContext, getPapersBySubject, getPaperSlugMap, getSolutionByPaper } from '@lib/data';
 import { semesterLabel, semesterToSlug, formatFileSize, paperUrl } from '@lib/utils';
@@ -116,13 +115,6 @@ const jsonLd = [
       </div>
 
       <div class="paper-card-actions">
-        <PdfViewer
-          client:visible
-          pdfUrl={paper.pdf_url}
-          title={previewTitle}
-          paperId={paper.id}
-          buttonLabel="Preview Paper"
-        />
         <a
           href={paper.pdf_url}
           class="btn btn-success btn-download"
