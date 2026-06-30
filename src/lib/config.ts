@@ -5,15 +5,15 @@
  */
 
 export const SITE = {
-  name: 'MDU Papers',
-  shortName: 'MDU Papers',
-  title: 'MDU Papers — Free Previous Year Question Papers | Maharshi Dayanand University',
+  name: 'mdupyq',
+  shortName: 'mdupyq',
+  title: 'mdupyq — Free MDU Previous Year Question Papers | Maharshi Dayanand University',
   description:
     'Download free MDU previous year exam papers for BCA, B.Tech, BSc, BCom, MBA, MCA and all courses. Updated papers from 2015-2024.',
-  url: import.meta.env.PUBLIC_SITE_URL || 'https://mdupapers.com',
+  url: import.meta.env.PUBLIC_SITE_URL || 'https://mdupyq.co',
   ogImage: '/og-image.svg',
-  author: 'MDU Papers Team',
-  email: 'contact@mdupapers.com',
+  author: 'mdupyq Team',
+  email: 'contact@mdupyq.co',
   locale: 'en_IN',
   university: 'Maharshi Dayanand University',
   universityUrl: 'https://mdu.ac.in',

@@ -74,11 +74,11 @@ export async function buildSeoIndex(): Promise<SeoEntry[]> {
 
   // ---- Legal / info pages ----
   const legal: Array<[string, string, string]> = [
-    ['/about', 'About Us', 'Learn about MDU Papers — a free, student-built platform for accessing MDU previous year question papers.'],
-    ['/contact', 'Contact Us', 'Get in touch with the MDU Papers team. Contribute papers, report issues or send feedback.'],
-    ['/privacy', 'Privacy Policy', 'Privacy policy for MDU Papers. Learn how we handle data, cookies and third-party advertising.'],
-    ['/terms', 'Terms of Service', 'Terms of service for using MDU Papers. Educational purpose, no warranties, content removal requests.'],
-    ['/disclaimer', 'Disclaimer', 'Important disclaimer about MDU Papers. This is not the official website of Maharshi Dayanand University.'],
+    ['/about', 'About Us', 'Learn about mdupyq — a free, student-built platform for accessing MDU previous year question papers.'],
+    ['/contact', 'Contact Us', 'Get in touch with the mdupyq team. Contribute papers, report issues or send feedback.'],
+    ['/privacy', 'Privacy Policy', 'Privacy policy for mdupyq. Learn how we handle data, cookies and third-party advertising.'],
+    ['/terms', 'Terms of Service', 'Terms of service for using mdupyq. Educational purpose, no warranties, content removal requests.'],
+    ['/disclaimer', 'Disclaimer', 'Important disclaimer about mdupyq. This is not the official website of Maharshi Dayanand University.'],
   ];
   for (const [path, title, description] of legal) {
     entries.push({ path, title: composeTitle(title), description, type: 'legal' });

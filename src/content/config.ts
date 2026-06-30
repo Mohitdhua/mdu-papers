@@ -7,7 +7,7 @@ const blog = defineCollection({
     description: z.string(),
     pubDate: z.coerce.date(),
     updatedDate: z.coerce.date().optional(),
-    author: z.string().default('MDU Papers Team'),
+    author: z.string().default('mdupyq Team'),
     tags: z.array(z.string()).default([]),
     image: z.string().optional(),
   }),

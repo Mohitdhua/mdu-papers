@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS courses (
   id SERIAL PRIMARY KEY,
   name TEXT NOT NULL,
   full_name TEXT NOT NULL,
-  degree_type TEXT NOT NULL CHECK (degree_type IN ('UG', 'PG')),
+  degree_type TEXT NOT NULL CHECK (degree_type IN ('UG', 'PG', 'Others')),
   slug TEXT NOT NULL UNIQUE,
   total_semesters INTEGER NOT NULL DEFAULT 6,
   icon_emoji TEXT DEFAULT '📚',

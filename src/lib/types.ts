@@ -1,6 +1,6 @@
 /** Shared domain types mirroring the Supabase schema. */
 
-export type DegreeType = 'UG' | 'PG';
+export type DegreeType = 'UG' | 'PG' | 'Others';
 
 export type ExamSession = 'May/June' | 'Nov/Dec' | 'Supplementary' | 'Re-appear';
 

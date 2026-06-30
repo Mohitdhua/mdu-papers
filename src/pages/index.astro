@@ -12,6 +12,7 @@ import { formatFileSize } from '@lib/utils';
 const courses = await getVisibleCourses();
 const ugCourses = courses.filter((c) => c.degree_type === 'UG');
 const pgCourses = courses.filter((c) => c.degree_type === 'PG');
+const othersCourses = courses.filter((c) => c.degree_type === 'Others');
 const recentPapers = await getRecentPapers(8);
 const stats = await getSiteStats();
 
@@ -59,6 +60,9 @@ const posts = (await getAllBlogPosts()).slice(0, 2);
               <button class="course-tab" role="tab" data-tab="pg" aria-selected="false">
                 <Icon name="graduation-cap" size={16} /> Postgraduate ({pgCourses.length})
               </button>
+              <button class="course-tab" role="tab" data-tab="others" aria-selected="false">
+                <Icon name="layers" size={16} /> Others ({othersCourses.length})
+              </button>
             </div>
 
             <div id="home-panel-ug" class="course-panel">
@@ -70,6 +74,12 @@ const posts = (await getAllBlogPosts()).slice(0, 2);
             <div id="home-panel-pg" class="course-panel" hidden>
               <div class="grid grid-cols-2 grid-cols-4">
                 {pgCourses.map((course) => <CourseCard course={course} />)}
+              </div>
+            </div>
+
+            <div id="home-panel-others" class="course-panel" hidden>
+              <div class="grid grid-cols-2 grid-cols-4">
+                {othersCourses.map((course) => <CourseCard course={course} />)}
               </div>
             </div>
           </>
@@ -133,11 +143,12 @@ const posts = (await getAllBlogPosts()).slice(0, 2);
 </BaseLayout>
 
 <script>
-  // Homepage UG/PG course toggle
+  // Homepage UG/PG/Others course toggle
   const tabs = document.querySelectorAll<HTMLButtonElement>('.course-tab');
   const panels = {
     ug: document.getElementById('home-panel-ug'),
     pg: document.getElementById('home-panel-pg'),
+    others: document.getElementById('home-panel-others'),
   };
   tabs.forEach((tab) => {
     tab.addEventListener('click', () => {
@@ -147,9 +158,10 @@ const posts = (await getAllBlogPosts()).slice(0, 2);
       });
       tab.classList.add('active');
       tab.setAttribute('aria-selected', 'true');
-      const key = tab.dataset.tab as 'ug' | 'pg';
+      const key = tab.dataset.tab as 'ug' | 'pg' | 'others';
       panels.ug?.toggleAttribute('hidden', key !== 'ug');
       panels.pg?.toggleAttribute('hidden', key !== 'pg');
+      panels.others?.toggleAttribute('hidden', key !== 'others');
     });
   });
 </script>

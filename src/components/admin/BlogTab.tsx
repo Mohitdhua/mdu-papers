@@ -9,7 +9,7 @@ const empty = {
   title: '',
   description: '',
   content: '',
-  author: 'MDU Papers Team',
+  author: 'mdupyq Team',
   tags: '',
   is_published: true,
 };
@@ -70,7 +70,7 @@ export default function BlogTab() {
       title: form.title,
       description: form.description,
       content: form.content,
-      author: form.author || 'MDU Papers Team',
+      author: form.author || 'mdupyq Team',
       tags,
       is_published: form.is_published,
     });

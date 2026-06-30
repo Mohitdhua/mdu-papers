@@ -220,5 +220,5 @@ export async function deleteBlogPost(id: number) {
   return getClient().from('blog_posts').delete().eq('id', id);
 }
 
-export const DEGREE_TYPES: DegreeType[] = ['UG', 'PG'];
+export const DEGREE_TYPES: DegreeType[] = ['UG', 'PG', 'Others'];
 export const EXAM_SESSIONS: ExamSession[] = ['May/June', 'Nov/Dec', 'Supplementary', 'Re-appear'];
