@@ -60,6 +60,21 @@ export interface Solution {
   updated_at?: string;
 }
 
+/** A blog post stored in the database (admin-managed). */
+export interface BlogPost {
+  id: number;
+  slug: string;
+  title: string;
+  description: string;
+  content: string;
+  author: string;
+  tags: string[];
+  is_published: boolean;
+  pub_date: string;
+  updated_at?: string;
+  created_at?: string;
+}
+
 /** A search index entry generated at build time. */
 export interface SearchEntry {
   course: string;

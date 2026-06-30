@@ -6,7 +6,7 @@ import AdBanner from '@components/AdBanner.astro';
 import DisclaimerBanner from '@components/DisclaimerBanner.astro';
 import Icon from '@components/Icon.astro';
 import { getCourses, getRecentPapers, getSiteStats } from '@lib/data';
-import { getCollection } from 'astro:content';
+import { getAllBlogPosts } from '@lib/blog';
 import { formatFileSize } from '@lib/utils';
 
 const courses = await getCourses();
@@ -15,10 +15,8 @@ const pgCourses = courses.filter((c) => c.degree_type === 'PG');
 const recentPapers = await getRecentPapers(8);
 const stats = await getSiteStats();
 
-// Latest blog posts.
-const posts = (await getCollection('blog'))
-  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
-  .slice(0, 2);
+// Latest blog posts (DB + markdown merged).
+const posts = (await getAllBlogPosts()).slice(0, 2);
 ---
 
 <BaseLayout>
@@ -39,22 +37,27 @@ const posts = (await getCollection('blog'))
   </section>
 
   <div class="container">
-    <!-- ALL COURSES (directory-style: every course clickable up front) -->
+    <!-- ALL COURSES (directory-style with UG/PG toggle) -->
     <section class="section" style="padding-top: var(--space-10);">
-      <div class="section-header">
-        <h2 class="section-title"><Icon name="book-open" /> Undergraduate Courses</h2>
+      <div class="course-tabs" role="tablist" aria-label="Course level">
+        <button class="course-tab active" role="tab" data-tab="ug" aria-selected="true">
+          <Icon name="book-open" size={16} /> Undergraduate ({ugCourses.length})
+        </button>
+        <button class="course-tab" role="tab" data-tab="pg" aria-selected="false">
+          <Icon name="graduation-cap" size={16} /> Postgraduate ({pgCourses.length})
+        </button>
       </div>
-      <div class="grid grid-cols-2 grid-cols-4">
-        {ugCourses.map((course) => <CourseCard course={course} />)}
-      </div>
-    </section>
 
-    <section class="section" style="padding-top: 0;">
-      <div class="section-header">
-        <h2 class="section-title"><Icon name="graduation-cap" /> Postgraduate Courses</h2>
+      <div id="home-panel-ug" class="course-panel">
+        <div class="grid grid-cols-2 grid-cols-4">
+          {ugCourses.map((course) => <CourseCard course={course} />)}
+        </div>
       </div>
-      <div class="grid grid-cols-2 grid-cols-4">
-        {pgCourses.map((course) => <CourseCard course={course} />)}
+
+      <div id="home-panel-pg" class="course-panel" hidden>
+        <div class="grid grid-cols-2 grid-cols-4">
+          {pgCourses.map((course) => <CourseCard course={course} />)}
+        </div>
       </div>
     </section>
 
@@ -95,12 +98,12 @@ const posts = (await getCollection('blog'))
             {posts.map((post) => (
               <a href={`/blog/${post.slug}`} class="card blog-card animate-in">
                 <div class="blog-card-tags">
-                  {post.data.tags?.slice(0, 2).map((t) => <span class="badge">{t}</span>)}
+                  {post.tags?.slice(0, 2).map((t) => <span class="badge">{t}</span>)}
                 </div>
-                <h3>{post.data.title}</h3>
-                <p class="blog-card-excerpt">{post.data.description}</p>
+                <h3>{post.title}</h3>
+                <p class="blog-card-excerpt">{post.description}</p>
                 <div class="blog-card-meta">
-                  <span><Icon name="calendar" size={12} /> {post.data.pubDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                  <span><Icon name="calendar" size={12} /> {post.pubDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                 </div>
               </a>
             ))}
@@ -112,3 +115,25 @@ const posts = (await getCollection('blog'))
     <DisclaimerBanner />
   </div>
 </BaseLayout>
+
+<script>
+  // Homepage UG/PG course toggle
+  const tabs = document.querySelectorAll<HTMLButtonElement>('.course-tab');
+  const panels = {
+    ug: document.getElementById('home-panel-ug'),
+    pg: document.getElementById('home-panel-pg'),
+  };
+  tabs.forEach((tab) => {
+    tab.addEventListener('click', () => {
+      tabs.forEach((t) => {
+        t.classList.remove('active');
+        t.setAttribute('aria-selected', 'false');
+      });
+      tab.classList.add('active');
+      tab.setAttribute('aria-selected', 'true');
+      const key = tab.dataset.tab as 'ug' | 'pg';
+      panels.ug?.toggleAttribute('hidden', key !== 'ug');
+      panels.pg?.toggleAttribute('hidden', key !== 'pg');
+    });
+  });
+</script>

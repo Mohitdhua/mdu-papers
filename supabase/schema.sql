@@ -63,6 +63,20 @@ CREATE TABLE IF NOT EXISTS solutions (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS blog_posts (
+  id SERIAL PRIMARY KEY,
+  slug TEXT NOT NULL UNIQUE,
+  title TEXT NOT NULL,
+  description TEXT NOT NULL,
+  content TEXT NOT NULL,                  -- markdown body
+  author TEXT DEFAULT 'MDU Papers Team',
+  tags TEXT[] DEFAULT '{}',
+  is_published BOOLEAN DEFAULT true,
+  pub_date TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- ---------- Functions ----------
 
 CREATE OR REPLACE FUNCTION increment_download(paper_id INTEGER)
@@ -96,6 +110,7 @@ ALTER TABLE courses ENABLE ROW LEVEL SECURITY;
 ALTER TABLE subjects ENABLE ROW LEVEL SECURITY;
 ALTER TABLE papers ENABLE ROW LEVEL SECURITY;
 ALTER TABLE solutions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE blog_posts ENABLE ROW LEVEL SECURITY;
 
 -- Public read access
 DROP POLICY IF EXISTS "Public read courses" ON courses;
@@ -106,6 +121,8 @@ DROP POLICY IF EXISTS "Public read papers" ON papers;
 CREATE POLICY "Public read papers" ON papers FOR SELECT USING (true);
 DROP POLICY IF EXISTS "Public read solutions" ON solutions;
 CREATE POLICY "Public read solutions" ON solutions FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Public read blog" ON blog_posts;
+CREATE POLICY "Public read blog" ON blog_posts FOR SELECT USING (true);
 
 -- Admin (authenticated) write access
 DROP POLICY IF EXISTS "Admin write courses" ON courses;
@@ -119,6 +136,9 @@ CREATE POLICY "Admin write papers" ON papers FOR ALL
   USING (auth.role() = 'authenticated') WITH CHECK (auth.role() = 'authenticated');
 DROP POLICY IF EXISTS "Admin write solutions" ON solutions;
 CREATE POLICY "Admin write solutions" ON solutions FOR ALL
+  USING (auth.role() = 'authenticated') WITH CHECK (auth.role() = 'authenticated');
+DROP POLICY IF EXISTS "Admin write blog" ON blog_posts;
+CREATE POLICY "Admin write blog" ON blog_posts FOR ALL
   USING (auth.role() = 'authenticated') WITH CHECK (auth.role() = 'authenticated');
 
 -- ---------- Seed data ----------

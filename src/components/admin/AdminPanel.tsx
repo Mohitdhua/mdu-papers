@@ -11,9 +11,10 @@ import LoginForm from './LoginForm';
 import CoursesTab from './CoursesTab';
 import SubjectsTab from './SubjectsTab';
 import PapersTab from './PapersTab';
+import BlogTab from './BlogTab';
 import PublishButton from './PublishButton';
 
-type Tab = 'papers' | 'subjects' | 'courses';
+type Tab = 'papers' | 'subjects' | 'courses' | 'blog';
 
 export default function AdminPanel() {
   const [session, setSession] = useState<Session | null>(null);
@@ -87,11 +88,18 @@ export default function AdminPanel() {
         >
           🎓 Courses
         </button>
+        <button
+          class={`tab-btn ${tab === 'blog' ? 'active' : ''}`}
+          onClick={() => setTab('blog')}
+        >
+          📝 Blog
+        </button>
       </div>
 
       {tab === 'papers' && <PapersTab />}
       {tab === 'subjects' && <SubjectsTab />}
       {tab === 'courses' && <CoursesTab />}
+      {tab === 'blog' && <BlogTab />}
     </div>
   );
 }

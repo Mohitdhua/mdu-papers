@@ -1,5 +1,5 @@
 import { createClient, type SupabaseClient, type Session } from '@supabase/supabase-js';
-import type { Course, Subject, Paper, DegreeType, ExamSession, Solution } from './types';
+import type { Course, Subject, Paper, DegreeType, ExamSession, Solution, BlogPost } from './types';
 
 /**
  * Browser-side Supabase client and admin operations for the upload panel.
@@ -188,6 +188,35 @@ export async function upsertSolution(input: {
 
 export async function deleteSolution(paperId: number) {
   return getClient().from('solutions').delete().eq('paper_id', paperId);
+}
+
+// ---------- Blog ----------
+
+export async function listBlogPosts(): Promise<BlogPost[]> {
+  const { data, error } = await getClient()
+    .from('blog_posts')
+    .select('*')
+    .order('pub_date', { ascending: false });
+  if (error) throw error;
+  return (data as BlogPost[]) ?? [];
+}
+
+export async function upsertBlogPost(input: {
+  id?: number;
+  slug: string;
+  title: string;
+  description: string;
+  content: string;
+  author: string;
+  tags: string[];
+  is_published: boolean;
+}) {
+  const payload = { ...input, updated_at: new Date().toISOString() };
+  return getClient().from('blog_posts').upsert(payload, { onConflict: 'slug' }).select().single();
+}
+
+export async function deleteBlogPost(id: number) {
+  return getClient().from('blog_posts').delete().eq('id', id);
 }
 
 export const DEGREE_TYPES: DegreeType[] = ['UG', 'PG'];

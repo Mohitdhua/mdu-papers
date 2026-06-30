@@ -3,12 +3,10 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 import Breadcrumb from '@components/Breadcrumb.astro';
 import Icon from '@components/Icon.astro';
 import CtaSection from '@components/CtaSection.astro';
-import { getCollection } from 'astro:content';
+import { getAllBlogPosts } from '@lib/blog';
 import { readingTime, formatDate } from '@lib/utils';
 
-const posts = (await getCollection('blog')).sort(
-  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
-);
+const posts = await getAllBlogPosts();
 
 const postsWithMeta = posts.map((post) => ({
   post,
@@ -34,12 +32,12 @@ const postsWithMeta = posts.map((post) => ({
           postsWithMeta.map(({ post, minutes }) => (
             <a href={`/blog/${post.slug}`} class="card blog-card animate-in">
               <div class="blog-card-tags">
-                {post.data.tags.slice(0, 3).map((t) => <span class="badge">{t}</span>)}
+                {post.tags.slice(0, 3).map((t) => <span class="badge">{t}</span>)}
               </div>
-              <h2>{post.data.title}</h2>
-              <p class="blog-card-excerpt">{post.data.description}</p>
+              <h2>{post.title}</h2>
+              <p class="blog-card-excerpt">{post.description}</p>
               <div class="blog-card-meta">
-                <span><Icon name="calendar" size={12} /> {formatDate(post.data.pubDate)}</span>
+                <span><Icon name="calendar" size={12} /> {formatDate(post.pubDate)}</span>
                 <span><Icon name="clock" size={12} /> {minutes} min read</span>
               </div>
             </a>

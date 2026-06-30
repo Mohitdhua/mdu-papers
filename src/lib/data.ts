@@ -19,7 +19,7 @@ export async function getCourses(): Promise<Course[]> {
     if (error) {
       console.warn('[data] getCourses fell back to mock:', error.message);
     } else if (data) {
-      return attachCoursePaperCounts(data as Course[]);
+      return await attachRealPaperCounts(data as Course[]);
     }
   }
   return attachCoursePaperCounts(structuredClone(mockCourses));
@@ -33,6 +33,21 @@ export async function getCourseBySlug(slug: string): Promise<Course | null> {
 export async function getPopularCourses(): Promise<Course[]> {
   const courses = await getCourses();
   return courses.filter((c) => c.is_popular);
+}
+
+/** Real paper counts (Supabase): sum each course's subjects' paper_count. */
+async function attachRealPaperCounts(courses: Course[]): Promise<Course[]> {
+  if (!supabase) return courses;
+  // Pull all subjects once and aggregate per course.
+  const { data, error } = await supabase.from('subjects').select('course_id, paper_count');
+  if (error || !data) {
+    return courses.map((c) => ({ ...c, paper_count: 0 }));
+  }
+  const totals = new Map<number, number>();
+  for (const row of data as { course_id: number; paper_count: number | null }[]) {
+    totals.set(row.course_id, (totals.get(row.course_id) ?? 0) + (row.paper_count ?? 0));
+  }
+  return courses.map((c) => ({ ...c, paper_count: totals.get(c.id) ?? 0 }));
 }
 
 function attachCoursePaperCounts(courses: Course[]): Course[] {
@@ -102,24 +117,39 @@ export async function getPapersBySubject(subjectId: number): Promise<Paper[]> {
 export async function getRecentPapers(limit = 8): Promise<RecentPaper[]> {
   const courses = await getCourses();
   const courseById = new Map(courses.map((c) => [c.id, c]));
-  const subjectById = new Map(mockSubjects.map((s) => [s.id, s]));
 
-  let papers = [...mockPapers];
+  // Use real data when Supabase is configured, else mock.
   if (isSupabaseConfigured && supabase) {
-    const { data, error } = await supabase
+    const { data: papersData } = await supabase
       .from('papers')
       .select('*')
       .order('created_at', { ascending: false })
       .limit(limit);
-    if (!error && data) papers = data as Paper[];
+    const { data: subjectsData } = await supabase.from('subjects').select('*');
+    const subjectById = new Map(
+      ((subjectsData as Subject[]) ?? []).map((s) => [s.id, s])
+    );
+    const result: RecentPaper[] = [];
+    for (const paper of (papersData as Paper[]) ?? []) {
+      const subject = subjectById.get(paper.subject_id);
+      if (!subject) continue;
+      const course = courseById.get(subject.course_id);
+      if (!course) continue;
+      result.push({
+        paper,
+        subject,
+        course,
+        url: subjectUrl(course.slug, subject.semester, subject.slug),
+      });
+    }
+    return result;
   }
 
-  // Sort by year desc as a proxy for recency in mock mode.
-  const sorted = papers
-    .slice()
+  // Mock fallback.
+  const subjectById = new Map(mockSubjects.map((s) => [s.id, s]));
+  const sorted = [...mockPapers]
     .sort((a, b) => b.year - a.year || b.id - a.id)
     .slice(0, limit);
-
   const result: RecentPaper[] = [];
   for (const paper of sorted) {
     const subject = subjectById.get(paper.subject_id);
@@ -144,6 +174,25 @@ export async function getSiteStats(): Promise<{
   subjects: number;
 }> {
   const courses = await getCourses();
+
+  if (isSupabaseConfigured && supabase) {
+    const [{ count: paperCount }, { count: subjectCount }, { data: dl }] = await Promise.all([
+      supabase.from('papers').select('*', { count: 'exact', head: true }),
+      supabase.from('subjects').select('*', { count: 'exact', head: true }),
+      supabase.from('papers').select('download_count'),
+    ]);
+    const downloads = ((dl as { download_count: number }[]) ?? []).reduce(
+      (sum, p) => sum + (p.download_count ?? 0),
+      0
+    );
+    return {
+      papers: paperCount ?? 0,
+      courses: courses.length,
+      downloads,
+      subjects: subjectCount ?? 0,
+    };
+  }
+
   const downloads = mockPapers.reduce((sum, p) => sum + p.download_count, 0);
   return {
     papers: mockPapers.length,
@@ -226,23 +275,36 @@ function computePaperSlugs(papers: Paper[], subjectCode: string | null): Map<num
 export async function getAllPapersWithContext(): Promise<PaperWithContext[]> {
   const courses = await getCourses();
   const courseById = new Map(courses.map((c) => [c.id, c]));
-  const subjectById = new Map(mockSubjects.map((s) => [s.id, s]));
+
+  // Source subjects + papers from Supabase when configured, else mock.
+  let subjects: Subject[] = mockSubjects;
+  let papers: Paper[] = mockPapers;
+  if (isSupabaseConfigured && supabase) {
+    const [{ data: subjectsData }, { data: papersData }] = await Promise.all([
+      supabase.from('subjects').select('*'),
+      supabase.from('papers').select('*'),
+    ]);
+    subjects = (subjectsData as Subject[]) ?? [];
+    papers = (papersData as Paper[]) ?? [];
+  }
+
+  const subjectById = new Map(subjects.map((s) => [s.id, s]));
 
   // Group papers by subject so we can compute collision-free slugs.
   const bySubject = new Map<number, Paper[]>();
-  for (const paper of mockPapers) {
+  for (const paper of papers) {
     if (!bySubject.has(paper.subject_id)) bySubject.set(paper.subject_id, []);
     bySubject.get(paper.subject_id)!.push(paper);
   }
 
   const result: PaperWithContext[] = [];
-  for (const [subjectId, papers] of bySubject) {
+  for (const [subjectId, subjectPapers] of bySubject) {
     const subject = subjectById.get(subjectId);
     if (!subject) continue;
     const course = courseById.get(subject.course_id);
     if (!course) continue;
-    const slugs = computePaperSlugs(papers, subject.subject_code);
-    for (const paper of papers) {
+    const slugs = computePaperSlugs(subjectPapers, subject.subject_code);
+    for (const paper of subjectPapers) {
       const slug = slugs.get(paper.id)!;
       result.push({
         paper,
@@ -292,4 +354,43 @@ export async function getPaperIdsWithSolutions(): Promise<Set<number>> {
     if (!error && data) return new Set(data.map((r) => (r as { paper_id: number }).paper_id));
   }
   return new Set(mockSolutions.filter((s) => s.is_published).map((s) => s.paper_id));
+}
+
+
+// ---------- Blog ----------
+
+import type { BlogPost } from './types';
+
+/** A normalized blog post for rendering, from either Markdown or the DB. */
+export interface UnifiedBlogPost {
+  slug: string;
+  title: string;
+  description: string;
+  author: string;
+  tags: string[];
+  pubDate: Date;
+  /** Raw markdown body (rendered by the page with `marked`). */
+  body: string;
+  source: 'db' | 'markdown';
+}
+
+/** Fetch published blog posts from Supabase (empty if not configured). */
+export async function getDbBlogPosts(): Promise<UnifiedBlogPost[]> {
+  if (!isSupabaseConfigured || !supabase) return [];
+  const { data, error } = await supabase
+    .from('blog_posts')
+    .select('*')
+    .eq('is_published', true)
+    .order('pub_date', { ascending: false });
+  if (error || !data) return [];
+  return (data as BlogPost[]).map((p) => ({
+    slug: p.slug,
+    title: p.title,
+    description: p.description,
+    author: p.author,
+    tags: p.tags ?? [],
+    pubDate: new Date(p.pub_date),
+    body: p.content,
+    source: 'db' as const,
+  }));
 }

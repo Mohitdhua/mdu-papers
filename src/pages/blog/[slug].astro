@@ -5,28 +5,28 @@ import Icon from '@components/Icon.astro';
 import AdBanner from '@components/AdBanner.astro';
 import CtaSection from '@components/CtaSection.astro';
 import { SITE } from '@lib/config';
-import { getCollection } from 'astro:content';
+import { getAllBlogPosts } from '@lib/blog';
+import { renderMarkdown } from '@lib/markdown';
 import { readingTime, formatDate } from '@lib/utils';
 
 export async function getStaticPaths() {
-  const posts = await getCollection('blog');
+  const posts = await getAllBlogPosts();
   return posts.map((post) => ({
     params: { slug: post.slug },
-    props: { post },
+    props: { post, allPosts: posts },
   }));
 }
 
-const { post } = Astro.props;
-const { Content, headings } = await post.render();
+const { post, allPosts } = Astro.props;
+const { html, headings } = await renderMarkdown(post.body);
 const minutes = readingTime(post.body);
 
 // Table of contents from h2 headings.
 const toc = headings.filter((h) => h.depth === 2);
 
 // Related posts (share at least one tag).
-const allPosts = await getCollection('blog');
 const related = allPosts
-  .filter((p) => p.slug !== post.slug && p.data.tags.some((t) => post.data.tags.includes(t)))
+  .filter((p) => p.slug !== post.slug && p.tags.some((t) => post.tags.includes(t)))
   .slice(0, 2);
 
 const shareUrl = new URL(`/blog/${post.slug}`, SITE.url).href;
@@ -34,21 +34,20 @@ const shareUrl = new URL(`/blog/${post.slug}`, SITE.url).href;
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'BlogPosting',
-  headline: post.data.title,
-  description: post.data.description,
-  author: { '@type': 'Organization', name: post.data.author },
+  headline: post.title,
+  description: post.description,
+  author: { '@type': 'Organization', name: post.author },
   publisher: { '@type': 'Organization', name: SITE.name },
-  datePublished: post.data.pubDate.toISOString(),
-  ...(post.data.updatedDate ? { dateModified: post.data.updatedDate.toISOString() } : {}),
+  datePublished: post.pubDate.toISOString(),
   mainEntityOfPage: shareUrl,
 };
 ---
 
 <BaseLayout
-  title={post.data.title}
-  description={post.data.description}
+  title={post.title}
+  description={post.description}
   type="article"
-  publishedTime={post.data.pubDate.toISOString()}
+  publishedTime={post.pubDate.toISOString()}
   jsonLd={jsonLd}
 >
   <div class="container">
@@ -56,19 +55,19 @@ const jsonLd = {
       items={[
         { label: 'Home', href: '/' },
         { label: 'Blog', href: '/blog' },
-        { label: post.data.title },
+        { label: post.title },
       ]}
     />
 
     <article class="article">
       <header class="article-header">
         <div class="blog-card-tags">
-          {post.data.tags.map((t) => <span class="badge">{t}</span>)}
+          {post.tags.map((t) => <span class="badge">{t}</span>)}
         </div>
-        <h1>{post.data.title}</h1>
+        <h1>{post.title}</h1>
         <div class="article-meta">
-          <span><Icon name="users" size={14} /> {post.data.author}</span>
-          <span><Icon name="calendar" size={14} /> {formatDate(post.data.pubDate)}</span>
+          <span><Icon name="users" size={14} /> {post.author}</span>
+          <span><Icon name="calendar" size={14} /> {formatDate(post.pubDate)}</span>
           <span><Icon name="clock" size={14} /> {minutes} min read</span>
         </div>
       </header>
@@ -86,9 +85,7 @@ const jsonLd = {
         )
       }
 
-      <div class="article-body">
-        <Content />
-      </div>
+      <div class="article-body" set:html={html} />
 
       <AdBanner slot="blog-bottom" />
 
@@ -97,7 +94,7 @@ const jsonLd = {
         <span class="text-muted" style="align-self: center; margin-right: 0.5rem;">Share:</span>
         <a
           class="btn btn-secondary"
-          href={`https://wa.me/?text=${encodeURIComponent(post.data.title + ' ' + shareUrl)}`}
+          href={`https://wa.me/?text=${encodeURIComponent(post.title + ' ' + shareUrl)}`}
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -105,7 +102,7 @@ const jsonLd = {
         </a>
         <a
           class="btn btn-secondary"
-          href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.data.title)}&url=${encodeURIComponent(shareUrl)}`}
+          href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=${encodeURIComponent(shareUrl)}`}
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -124,8 +121,8 @@ const jsonLd = {
           <div class="grid grid-cols-1 grid-cols-2">
             {related.map((p) => (
               <a href={`/blog/${p.slug}`} class="card blog-card animate-in">
-                <h3>{p.data.title}</h3>
-                <p class="blog-card-excerpt">{p.data.description}</p>
+                <h3>{p.title}</h3>
+                <p class="blog-card-excerpt">{p.description}</p>
               </a>
             ))}
           </div>
