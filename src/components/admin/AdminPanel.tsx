@@ -39,8 +39,8 @@ export default function AdminPanel() {
         <div class="admin-alert info">
           <strong>Supabase not configured.</strong> Add your <code>PUBLIC_SUPABASE_URL</code> and{' '}
           <code>PUBLIC_SUPABASE_ANON_KEY</code> to <code>.env</code>, run the SQL in{' '}
-          <code>supabase/schema.sql</code> and <code>supabase/storage.sql</code>, then reload this
-          page to manage papers.
+          <code>supabase/schema.sql</code>, then reload this page to manage papers. PDF uploads
+          use Cloudflare R2 — see <code>CLOUDFLARE_R2_SETUP.md</code>.
         </div>
       </div>
     );

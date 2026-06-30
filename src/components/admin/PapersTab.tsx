@@ -7,6 +7,7 @@ import {
   createPaper,
   deletePaper,
   uploadPaperPdf,
+  deletePaperPdf,
   EXAM_SESSIONS,
 } from '@lib/admin';
 import { slugify, semesterLabel, formatFileSize } from '@lib/utils';
@@ -85,16 +86,17 @@ export default function PapersTab() {
     setMsg({ type: 'info', text: 'Uploading PDF…' });
 
     try {
-      // Build a clean storage path: course/sem/subject-session-year.pdf
+      // Build a clean R2 object key: course/sem-N/subject-session-year.pdf
       const sessionSlug = slugify(form.exam_session);
-      const path = `${selectedCourse.slug}/sem-${selectedSubject.semester}/${selectedSubject.slug}-${sessionSlug}-${form.year}.pdf`;
-      const { url, sizeKb } = await uploadPaperPdf(file, path);
+      const key = `${selectedCourse.slug}/sem-${selectedSubject.semester}/${selectedSubject.slug}-${sessionSlug}-${form.year}.pdf`;
+      const { url, sizeKb, key: storedKey } = await uploadPaperPdf(file, key);
 
       const { error } = await createPaper({
         subject_id: form.subject_id as number,
         year: form.year,
         exam_session: form.exam_session,
         pdf_url: url,
+        r2_key: storedKey,
         pdf_size_kb: sizeKb,
         page_count: form.page_count ? Number(form.page_count) : null,
         is_verified: form.is_verified,
@@ -118,8 +120,19 @@ export default function PapersTab() {
   const remove = async (p: Paper) => {
     if (!confirm(`Delete the ${p.exam_session} ${p.year} paper?`)) return;
     const { error } = await deletePaper(p.id);
-    if (error) setMsg({ type: 'error', text: error.message });
-    else listPapers(form.subject_id as number).then(setPapers);
+    if (error) {
+      setMsg({ type: 'error', text: error.message });
+      return;
+    }
+    // Best-effort: also remove the PDF from R2.
+    if (p.r2_key) {
+      try {
+        await deletePaperPdf(p.r2_key);
+      } catch {
+        /* ignore — DB record already gone */
+      }
+    }
+    listPapers(form.subject_id as number).then(setPapers);
   };
 
   return (

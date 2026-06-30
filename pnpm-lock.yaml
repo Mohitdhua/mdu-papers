@@ -29,6 +29,10 @@ importers:
       preact:
         specifier: ^10.24.3
         version: 10.29.3
+    devDependencies:
+      '@cloudflare/workers-types':
+        specifier: ^4.20260630.1
+        version: 4.20260630.1
 
 packages:
 
@@ -154,6 +158,9 @@ packages:
   '@capsizecss/unpack@4.0.1':
     resolution: {integrity: sha512-CuNiSqg7+e1cO/GjffyMOm5Tt2jUF9CWHHnvQ/UkqvtkGfHdgwEC0wpmq7fkN3gxwpRnrAN0WzO3vREKmNolMQ==}
     engines: {node: '>=18'}
+
+  '@cloudflare/workers-types@4.20260630.1':
+    resolution: {integrity: sha512-yl+c9vwvko9UZ0frmtsHuwOh3BRHvNjLrfelAp5Akpqe1+Ho1UWekr3nmjJ1D64CH0Yb0K0oRMV4i7npOFzsog==}
 
   '@emnapi/runtime@1.11.1':
     resolution: {integrity: sha512-vgj7R3y3Wgx24IQaGPA/R6YFXLHVMOZ0uVEyIQPaWs+rd1AzfEMXlAC22FYwO1XkKR6NPsq7mUandH8oIRdZFw==}
@@ -2198,6 +2205,8 @@ snapshots:
   '@capsizecss/unpack@4.0.1':
     dependencies:
       fontkitten: 1.0.3
+
+  '@cloudflare/workers-types@4.20260630.1': {}
 
   '@emnapi/runtime@1.11.1':
     dependencies:

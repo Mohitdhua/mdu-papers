@@ -35,6 +35,8 @@ export interface Paper {
   year: number;
   exam_session: ExamSession;
   pdf_url: string;
+  /** Object key in Cloudflare R2 (used for deletion). */
+  r2_key?: string | null;
   pdf_size_kb: number | null;
   page_count: number | null;
   download_count: number;

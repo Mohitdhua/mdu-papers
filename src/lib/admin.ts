@@ -29,8 +29,8 @@ export function getClient(): SupabaseClient {
   return _client;
 }
 
-/** Name of the Supabase Storage bucket used for paper PDFs. */
-export const PAPERS_BUCKET = 'papers';
+/** Cloudflare R2 serves the PDFs (zero egress cost). Uploads go through the
+ *  authenticated /api/upload Pages Function. */
 
 // ---------- Auth ----------
 
@@ -102,6 +102,7 @@ export async function createPaper(input: {
   year: number;
   exam_session: ExamSession;
   pdf_url: string;
+  r2_key: string | null;
   pdf_size_kb: number | null;
   page_count: number | null;
   is_verified: boolean;
@@ -111,6 +112,51 @@ export async function createPaper(input: {
 
 export async function deletePaper(id: number) {
   return getClient().from('papers').delete().eq('id', id);
+}
+
+/** Get the current user's access token (for authenticating R2 function calls). */
+async function getAccessToken(): Promise<string> {
+  const { data } = await getClient().auth.getSession();
+  const token = data.session?.access_token;
+  if (!token) throw new Error('Not signed in.');
+  return token;
+}
+
+/**
+ * Upload a PDF to Cloudflare R2 via the authenticated Pages Function.
+ * R2 has zero egress cost, so serving these files is free regardless of traffic.
+ * Returns the public URL and the object key (stored for later deletion).
+ */
+export async function uploadPaperPdf(
+  file: File,
+  key: string
+): Promise<{ url: string; sizeKb: number; key: string }> {
+  const token = await getAccessToken();
+  const form = new FormData();
+  form.append('file', file);
+  form.append('key', key);
+
+  const res = await fetch('/api/upload', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    body: form,
+  });
+  const data = (await res.json()) as { url?: string; sizeKb?: number; key?: string; error?: string };
+  if (!res.ok || data.error) {
+    throw new Error(data.error || 'Upload failed.');
+  }
+  return { url: data.url!, sizeKb: data.sizeKb!, key: data.key! };
+}
+
+/** Delete a PDF object from R2 via the authenticated Pages Function. */
+export async function deletePaperPdf(key: string): Promise<void> {
+  if (!key) return;
+  const token = await getAccessToken();
+  await fetch('/api/delete', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ key }),
+  });
 }
 
 // ---------- Solutions ----------
@@ -142,25 +188,6 @@ export async function upsertSolution(input: {
 
 export async function deleteSolution(paperId: number) {
   return getClient().from('solutions').delete().eq('paper_id', paperId);
-}
-
-/**
- * Upload a PDF to Supabase Storage and return its public URL.
- * The bucket must exist and be public (see supabase/storage.sql).
- */
-export async function uploadPaperPdf(
-  file: File,
-  path: string
-): Promise<{ url: string; sizeKb: number }> {
-  const client = getClient();
-  const { error } = await client.storage.from(PAPERS_BUCKET).upload(path, file, {
-    cacheControl: '3600',
-    upsert: true,
-    contentType: 'application/pdf',
-  });
-  if (error) throw error;
-  const { data } = client.storage.from(PAPERS_BUCKET).getPublicUrl(path);
-  return { url: data.publicUrl, sizeKb: Math.round(file.size / 1024) };
 }
 
 export const DEGREE_TYPES: DegreeType[] = ['UG', 'PG'];

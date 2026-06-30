@@ -69,9 +69,17 @@ When the Supabase variables still contain placeholder values, the app uses mock 
 1. Create a project at [supabase.com](https://supabase.com).
 2. Open the SQL editor and run [`supabase/schema.sql`](./supabase/schema.sql). This creates
    all tables, functions, triggers, RLS policies and seeds the course list.
-3. Run [`supabase/storage.sql`](./supabase/storage.sql) to create the public `papers` storage
-   bucket and its access policies.
-4. Fill in your `.env` with the Supabase URL + anon key and rebuild.
+3. Set up **Cloudflare R2** for PDF storage (zero egress cost) — see
+   [`CLOUDFLARE_R2_SETUP.md`](./CLOUDFLARE_R2_SETUP.md).
+4. Fill in your `.env` with the Supabase URL + anon key and R2 public URL, then rebuild.
+
+### Why Supabase + R2?
+
+- **Supabase** stores only metadata (courses, subjects, paper records) and handles admin
+  auth — small data, so its egress stays well within the free tier.
+- **Cloudflare R2** stores the actual PDF files. R2 has **$0 egress cost**, so serving
+  papers to thousands of students is free. Uploads are handled by an authenticated
+  Cloudflare Pages Function (`functions/api/upload.ts`).
 
 ## 🔐 Admin Panel (Upload Papers)
 
@@ -91,7 +99,8 @@ Supabase Auth + Row Level Security.
 - ➕ Add / delete **courses** (with degree type, semesters, emoji, popular flag)
 - ➕ Add / delete **subjects** (per course + semester, with subject code)
 - 📄 **Upload paper PDFs** — choose course → subject → year → session, attach the PDF, and it's
-  uploaded to Supabase Storage and recorded in the database automatically.
+  uploaded to **Cloudflare R2** (zero egress) via an authenticated Pages Function, then recorded
+  in the database automatically.
 
 > **Publishing note:** Because the public site is statically generated (SSG), newly uploaded
 > papers appear after the next **build/deploy**. On Cloudflare Pages you can trigger a rebuild

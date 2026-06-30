@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS papers (
   year INTEGER NOT NULL CHECK (year >= 2015 AND year <= 2030),
   exam_session TEXT NOT NULL CHECK (exam_session IN ('May/June', 'Nov/Dec', 'Supplementary', 'Re-appear')),
   pdf_url TEXT NOT NULL,
+  r2_key TEXT,                           -- object key in Cloudflare R2 (for deletion)
   pdf_size_kb INTEGER,
   page_count INTEGER,
   download_count INTEGER DEFAULT 0,
