@@ -6,6 +6,7 @@ import AdBanner from '@components/AdBanner.astro';
 import { SITE } from '@lib/config';
 import { getAllPapersWithContext, getPapersBySubject, getPaperSlugMap, getSolutionByPaper } from '@lib/data';
 import { semesterLabel, semesterToSlug, formatFileSize, paperUrl } from '@lib/utils';
+import { buildPaperContent } from '@lib/paperContent';
 import { marked } from 'marked';
 
 export async function getStaticPaths() {
@@ -49,6 +50,9 @@ const otherPapers = allPapers
 const seoTitle = `${course.name} ${subject.name} ${examLabel} Question Paper${subject.subject_code ? ` (${subject.subject_code})` : ''} — Download PDF`;
 const seoDesc = `Download the ${course.name} ${semLabel} ${subject.name} previous year question paper for ${examLabel}${subject.subject_code ? `, subject code ${subject.subject_code}` : ''}, MDU Rohtak. Free PDF preview and download.`;
 
+// Unique, content-rich copy + FAQs (fights thin-content).
+const pageContent = buildPaperContent(paper, subject, course);
+
 // Schema.org: describe the paper as a digital document with breadcrumbs.
 const jsonLd = [
   {
@@ -74,6 +78,15 @@ const jsonLd = [
       { '@type': 'ListItem', position: 4, name: subject.name, item: `${SITE.url}${subjUrl}` },
       { '@type': 'ListItem', position: 5, name: examLabel },
     ],
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: pageContent.faqs.map((f) => ({
+      '@type': 'Question',
+      name: f.question,
+      acceptedAnswer: { '@type': 'Answer', text: f.answer },
+    })),
   },
 ];
 ---
@@ -191,24 +204,31 @@ const jsonLd = [
       )
     }
 
-    <!-- About this paper (textual content for SEO depth) -->
+    <!-- About this paper (unique, content-rich for SEO depth) -->
     <section class="section" style="padding-top: 0;">
       <h2 class="section-title"><Icon name="info" /> About This Paper</h2>
       <div class="prose" style="margin-inline: 0;">
+        <p>{pageContent.intro}</p>
+        <p>{pageContent.howToUse}</p>
         <p>
-          This is the official-format previous year question paper for
-          <strong>{subject.name}</strong>{subject.subject_code ? ` (${subject.subject_code})` : ''},
-          part of the {course.full_name} ({course.name}) {semLabel} curriculum at
-          Maharshi Dayanand University, Rohtak. It was held in the
-          <strong>{paper.exam_session} {paper.year}</strong> examination session.
+          Browse <a href={subjUrl}>all {subject.name} papers</a> or explore other
+          <a href={semUrl}> {course.name} {semLabel} subjects</a>.
         </p>
-        <p>
-          Use this paper to understand the exam pattern, important topics and the type of
-          questions asked. For the best results, solve it under timed conditions and compare
-          your answers with your study material. Browse
-          <a href={subjUrl}>all {subject.name} papers</a> or explore other
-          <a href={semUrl}>{course.name} {semLabel} subjects</a>.
-        </p>
+      </div>
+    </section>
+
+    <!-- FAQs (also emitted as FAQPage structured data) -->
+    <section class="section" style="padding-top: 0;">
+      <h2 class="section-title"><Icon name="info" /> Frequently Asked Questions</h2>
+      <div class="faq-list">
+        {
+          pageContent.faqs.map((faq) => (
+            <details class="faq-item">
+              <summary>{faq.question}</summary>
+              <p>{faq.answer}</p>
+            </details>
+          ))
+        }
       </div>
     </section>
 
