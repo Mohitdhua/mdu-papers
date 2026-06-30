@@ -30,6 +30,7 @@ export default function PapersTab() {
     year: CURRENT_YEAR,
     exam_session: 'Nov/Dec' as ExamSession,
     page_count: '' as number | '',
+    topics: '',
     is_verified: true,
   });
 
@@ -97,6 +98,7 @@ export default function PapersTab() {
         exam_session: form.exam_session,
         pdf_url: url,
         r2_key: storedKey,
+        topics: form.topics.trim() || null,
         pdf_size_kb: sizeKb,
         page_count: form.page_count ? Number(form.page_count) : null,
         is_verified: form.is_verified,
@@ -108,7 +110,7 @@ export default function PapersTab() {
         text: `Uploaded "${selectedSubject.name} ${form.exam_session} ${form.year}". Rebuild the site to publish it.`,
       });
       setFile(null);
-      setForm((f) => ({ ...f, page_count: '' }));
+      setForm((f) => ({ ...f, page_count: '', topics: '' }));
       listPapers(form.subject_id as number).then(setPapers);
     } catch (err) {
       setMsg({ type: 'error', text: (err as Error).message });
@@ -215,6 +217,19 @@ export default function PapersTab() {
                 }}
               />
             </div>
+          </div>
+
+          <div class="form-group">
+            <label>Main Topics Asked (optional, comma separated)</label>
+            <input
+              class="form-control"
+              placeholder="e.g. Matrices, Differential Equations, Vector Calculus"
+              value={form.topics}
+              onInput={(e) => set('topics', (e.target as HTMLInputElement).value)}
+            />
+            <p class="text-muted" style="font-size: 0.75rem; margin-top: 0.25rem;">
+              Listing the real topics from this paper creates unique page content (great for SEO).
+            </p>
           </div>
 
           <div class="form-group">

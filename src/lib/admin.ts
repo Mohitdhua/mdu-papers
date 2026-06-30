@@ -103,6 +103,7 @@ export async function createPaper(input: {
   exam_session: ExamSession;
   pdf_url: string;
   r2_key: string | null;
+  topics: string | null;
   pdf_size_kb: number | null;
   page_count: number | null;
   is_verified: boolean;

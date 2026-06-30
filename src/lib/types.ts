@@ -37,6 +37,8 @@ export interface Paper {
   pdf_url: string;
   /** Object key in Cloudflare R2 (used for deletion). */
   r2_key?: string | null;
+  /** Comma/line separated main topics asked in this paper (admin-entered). */
+  topics?: string | null;
   pdf_size_kb: number | null;
   page_count: number | null;
   download_count: number;

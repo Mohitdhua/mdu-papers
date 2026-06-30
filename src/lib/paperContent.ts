@@ -32,6 +32,16 @@ export function buildPaperContent(
   const code = subject.subject_code ? ` (subject code ${subject.subject_code})` : '';
   const pages = paper.page_count ? `${paper.page_count}-page` : '';
 
+  // Parse admin-entered topics (comma or newline separated).
+  const topics = (paper.topics ?? '')
+    .split(/[,\n]/)
+    .map((t) => t.trim())
+    .filter(Boolean);
+  const hasTopics = topics.length > 0;
+  const topicsSentence = hasTopics
+    ? topics.slice(0, -1).join(', ') + (topics.length > 1 ? ' and ' : '') + topics[topics.length - 1]
+    : '';
+
   const intro =
     `This page provides the ${course.name} ${semLabel} ${subject.name}${code} ` +
     `previous year question paper from the ${examLabel} examination conducted by ` +
@@ -48,29 +58,49 @@ export function buildPaperContent(
     `years of ${subject.name} papers reveals which questions and topics repeat most often ` +
     `in MDU ${course.name} ${semLabel} examinations.`;
 
-  const faqs: PaperFaq[] = [
-    {
-      question: `How can I download the ${subject.name} ${examLabel} question paper?`,
-      answer:
-        `Click the "Download PDF" button on this page to download the ${course.name} ` +
-        `${semLabel} ${subject.name} ${examLabel} previous year question paper for free. ` +
-        `You can also preview the full paper directly on this page before downloading.`,
-    },
-    {
-      question: `Is the ${subject.name} previous year paper useful for exam preparation?`,
-      answer:
-        `Yes. Previous year papers like this ${subject.name} ${paper.year} paper are one of ` +
-        `the most effective ways to prepare for MDU ${course.name} ${semLabel} exams, as they ` +
-        `reveal the exam pattern, marking scheme and commonly repeated questions.`,
-    },
-    {
-      question: `Which university conducted this ${subject.name} examination?`,
-      answer:
-        `This ${subject.name}${code} paper was set by Maharshi Dayanand University (MDU), ` +
-        `Rohtak for the ${course.name} ${semLabel} course in the ${examLabel} session.`,
-    },
-  ];
+  // --- Dynamic FAQs: questions are templated per course/subject/year,
+  //     answers use the admin-entered topics when available (unique content). ---
+  const faqs: PaperFaq[] = [];
 
+  // Q1 — main topics (answer is unique when topics are provided).
+  faqs.push({
+    question: `What were the main topics asked in the ${course.name} ${semLabel} ${subject.name} ${examLabel} paper?`,
+    answer: hasTopics
+      ? `The ${subject.name} ${examLabel} paper covered topics such as ${topicsSentence}. ` +
+        `Reviewing these areas will help you focus your preparation for the ${course.name} ` +
+        `${semLabel} ${subject.name} examination.`
+      : `This ${subject.name} ${examLabel} paper covers the core topics from the ${course.name} ` +
+        `${semLabel} syllabus. Preview or download the paper above to see the exact questions ` +
+        `and topics that were asked.`,
+  });
+
+  // Q2 — download.
+  faqs.push({
+    question: `How can I download the ${subject.name} ${examLabel} question paper?`,
+    answer:
+      `Click the "Download PDF" button on this page to download the ${course.name} ` +
+      `${semLabel} ${subject.name} ${examLabel} previous year question paper for free. ` +
+      `You can also preview the full paper directly on this page before downloading.`,
+  });
+
+  // Q3 — usefulness.
+  faqs.push({
+    question: `Is the ${subject.name} previous year paper useful for exam preparation?`,
+    answer:
+      `Yes. Previous year papers like this ${subject.name} ${paper.year} paper are one of ` +
+      `the most effective ways to prepare for MDU ${course.name} ${semLabel} exams, as they ` +
+      `reveal the exam pattern, marking scheme and commonly repeated questions.`,
+  });
+
+  // Q4 — university / session.
+  faqs.push({
+    question: `Which university conducted this ${subject.name} examination?`,
+    answer:
+      `This ${subject.name}${code} paper was set by Maharshi Dayanand University (MDU), ` +
+      `Rohtak for the ${course.name} ${semLabel} course in the ${examLabel} session.`,
+  });
+
+  // Q5 — subject code (only if available).
   if (subject.subject_code) {
     faqs.push({
       question: `What is the subject code for ${subject.name} in ${course.name}?`,
