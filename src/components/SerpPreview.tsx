@@ -109,6 +109,7 @@ export default function SerpPreview({ siteUrl, siteName, indexUrl = '/seo-index.
             <input
               type="search"
               class="search-input"
+              aria-label="Filter SEO entries by path, title or description"
               placeholder="Filter by path, title or description…"
               value={query}
               onInput={(e) => setQuery((e.target as HTMLInputElement).value)}
@@ -119,24 +120,27 @@ export default function SerpPreview({ siteUrl, siteName, indexUrl = '/seo-index.
           <button
             class={device === 'desktop' ? 'active' : ''}
             onClick={() => setDevice('desktop')}
+            aria-pressed={device === 'desktop'}
           >
             🖥️ Desktop
           </button>
           <button
             class={device === 'mobile' ? 'active' : ''}
             onClick={() => setDevice('mobile')}
+            aria-pressed={device === 'mobile'}
           >
             📱 Mobile
           </button>
         </div>
       </div>
 
-      <div class="serp-filters">
+      <div class="serp-filters" role="group" aria-label="Page types">
         {TYPES.map((t) => (
           <button
             key={t.key}
             class={`serp-filter-btn ${type === t.key ? 'active' : ''}`}
             onClick={() => setType(t.key)}
+            aria-pressed={type === t.key}
           >
             {t.label}
           </button>
