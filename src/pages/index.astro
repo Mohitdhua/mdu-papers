@@ -5,11 +5,11 @@ import CourseCard from '@components/CourseCard.astro';
 import AdBanner from '@components/AdBanner.astro';
 import DisclaimerBanner from '@components/DisclaimerBanner.astro';
 import Icon from '@components/Icon.astro';
-import { getCourses, getRecentPapers, getSiteStats } from '@lib/data';
+import { getVisibleCourses, getRecentPapers, getSiteStats } from '@lib/data';
 import { getAllBlogPosts } from '@lib/blog';
 import { formatFileSize } from '@lib/utils';
 
-const courses = await getCourses();
+const courses = await getVisibleCourses();
 const ugCourses = courses.filter((c) => c.degree_type === 'UG');
 const pgCourses = courses.filter((c) => c.degree_type === 'PG');
 const recentPapers = await getRecentPapers(8);
@@ -39,26 +39,42 @@ const posts = (await getAllBlogPosts()).slice(0, 2);
   <div class="container">
     <!-- ALL COURSES (directory-style with UG/PG toggle) -->
     <section class="section" style="padding-top: var(--space-10);">
-      <div class="course-tabs" role="tablist" aria-label="Course level">
-        <button class="course-tab active" role="tab" data-tab="ug" aria-selected="true">
-          <Icon name="book-open" size={16} /> Undergraduate ({ugCourses.length})
-        </button>
-        <button class="course-tab" role="tab" data-tab="pg" aria-selected="false">
-          <Icon name="graduation-cap" size={16} /> Postgraduate ({pgCourses.length})
-        </button>
-      </div>
+      {
+        courses.length === 0 ? (
+          <div class="empty-state">
+            <div class="empty-icon">📚</div>
+            <h3>Papers coming soon</h3>
+            <p class="text-muted">
+              We're adding question papers right now. Check back shortly, or use search to
+              look for a specific paper.
+            </p>
+            <a href="/search" class="btn btn-primary mt-8">Search Papers</a>
+          </div>
+        ) : (
+          <>
+            <div class="course-tabs" role="tablist" aria-label="Course level">
+              <button class="course-tab active" role="tab" data-tab="ug" aria-selected="true">
+                <Icon name="book-open" size={16} /> Undergraduate ({ugCourses.length})
+              </button>
+              <button class="course-tab" role="tab" data-tab="pg" aria-selected="false">
+                <Icon name="graduation-cap" size={16} /> Postgraduate ({pgCourses.length})
+              </button>
+            </div>
 
-      <div id="home-panel-ug" class="course-panel">
-        <div class="grid grid-cols-2 grid-cols-4">
-          {ugCourses.map((course) => <CourseCard course={course} />)}
-        </div>
-      </div>
+            <div id="home-panel-ug" class="course-panel">
+              <div class="grid grid-cols-2 grid-cols-4">
+                {ugCourses.map((course) => <CourseCard course={course} />)}
+              </div>
+            </div>
 
-      <div id="home-panel-pg" class="course-panel" hidden>
-        <div class="grid grid-cols-2 grid-cols-4">
-          {pgCourses.map((course) => <CourseCard course={course} />)}
-        </div>
-      </div>
+            <div id="home-panel-pg" class="course-panel" hidden>
+              <div class="grid grid-cols-2 grid-cols-4">
+                {pgCourses.map((course) => <CourseCard course={course} />)}
+              </div>
+            </div>
+          </>
+        )
+      }
     </section>
 
     <AdBanner slot="home-mid" />

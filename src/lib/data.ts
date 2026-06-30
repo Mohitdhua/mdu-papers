@@ -11,6 +11,48 @@ import { subjectUrl, paperUrl, paperSlug } from './utils';
  * These are all read functions intended to run at build time (SSG).
  */
 
+/**
+ * "Content gating": when running on the real backend we only publish courses
+ * and subjects that actually have at least one paper (avoids thin/empty pages
+ * that hurt SEO). In mock/dev mode (Supabase not configured) we show everything
+ * so the full design is visible during development.
+ */
+const GATE_EMPTY = isSupabaseConfigured;
+
+/** Cache of subjectIds that have >=1 paper (built once per build run). */
+let _subjectsWithPapers: Set<number> | null = null;
+async function subjectsWithPapers(): Promise<Set<number>> {
+  if (_subjectsWithPapers) return _subjectsWithPapers;
+  const ids = new Set<number>();
+  if (isSupabaseConfigured && supabase) {
+    const { data } = await supabase.from('papers').select('subject_id');
+    for (const row of (data as { subject_id: number }[]) ?? []) ids.add(row.subject_id);
+  } else {
+    for (const p of mockPapers) ids.add(p.subject_id);
+  }
+  _subjectsWithPapers = ids;
+  return ids;
+}
+
+/** Cache of courseIds that have >=1 paper. */
+let _coursesWithPapers: Set<number> | null = null;
+async function coursesWithPapers(): Promise<Set<number>> {
+  if (_coursesWithPapers) return _coursesWithPapers;
+  const subjIds = await subjectsWithPapers();
+  // Map subjects -> course.
+  let subjects: Subject[] = mockSubjects;
+  if (isSupabaseConfigured && supabase) {
+    const { data } = await supabase.from('subjects').select('id, course_id');
+    subjects = (data as Subject[]) ?? [];
+  }
+  const ids = new Set<number>();
+  for (const s of subjects) {
+    if (subjIds.has(s.id)) ids.add(s.course_id);
+  }
+  _coursesWithPapers = ids;
+  return ids;
+}
+
 // ---------- Courses ----------
 
 export async function getCourses(): Promise<Course[]> {
@@ -31,8 +73,19 @@ export async function getCourseBySlug(slug: string): Promise<Course | null> {
 }
 
 export async function getPopularCourses(): Promise<Course[]> {
-  const courses = await getCourses();
+  const courses = await getVisibleCourses();
   return courses.filter((c) => c.is_popular);
+}
+
+/**
+ * Courses to actually publish/list. In production this excludes courses with
+ * zero papers (avoids empty pages). In dev/mock mode returns all courses.
+ */
+export async function getVisibleCourses(): Promise<Course[]> {
+  const courses = await getCourses();
+  if (!GATE_EMPTY) return courses;
+  const allowed = await coursesWithPapers();
+  return courses.filter((c) => allowed.has(c.id));
 }
 
 /** Real paper counts (Supabase): sum each course's subjects' paper_count. */
@@ -73,8 +126,19 @@ export async function getSubjectsByCourse(courseId: number): Promise<Subject[]> 
   return mockSubjects.filter((s) => s.course_id === courseId);
 }
 
-export async function getSubjectsBySemester(courseId: number, semester: number): Promise<Subject[]> {
+/**
+ * Subjects to actually publish for a course. In production this excludes
+ * subjects with zero papers; in dev/mock mode returns all subjects.
+ */
+export async function getVisibleSubjectsByCourse(courseId: number): Promise<Subject[]> {
   const subjects = await getSubjectsByCourse(courseId);
+  if (!GATE_EMPTY) return subjects;
+  const allowed = await subjectsWithPapers();
+  return subjects.filter((s) => allowed.has(s.id));
+}
+
+export async function getSubjectsBySemester(courseId: number, semester: number): Promise<Subject[]> {
+  const subjects = await getVisibleSubjectsByCourse(courseId);
   return subjects
     .filter((s) => s.semester === semester)
     .sort((a, b) => b.paper_count - a.paper_count);

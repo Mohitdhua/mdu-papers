@@ -7,8 +7,8 @@ import AdBanner from '@components/AdBanner.astro';
 import CtaSection from '@components/CtaSection.astro';
 import { SITE } from '@lib/config';
 import {
-  getCourses,
-  getSubjectsByCourse,
+  getVisibleCourses,
+  getVisibleSubjectsByCourse,
   getSubjectsBySemester,
   getPapersBySubject,
   getPaperSlugMap,
@@ -16,10 +16,10 @@ import {
 import { semesterLabel, semesterToSlug, subjectUrl, paperUrl } from '@lib/utils';
 
 export async function getStaticPaths() {
-  const courses = await getCourses();
+  const courses = await getVisibleCourses();
   const paths = [];
   for (const course of courses) {
-    const subjects = await getSubjectsByCourse(course.id);
+    const subjects = await getVisibleSubjectsByCourse(course.id);
     for (const subject of subjects) {
       paths.push({
         params: {

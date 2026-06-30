@@ -4,9 +4,9 @@ import Breadcrumb from '@components/Breadcrumb.astro';
 import CourseCard from '@components/CourseCard.astro';
 import Icon from '@components/Icon.astro';
 import CtaSection from '@components/CtaSection.astro';
-import { getCourses } from '@lib/data';
+import { getVisibleCourses } from '@lib/data';
 
-const courses = await getCourses();
+const courses = await getVisibleCourses();
 const ugCourses = courses.filter((c) => c.degree_type === 'UG');
 const pgCourses = courses.filter((c) => c.degree_type === 'PG');
 ---

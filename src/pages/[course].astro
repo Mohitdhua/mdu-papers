@@ -5,11 +5,11 @@ import Icon from '@components/Icon.astro';
 import AdBanner from '@components/AdBanner.astro';
 import CtaSection from '@components/CtaSection.astro';
 import { SITE } from '@lib/config';
-import { getCourses, getSubjectsByCourse } from '@lib/data';
+import { getVisibleCourses, getVisibleSubjectsByCourse } from '@lib/data';
 import { semesterLabel, semesterToSlug, formatNumber } from '@lib/utils';
 
 export async function getStaticPaths() {
-  const courses = await getCourses();
+  const courses = await getVisibleCourses();
   return courses.map((course) => ({
     params: { course: course.slug },
     props: { course },
@@ -17,7 +17,7 @@ export async function getStaticPaths() {
 }
 
 const { course } = Astro.props;
-const subjects = await getSubjectsByCourse(course.id);
+const subjects = await getVisibleSubjectsByCourse(course.id);
 
 // Build per-semester aggregates.
 const semesters = Array.from({ length: course.total_semesters }, (_, i) => i + 1).map((sem) => {
