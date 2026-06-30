@@ -1,0 +1,62 @@
+---
+import type { Paper } from '@lib/types';
+import Icon from './Icon.astro';
+import PdfViewer from './PdfViewer.tsx';
+import { formatFileSize } from '@lib/utils';
+
+interface Props {
+  paper: Paper;
+  subjectName: string;
+  /** Canonical URL to the dedicated paper page. */
+  paperHref?: string;
+}
+
+const { paper, subjectName, paperHref } = Astro.props;
+const examLabel = `${paper.exam_session} ${paper.year}`;
+const previewTitle = `${subjectName} — ${examLabel}`;
+---
+
+<article class="card paper-card animate-in">
+  <div class="paper-card-header">
+    <h3 class="paper-card-title">
+      <Icon name="file-text" size={20} class="text-muted" />
+      {paperHref ? <a href={paperHref}>{examLabel} Exam</a> : `${examLabel} Exam`}
+    </h3>
+    {paper.is_verified && <span class="badge badge-success"><Icon name="file-check" size={12} /> Verified</span>}
+  </div>
+
+  <div class="paper-card-meta">
+    <span><Icon name="calendar" size={14} /> Session: {paper.exam_session} {paper.year}</span>
+    <span><Icon name="layers" size={14} /> Size: {formatFileSize(paper.pdf_size_kb)}</span>
+    {paper.page_count && <span><Icon name="file-text" size={14} /> {paper.page_count} pages</span>}
+    <span><Icon name="download" size={14} /> {paper.download_count} downloads</span>
+  </div>
+
+  <div class="paper-card-actions">
+    {
+      paperHref ? (
+        <a href={paperHref} class="btn btn-secondary">
+          <Icon name="eye" size={18} /> View & Preview
+        </a>
+      ) : (
+        <PdfViewer
+          client:visible
+          pdfUrl={paper.pdf_url}
+          title={previewTitle}
+          paperId={paper.id}
+        />
+      )
+    }
+    <a
+      href={paper.pdf_url}
+      class="btn btn-success btn-download"
+      target="_blank"
+      rel="noopener noreferrer"
+      data-paper-id={paper.id}
+      data-download
+    >
+      <Icon name="download" size={18} />
+      Download PDF
+    </a>
+  </div>
+</article>

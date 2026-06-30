@@ -1,0 +1,125 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Breadcrumb from '@components/Breadcrumb.astro';
+import Icon from '@components/Icon.astro';
+import AdBanner from '@components/AdBanner.astro';
+import CtaSection from '@components/CtaSection.astro';
+import { SITE } from '@lib/config';
+import { getCourses, getSubjectsByCourse } from '@lib/data';
+import { semesterLabel, semesterToSlug, formatNumber } from '@lib/utils';
+
+export async function getStaticPaths() {
+  const courses = await getCourses();
+  return courses.map((course) => ({
+    params: { course: course.slug },
+    props: { course },
+  }));
+}
+
+const { course } = Astro.props;
+const subjects = await getSubjectsByCourse(course.id);
+
+// Build per-semester aggregates.
+const semesters = Array.from({ length: course.total_semesters }, (_, i) => i + 1).map((sem) => {
+  const semSubjects = subjects.filter((s) => s.semester === sem);
+  const paperCount = semSubjects.reduce((sum, s) => sum + s.paper_count, 0);
+  return { sem, subjectCount: semSubjects.length, paperCount };
+});
+
+// Popular subjects (by paper count) across the course.
+const popularSubjects = [...subjects].sort((a, b) => b.paper_count - a.paper_count).slice(0, 6);
+const totalPapers = subjects.reduce((sum, s) => sum + s.paper_count, 0);
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: `${course.name} Previous Year Papers`,
+  description: `Download previous year question papers for ${course.full_name}, MDU Rohtak`,
+  provider: { '@type': 'EducationalOrganization', name: SITE.university },
+};
+---
+
+<BaseLayout
+  title={`${course.name} Previous Year Papers — All Semesters`}
+  description={`Download free ${course.full_name} (${course.name}) previous year question papers for all ${course.total_semesters} semesters at MDU Rohtak.`}
+  jsonLd={jsonLd}
+>
+  <div class="container">
+    <Breadcrumb
+      items={[
+        { label: 'Home', href: '/' },
+        { label: 'Courses', href: '/courses' },
+        { label: course.name },
+      ]}
+    />
+
+    <header class="page-header">
+      <h1>
+        <span aria-hidden="true">{course.icon_emoji}</span>
+        {course.name}
+      </h1>
+      <p>{course.full_name}</p>
+      <div class="page-header-meta">
+        <span class={`badge ${course.degree_type === 'PG' ? 'badge-warning' : ''}`}>{course.degree_type}</span>
+        <span><Icon name="layers" size={14} /> {course.total_semesters} Semesters</span>
+        <span><Icon name="file-text" size={14} /> {formatNumber(totalPapers)} Papers</span>
+        <span><Icon name="book" size={14} /> {subjects.length} Subjects</span>
+      </div>
+    </header>
+
+    <!-- Semesters -->
+    <section class="section" style="padding-top: 1rem;">
+      <h2 class="section-title"><Icon name="layers" /> Browse by Semester</h2>
+      <div class="grid grid-cols-2 grid-cols-4">
+        {
+          semesters.map(({ sem, subjectCount, paperCount }) => (
+            <a href={`/${course.slug}/${semesterToSlug(sem)}`} class="card semester-card animate-in">
+              <div class="sem-number">{sem}</div>
+              <h3>{semesterLabel(sem)}</h3>
+              <div class="subject-card-meta" style="justify-content: center;">
+                <span>{subjectCount} subjects</span>
+                <span>·</span>
+                <span>{paperCount} papers</span>
+              </div>
+            </a>
+          ))
+        }
+      </div>
+    </section>
+
+    {
+      popularSubjects.length > 0 && (
+        <section class="section">
+          <h2 class="section-title"><Icon name="file-check" /> Popular Subjects</h2>
+          <div class="grid grid-cols-2 grid-cols-3">
+            {popularSubjects.map((s) => (
+              <a href={`/${course.slug}/${semesterToSlug(s.semester)}/${s.slug}`} class="card subject-card animate-in">
+                <div class="subject-card-main">
+                  <h3 style="font-size: 1rem;">{s.name}</h3>
+                  <div class="subject-card-meta">
+                    <span class="badge badge-secondary">Sem {s.semester}</span>
+                    <span><Icon name="file-text" size={14} /> {s.paper_count} papers</span>
+                  </div>
+                </div>
+                <Icon name="chevron-right" size={18} class="text-muted" />
+              </a>
+            ))}
+          </div>
+        </section>
+      )
+    }
+
+    <AdBanner slot="course-bottom" />
+
+    <CtaSection
+      title={`Looking for a specific ${course.name} paper?`}
+      text="Use search to instantly find any paper by subject, code or year."
+      primaryLabel="Search Papers"
+      primaryHref="/search"
+      primaryIcon="search"
+      secondaryLabel="All Courses"
+      secondaryHref="/courses"
+      secondaryIcon="book-open"
+    />
+  </div>
+</BaseLayout>

@@ -1,0 +1,44 @@
+---
+import Icon from './Icon.astro';
+
+interface Props {
+  title?: string;
+  text?: string;
+  primaryLabel?: string;
+  primaryHref?: string;
+  primaryIcon?: string;
+  secondaryLabel?: string;
+  secondaryHref?: string;
+  secondaryIcon?: string;
+}
+
+const {
+  title = 'Can’t find what you’re looking for?',
+  text = 'Search across thousands of papers or browse every course in one place.',
+  primaryLabel = 'Browse All Courses',
+  primaryHref = '/courses',
+  primaryIcon = 'book-open',
+  secondaryLabel = 'Search Papers',
+  secondaryHref = '/search',
+  secondaryIcon = 'search',
+} = Astro.props;
+---
+
+<section class="cta-section">
+  <div class="cta-inner">
+    <h2>{title}</h2>
+    <p>{text}</p>
+    <div class="cta-actions">
+      <a href={primaryHref} class="btn btn-primary btn-lg">
+        <Icon name={primaryIcon} size={18} /> {primaryLabel}
+      </a>
+      {
+        secondaryHref && (
+          <a href={secondaryHref} class="btn btn-secondary btn-lg">
+            <Icon name={secondaryIcon} size={18} /> {secondaryLabel}
+          </a>
+        )
+      }
+    </div>
+  </div>
+</section>

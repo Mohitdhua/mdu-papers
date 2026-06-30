@@ -1,0 +1,109 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Breadcrumb from '@components/Breadcrumb.astro';
+import SubjectCard from '@components/SubjectCard.astro';
+import Icon from '@components/Icon.astro';
+import AdBanner from '@components/AdBanner.astro';
+import CtaSection from '@components/CtaSection.astro';
+import { SITE } from '@lib/config';
+import {
+  getCourses,
+  getSubjectsByCourse,
+  getSubjectsBySemester,
+  getPapersBySubject,
+  yearsRange,
+} from '@lib/data';
+import { semesterLabel, semesterToSlug, slugToSemester } from '@lib/utils';
+
+export async function getStaticPaths() {
+  const courses = await getCourses();
+  const paths = [];
+  for (const course of courses) {
+    const subjects = await getSubjectsByCourse(course.id);
+    const semesters = [...new Set(subjects.map((s) => s.semester))];
+    for (const sem of semesters) {
+      paths.push({
+        params: { course: course.slug, semester: semesterToSlug(sem) },
+        props: { course, semester: sem },
+      });
+    }
+  }
+  return paths;
+}
+
+const { course, semester } = Astro.props;
+const subjects = await getSubjectsBySemester(course.id, semester);
+
+// Compute years range per subject for display.
+const subjectsWithRange = await Promise.all(
+  subjects.map(async (s) => {
+    const papers = await getPapersBySubject(s.id);
+    return { subject: s, range: yearsRange(papers) };
+  })
+);
+
+const semLabel = semesterLabel(semester);
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: `${course.name} ${semLabel} Papers`,
+  description: `Subjects and previous year papers for ${course.name} ${semLabel}, MDU Rohtak`,
+  provider: { '@type': 'EducationalOrganization', name: SITE.university },
+};
+---
+
+<BaseLayout
+  title={`${course.name} ${semLabel} Papers — All Subjects`}
+  description={`Browse all ${course.name} ${semLabel} subjects and download previous year question papers (PDF) for MDU Rohtak.`}
+  jsonLd={jsonLd}
+>
+  <div class="container">
+    <Breadcrumb
+      items={[
+        { label: 'Home', href: '/' },
+        { label: course.name, href: `/${course.slug}` },
+        { label: semLabel },
+      ]}
+    />
+
+    <header class="page-header">
+      <h1><Icon name="layers" /> {course.name} — {semLabel}</h1>
+      <p>Select a subject to view and download its previous year papers.</p>
+      <div class="page-header-meta">
+        <span><Icon name="book" size={14} /> {subjects.length} Subjects</span>
+      </div>
+    </header>
+
+    <section class="section" style="padding-top: 1rem;">
+      {
+        subjectsWithRange.length > 0 ? (
+          <div class="grid grid-cols-1 grid-cols-2">
+            {subjectsWithRange.map(({ subject, range }) => (
+              <SubjectCard subject={subject} courseSlug={course.slug} yearsRange={range} />
+            ))}
+          </div>
+        ) : (
+          <div class="empty-state">
+            <div class="empty-icon">📭</div>
+            <h3>No subjects added yet</h3>
+            <p class="text-muted">Papers for this semester are coming soon.</p>
+          </div>
+        )
+      }
+    </section>
+
+    <AdBanner slot="semester-bottom" />
+
+    <CtaSection
+      title="Need papers from another semester?"
+      text={`Browse all ${course.name} semesters or search across every paper.`}
+      primaryLabel={`All ${course.name} Semesters`}
+      primaryHref={`/${course.slug}`}
+      primaryIcon="layers"
+      secondaryLabel="Search Papers"
+      secondaryHref="/search"
+      secondaryIcon="search"
+    />
+  </div>
+</BaseLayout>

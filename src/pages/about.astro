@@ -1,0 +1,58 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Breadcrumb from '@components/Breadcrumb.astro';
+import Icon from '@components/Icon.astro';
+import { SITE } from '@lib/config';
+---
+
+<BaseLayout
+  title="About Us"
+  description="Learn about MDU Papers — a free, student-built platform for accessing MDU previous year question papers."
+>
+  <div class="container">
+    <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'About' }]} />
+
+    <header class="page-header">
+      <h1><Icon name="info" /> About MDU Papers</h1>
+    </header>
+
+    <div class="prose">
+      <p>
+        {SITE.name} is a free, independent educational resource created to help students of
+        Maharshi Dayanand University, Rohtak access previous year question papers for their
+        exam preparation. We believe quality study material should be accessible to everyone,
+        completely free of cost.
+      </p>
+
+      <h2>Our Mission</h2>
+      <p>
+        Every year, thousands of MDU students struggle to find reliable previous year papers
+        scattered across WhatsApp groups, photocopy shops and random websites. We built this
+        platform to bring all of them into one clean, fast and searchable place.
+      </p>
+
+      <h2>What We Offer</h2>
+      <ul>
+        <li>Previous year question papers for 15+ UG and PG courses</li>
+        <li>Organized by course, semester and subject for easy navigation</li>
+        <li>Instant search across the entire collection</li>
+        <li>In-browser PDF preview before you download</li>
+        <li>Study tips and exam guides on our blog</li>
+        <li>100% free, no login required</li>
+      </ul>
+
+      <h2>Important Note</h2>
+      <p>
+        We are <strong>not</strong> affiliated with or endorsed by Maharshi Dayanand University.
+        For official notifications, results and information, always visit the official website at
+        <a href={SITE.universityUrl} target="_blank" rel="noopener noreferrer">mdu.ac.in</a>.
+      </p>
+
+      <h2>Get In Touch</h2>
+      <p>
+        Have a paper to contribute, found an error, or want to give feedback? We'd love to hear
+        from you. Visit our <a href="/contact">contact page</a> to reach out.
+      </p>
+    </div>
+  </div>
+</BaseLayout>

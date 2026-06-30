@@ -1,0 +1,31 @@
+---
+import type { Course } from '@lib/types';
+import Icon from './Icon.astro';
+import { formatNumber } from '@lib/utils';
+
+interface Props {
+  course: Course;
+}
+
+const { course } = Astro.props;
+---
+
+<a href={`/${course.slug}`} class="card course-card animate-in">
+  <div class="course-card-icon" aria-hidden="true">{course.icon_emoji}</div>
+  <h3>{course.name}</h3>
+  <p class="course-card-fullname">{course.full_name}</p>
+  <div class="course-card-meta">
+    <span class={`badge ${course.degree_type === 'PG' ? 'badge-warning' : 'badge'}`}>
+      {course.degree_type}
+    </span>
+    <span><Icon name="layers" size={14} /> {course.total_semesters} Sems</span>
+    {
+      course.paper_count !== undefined && (
+        <span><Icon name="file-text" size={14} /> {formatNumber(course.paper_count)} papers</span>
+      )
+    }
+  </div>
+  <span class="course-card-link">
+    View Papers <Icon name="arrow-right" size={16} />
+  </span>
+</a>

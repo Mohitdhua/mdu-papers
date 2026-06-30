@@ -1,0 +1,26 @@
+---
+import type { Subject } from '@lib/types';
+import Icon from './Icon.astro';
+import { subjectUrl } from '@lib/utils';
+
+interface Props {
+  subject: Subject;
+  courseSlug: string;
+  yearsRange?: string;
+}
+
+const { subject, courseSlug, yearsRange } = Astro.props;
+const href = subjectUrl(courseSlug, subject.semester, subject.slug);
+---
+
+<a href={href} class="card subject-card animate-in">
+  <div class="subject-card-main">
+    <h3>{subject.name}</h3>
+    <div class="subject-card-meta">
+      {subject.subject_code && <span class="badge badge-secondary">{subject.subject_code}</span>}
+      <span><Icon name="file-text" size={14} /> {subject.paper_count} papers</span>
+      {yearsRange && <span><Icon name="calendar" size={14} /> {yearsRange}</span>}
+    </div>
+  </div>
+  <Icon name="chevron-right" size={20} class="text-muted" />
+</a>

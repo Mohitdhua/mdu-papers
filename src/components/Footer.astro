@@ -1,0 +1,69 @@
+---
+import { FOOTER_LINKS, SOCIAL_LINKS, SITE } from '@lib/config';
+import Icon from './Icon.astro';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="/" class="logo">
+          <span class="logo-mark" aria-hidden="true">🎓</span>
+          <span class="logo-text">MDU<span> Papers</span></span>
+        </a>
+        <p>
+          Free previous year question papers for all Maharshi Dayanand University
+          courses. Built by students, for students.
+        </p>
+        <div class="footer-social">
+          {
+            SOCIAL_LINKS.map((s) => (
+              <a
+                href={s.href}
+                class="icon-btn"
+                aria-label={s.label}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Icon name={s.icon} />
+              </a>
+            ))
+          }
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <h4>Quick Links</h4>
+        <ul>
+          {FOOTER_LINKS.quickLinks.map((l) => <li><a href={l.href}>{l.label}</a></li>)}
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Courses</h4>
+        <ul>
+          {FOOTER_LINKS.popularCourses.map((l) => <li><a href={l.href}>{l.label}</a></li>)}
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <ul>
+          {FOOTER_LINKS.legal.map((l) => <li><a href={l.href}>{l.label}</a></li>)}
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <span>© {year} {SITE.name}. All rights reserved. <a href="/admin" style="color: var(--text-muted);">Admin</a></span>
+      <span>
+        Not affiliated with MDU. Official site:
+        <a href={SITE.universityUrl} target="_blank" rel="noopener noreferrer" style="color: var(--accent-primary);">
+          mdu.ac.in
+        </a>
+      </span>
+    </div>
+  </div>
+</footer>

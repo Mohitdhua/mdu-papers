@@ -1,0 +1,295 @@
+import { supabase, isSupabaseConfigured } from './supabase';
+import { mockCourses, mockSubjects, mockPapers, mockSolutions } from './mockData';
+import type { Course, Subject, Paper, SearchEntry, RecentPaper, Solution } from './types';
+import { subjectUrl, paperUrl, paperSlug } from './utils';
+
+/**
+ * Data access layer. Every function transparently uses Supabase when it is
+ * configured, otherwise falls back to the local mock dataset so the site
+ * builds and runs without any backend.
+ *
+ * These are all read functions intended to run at build time (SSG).
+ */
+
+// ---------- Courses ----------
+
+export async function getCourses(): Promise<Course[]> {
+  if (isSupabaseConfigured && supabase) {
+    const { data, error } = await supabase.from('courses').select('*').order('id');
+    if (error) {
+      console.warn('[data] getCourses fell back to mock:', error.message);
+    } else if (data) {
+      return attachCoursePaperCounts(data as Course[]);
+    }
+  }
+  return attachCoursePaperCounts(structuredClone(mockCourses));
+}
+
+export async function getCourseBySlug(slug: string): Promise<Course | null> {
+  const courses = await getCourses();
+  return courses.find((c) => c.slug === slug) ?? null;
+}
+
+export async function getPopularCourses(): Promise<Course[]> {
+  const courses = await getCourses();
+  return courses.filter((c) => c.is_popular);
+}
+
+function attachCoursePaperCounts(courses: Course[]): Course[] {
+  // Compute total papers per course from subjects/papers (mock) for display.
+  return courses.map((course) => {
+    const subjectIds = mockSubjects.filter((s) => s.course_id === course.id).map((s) => s.id);
+    const count = mockPapers.filter((p) => subjectIds.includes(p.subject_id)).length;
+    return { ...course, paper_count: course.paper_count ?? count };
+  });
+}
+
+// ---------- Subjects ----------
+
+export async function getSubjectsByCourse(courseId: number): Promise<Subject[]> {
+  if (isSupabaseConfigured && supabase) {
+    const { data, error } = await supabase
+      .from('subjects')
+      .select('*')
+      .eq('course_id', courseId)
+      .order('semester');
+    if (!error && data) return data as Subject[];
+  }
+  return mockSubjects.filter((s) => s.course_id === courseId);
+}
+
+export async function getSubjectsBySemester(courseId: number, semester: number): Promise<Subject[]> {
+  const subjects = await getSubjectsByCourse(courseId);
+  return subjects
+    .filter((s) => s.semester === semester)
+    .sort((a, b) => b.paper_count - a.paper_count);
+}
+
+export async function getSubjectBySlug(
+  courseId: number,
+  semester: number,
+  slug: string
+): Promise<Subject | null> {
+  const subjects = await getSubjectsBySemester(courseId, semester);
+  return subjects.find((s) => s.slug === slug) ?? null;
+}
+
+/** Return the distinct semester numbers that actually have subjects. */
+export async function getSemestersWithSubjects(courseId: number): Promise<number[]> {
+  const subjects = await getSubjectsByCourse(courseId);
+  return [...new Set(subjects.map((s) => s.semester))].sort((a, b) => a - b);
+}
+
+// ---------- Papers ----------
+
+export async function getPapersBySubject(subjectId: number): Promise<Paper[]> {
+  if (isSupabaseConfigured && supabase) {
+    const { data, error } = await supabase
+      .from('papers')
+      .select('*')
+      .eq('subject_id', subjectId)
+      .order('year', { ascending: false });
+    if (!error && data) return data as Paper[];
+  }
+  return mockPapers
+    .filter((p) => p.subject_id === subjectId)
+    .sort((a, b) => b.year - a.year || a.exam_session.localeCompare(b.exam_session));
+}
+
+// ---------- Aggregate / cross-cutting queries ----------
+
+/** Recently added papers across the whole site (for homepage). */
+export async function getRecentPapers(limit = 8): Promise<RecentPaper[]> {
+  const courses = await getCourses();
+  const courseById = new Map(courses.map((c) => [c.id, c]));
+  const subjectById = new Map(mockSubjects.map((s) => [s.id, s]));
+
+  let papers = [...mockPapers];
+  if (isSupabaseConfigured && supabase) {
+    const { data, error } = await supabase
+      .from('papers')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(limit);
+    if (!error && data) papers = data as Paper[];
+  }
+
+  // Sort by year desc as a proxy for recency in mock mode.
+  const sorted = papers
+    .slice()
+    .sort((a, b) => b.year - a.year || b.id - a.id)
+    .slice(0, limit);
+
+  const result: RecentPaper[] = [];
+  for (const paper of sorted) {
+    const subject = subjectById.get(paper.subject_id);
+    if (!subject) continue;
+    const course = courseById.get(subject.course_id);
+    if (!course) continue;
+    result.push({
+      paper,
+      subject,
+      course,
+      url: subjectUrl(course.slug, subject.semester, subject.slug),
+    });
+  }
+  return result;
+}
+
+/** Site-wide statistics for the homepage counters. */
+export async function getSiteStats(): Promise<{
+  papers: number;
+  courses: number;
+  downloads: number;
+  subjects: number;
+}> {
+  const courses = await getCourses();
+  const downloads = mockPapers.reduce((sum, p) => sum + p.download_count, 0);
+  return {
+    papers: mockPapers.length,
+    courses: courses.length,
+    downloads: Math.max(downloads, 50000),
+    subjects: mockSubjects.length,
+  };
+}
+
+/** Build the full search index consumed by the client-side fuzzy search. */
+export async function buildSearchIndex(): Promise<SearchEntry[]> {
+  const all = await getAllPapersWithContext();
+  return all.map(({ paper, subject, course, url }) => ({
+    course: course.name,
+    courseSlug: course.slug,
+    semester: subject.semester,
+    subject: subject.name,
+    subjectCode: subject.subject_code,
+    year: paper.year,
+    session: paper.exam_session,
+    url, // now links directly to the individual paper page
+    pdf: paper.pdf_url,
+  }));
+}
+
+/** Years range string for a list of papers, e.g. "2019–2024". */
+export function yearsRange(papers: Paper[]): string {
+  if (papers.length === 0) return '—';
+  const years = papers.map((p) => p.year);
+  const min = Math.min(...years);
+  const max = Math.max(...years);
+  return min === max ? `${min}` : `${min}–${max}`;
+}
+
+/**
+ * A single paper joined with its full subject + course context, including the
+ * computed SEO slug and URL. Used to build per-paper static pages.
+ */
+export interface PaperWithContext {
+  paper: Paper;
+  subject: Subject;
+  course: Course;
+  slug: string;
+  url: string;
+}
+
+/** Build the unique paper slug, disambiguating collisions within a subject. */
+function computePaperSlugs(papers: Paper[], subjectCode: string | null): Map<number, string> {
+  const slugs = new Map<number, string>();
+  const counts = new Map<string, number>();
+
+  // First pass: count base slugs (session + year) to detect collisions.
+  for (const p of papers) {
+    const base = paperSlug({ year: p.year, session: p.exam_session });
+    counts.set(base, (counts.get(base) ?? 0) + 1);
+  }
+
+  // Second pass: append subject code (and id if still colliding) when needed.
+  const used = new Set<string>();
+  for (const p of papers) {
+    const base = paperSlug({ year: p.year, session: p.exam_session });
+    let slug = base;
+    if ((counts.get(base) ?? 0) > 1) {
+      slug = paperSlug({ year: p.year, session: p.exam_session, code: subjectCode });
+    }
+    // Final guard against any remaining duplicates.
+    while (used.has(slug)) {
+      slug = `${slug}-${p.id}`;
+    }
+    used.add(slug);
+    slugs.set(p.id, slug);
+  }
+  return slugs;
+}
+
+/**
+ * Return every paper across the site joined with its subject + course context
+ * and a unique SEO slug. Used by getStaticPaths for per-paper pages.
+ */
+export async function getAllPapersWithContext(): Promise<PaperWithContext[]> {
+  const courses = await getCourses();
+  const courseById = new Map(courses.map((c) => [c.id, c]));
+  const subjectById = new Map(mockSubjects.map((s) => [s.id, s]));
+
+  // Group papers by subject so we can compute collision-free slugs.
+  const bySubject = new Map<number, Paper[]>();
+  for (const paper of mockPapers) {
+    if (!bySubject.has(paper.subject_id)) bySubject.set(paper.subject_id, []);
+    bySubject.get(paper.subject_id)!.push(paper);
+  }
+
+  const result: PaperWithContext[] = [];
+  for (const [subjectId, papers] of bySubject) {
+    const subject = subjectById.get(subjectId);
+    if (!subject) continue;
+    const course = courseById.get(subject.course_id);
+    if (!course) continue;
+    const slugs = computePaperSlugs(papers, subject.subject_code);
+    for (const paper of papers) {
+      const slug = slugs.get(paper.id)!;
+      result.push({
+        paper,
+        subject,
+        course,
+        slug,
+        url: paperUrl(course.slug, subject.semester, subject.slug, slug),
+      });
+    }
+  }
+  return result;
+}
+
+/** Map of paperId -> slug for a single subject (used on the subject page). */
+export async function getPaperSlugMap(
+  subjectId: number,
+  subjectCode: string | null
+): Promise<Map<number, string>> {
+  const papers = await getPapersBySubject(subjectId);
+  return computePaperSlugs(papers, subjectCode);
+}
+
+// ---------- Solutions ----------
+
+/** Fetch the published solution for a paper, if one exists. */
+export async function getSolutionByPaper(paperId: number): Promise<Solution | null> {
+  if (isSupabaseConfigured && supabase) {
+    const { data, error } = await supabase
+      .from('solutions')
+      .select('*')
+      .eq('paper_id', paperId)
+      .eq('is_published', true)
+      .maybeSingle();
+    if (!error && data) return data as Solution;
+    if (!error) return null;
+  }
+  return mockSolutions.find((s) => s.paper_id === paperId && s.is_published) ?? null;
+}
+
+/** Set of paper IDs that have a published solution (for badges). */
+export async function getPaperIdsWithSolutions(): Promise<Set<number>> {
+  if (isSupabaseConfigured && supabase) {
+    const { data, error } = await supabase
+      .from('solutions')
+      .select('paper_id')
+      .eq('is_published', true);
+    if (!error && data) return new Set(data.map((r) => (r as { paper_id: number }).paper_id));
+  }
+  return new Set(mockSolutions.filter((s) => s.is_published).map((s) => s.paper_id));
+}

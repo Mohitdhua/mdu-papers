@@ -1,0 +1,62 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Breadcrumb from '@components/Breadcrumb.astro';
+import Icon from '@components/Icon.astro';
+import CtaSection from '@components/CtaSection.astro';
+import { getCollection } from 'astro:content';
+import { readingTime, formatDate } from '@lib/utils';
+
+const posts = (await getCollection('blog')).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+
+const postsWithMeta = posts.map((post) => ({
+  post,
+  minutes: readingTime(post.body),
+}));
+---
+
+<BaseLayout
+  title="Blog — Study Tips, Exam Guides & MDU Updates"
+  description="Read study tips, exam preparation guides and MDU updates to help you score better in your semester exams."
+>
+  <div class="container">
+    <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'Blog' }]} />
+
+    <header class="page-header">
+      <h1><Icon name="file-text" /> Blog</h1>
+      <p>Study tips, exam guides, and everything you need to ace your MDU exams.</p>
+    </header>
+
+    <section class="section" style="padding-top: 1rem;">
+      <div class="grid grid-cols-1 grid-cols-2">
+        {
+          postsWithMeta.map(({ post, minutes }) => (
+            <a href={`/blog/${post.slug}`} class="card blog-card animate-in">
+              <div class="blog-card-tags">
+                {post.data.tags.slice(0, 3).map((t) => <span class="badge">{t}</span>)}
+              </div>
+              <h2>{post.data.title}</h2>
+              <p class="blog-card-excerpt">{post.data.description}</p>
+              <div class="blog-card-meta">
+                <span><Icon name="calendar" size={12} /> {formatDate(post.data.pubDate)}</span>
+                <span><Icon name="clock" size={12} /> {minutes} min read</span>
+              </div>
+            </a>
+          ))
+        }
+      </div>
+    </section>
+
+    <CtaSection
+      title="Ready to start practicing?"
+      text="Put these tips into action with real previous year papers from your course."
+      primaryLabel="Browse Papers"
+      primaryHref="/courses"
+      primaryIcon="book-open"
+      secondaryLabel="Search Papers"
+      secondaryHref="/search"
+      secondaryIcon="search"
+    />
+  </div>
+</BaseLayout>

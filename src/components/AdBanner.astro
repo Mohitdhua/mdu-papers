@@ -1,0 +1,17 @@
+---
+/**
+ * Ad placement slot. Swap the inner markup with your AdSense / Monetag code.
+ * The data attributes make it easy to target specific slots later.
+ */
+interface Props {
+  slot?: string;
+  label?: string;
+}
+
+const { slot = 'default', label = 'Advertisement' } = Astro.props;
+---
+
+<aside class="ad-banner" data-ad-slot={slot} aria-label={label}>
+  <!-- ====== AD CODE GOES HERE (AdSense / Monetag) ====== -->
+  <span>{label} — placement: {slot}</span>
+</aside>

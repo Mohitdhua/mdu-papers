@@ -1,0 +1,164 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Breadcrumb from '@components/Breadcrumb.astro';
+import Icon from '@components/Icon.astro';
+import AdBanner from '@components/AdBanner.astro';
+import CtaSection from '@components/CtaSection.astro';
+import { SITE } from '@lib/config';
+import { getCollection } from 'astro:content';
+import { readingTime, formatDate } from '@lib/utils';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog');
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content, headings } = await post.render();
+const minutes = readingTime(post.body);
+
+// Table of contents from h2 headings.
+const toc = headings.filter((h) => h.depth === 2);
+
+// Related posts (share at least one tag).
+const allPosts = await getCollection('blog');
+const related = allPosts
+  .filter((p) => p.slug !== post.slug && p.data.tags.some((t) => post.data.tags.includes(t)))
+  .slice(0, 2);
+
+const shareUrl = new URL(`/blog/${post.slug}`, SITE.url).href;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  headline: post.data.title,
+  description: post.data.description,
+  author: { '@type': 'Organization', name: post.data.author },
+  publisher: { '@type': 'Organization', name: SITE.name },
+  datePublished: post.data.pubDate.toISOString(),
+  ...(post.data.updatedDate ? { dateModified: post.data.updatedDate.toISOString() } : {}),
+  mainEntityOfPage: shareUrl,
+};
+---
+
+<BaseLayout
+  title={post.data.title}
+  description={post.data.description}
+  type="article"
+  publishedTime={post.data.pubDate.toISOString()}
+  jsonLd={jsonLd}
+>
+  <div class="container">
+    <Breadcrumb
+      items={[
+        { label: 'Home', href: '/' },
+        { label: 'Blog', href: '/blog' },
+        { label: post.data.title },
+      ]}
+    />
+
+    <article class="article">
+      <header class="article-header">
+        <div class="blog-card-tags">
+          {post.data.tags.map((t) => <span class="badge">{t}</span>)}
+        </div>
+        <h1>{post.data.title}</h1>
+        <div class="article-meta">
+          <span><Icon name="users" size={14} /> {post.data.author}</span>
+          <span><Icon name="calendar" size={14} /> {formatDate(post.data.pubDate)}</span>
+          <span><Icon name="clock" size={14} /> {minutes} min read</span>
+        </div>
+      </header>
+
+      {
+        toc.length > 0 && (
+          <nav class="toc" aria-label="Table of contents">
+            <h4>On this page</h4>
+            <ul>
+              {toc.map((h) => (
+                <li><a href={`#${h.slug}`}>{h.text}</a></li>
+              ))}
+            </ul>
+          </nav>
+        )
+      }
+
+      <div class="article-body">
+        <Content />
+      </div>
+
+      <AdBanner slot="blog-bottom" />
+
+      <!-- Share buttons -->
+      <div class="share-buttons">
+        <span class="text-muted" style="align-self: center; margin-right: 0.5rem;">Share:</span>
+        <a
+          class="btn btn-secondary"
+          href={`https://wa.me/?text=${encodeURIComponent(post.data.title + ' ' + shareUrl)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <Icon name="message-circle" size={16} /> WhatsApp
+        </a>
+        <a
+          class="btn btn-secondary"
+          href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.data.title)}&url=${encodeURIComponent(shareUrl)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <Icon name="twitter" size={16} /> Twitter
+        </a>
+        <button class="btn btn-secondary" id="copy-link" data-url={shareUrl}>
+          <Icon name="link" size={16} /> Copy Link
+        </button>
+      </div>
+    </article>
+
+    {
+      related.length > 0 && (
+        <section class="section">
+          <h2 class="section-title"><Icon name="file-text" /> Related Posts</h2>
+          <div class="grid grid-cols-1 grid-cols-2">
+            {related.map((p) => (
+              <a href={`/blog/${p.slug}`} class="card blog-card animate-in">
+                <h3>{p.data.title}</h3>
+                <p class="blog-card-excerpt">{p.data.description}</p>
+              </a>
+            ))}
+          </div>
+        </section>
+      )
+    }
+
+    <CtaSection
+      title="Start practicing now"
+      text="Download real previous year papers and apply what you just learned."
+      primaryLabel="Browse Papers"
+      primaryHref="/courses"
+      primaryIcon="book-open"
+      secondaryLabel="Read More Articles"
+      secondaryHref="/blog"
+      secondaryIcon="file-text"
+    />
+  </div>
+</BaseLayout>
+
+<script>
+  const btn = document.getElementById('copy-link');
+  btn?.addEventListener('click', async () => {
+    const url = btn.getAttribute('data-url') || window.location.href;
+    try {
+      await navigator.clipboard.writeText(url);
+      const original = btn.innerHTML;
+      btn.textContent = '✓ Copied!';
+      setTimeout(() => {
+        btn.innerHTML = original;
+      }, 2000);
+    } catch {
+      /* ignore */
+    }
+  });
+</script>

@@ -1,0 +1,149 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Breadcrumb from '@components/Breadcrumb.astro';
+import PaperCard from '@components/PaperCard.astro';
+import Icon from '@components/Icon.astro';
+import AdBanner from '@components/AdBanner.astro';
+import CtaSection from '@components/CtaSection.astro';
+import { SITE } from '@lib/config';
+import {
+  getCourses,
+  getSubjectsByCourse,
+  getSubjectsBySemester,
+  getPapersBySubject,
+  getPaperSlugMap,
+} from '@lib/data';
+import { semesterLabel, semesterToSlug, subjectUrl, paperUrl } from '@lib/utils';
+
+export async function getStaticPaths() {
+  const courses = await getCourses();
+  const paths = [];
+  for (const course of courses) {
+    const subjects = await getSubjectsByCourse(course.id);
+    for (const subject of subjects) {
+      paths.push({
+        params: {
+          course: course.slug,
+          semester: semesterToSlug(subject.semester),
+          subject: subject.slug,
+        },
+        props: { course, subject },
+      });
+    }
+  }
+  return paths;
+}
+
+const { course, subject } = Astro.props;
+const papers = await getPapersBySubject(subject.id);
+const slugMap = await getPaperSlugMap(subject.id, subject.subject_code);
+
+// Related subjects in the same semester.
+const semesterSubjects = await getSubjectsBySemester(course.id, subject.semester);
+const related = semesterSubjects.filter((s) => s.id !== subject.id).slice(0, 4);
+
+const semLabel = semesterLabel(subject.semester);
+const courseUrl = `/${course.slug}`;
+const semUrl = `/${course.slug}/${semesterToSlug(subject.semester)}`;
+
+// Build CollectionPage + BreadcrumbList JSON-LD.
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: `${course.name} ${semLabel} ${subject.name} Papers`,
+  description: `Download previous year question papers for ${subject.name}, ${course.name} ${semLabel}, MDU Rohtak`,
+  provider: { '@type': 'EducationalOrganization', name: SITE.university },
+  breadcrumb: {
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE.url}/` },
+      { '@type': 'ListItem', position: 2, name: course.name, item: `${SITE.url}${courseUrl}` },
+      { '@type': 'ListItem', position: 3, name: semLabel, item: `${SITE.url}${semUrl}` },
+      { '@type': 'ListItem', position: 4, name: subject.name },
+    ],
+  },
+};
+---
+
+<BaseLayout
+  title={`${course.name} ${semLabel} ${subject.name} Papers — Download PDF`}
+  description={`Download free ${subject.name} (${subject.subject_code ?? course.name}) previous year question papers for ${course.name} ${semLabel}, MDU Rohtak. ${papers.length} papers available.`}
+  jsonLd={jsonLd}
+>
+  <div class="container">
+    <Breadcrumb
+      items={[
+        { label: 'Home', href: '/' },
+        { label: course.name, href: courseUrl },
+        { label: semLabel, href: semUrl },
+        { label: subject.name },
+      ]}
+    />
+
+    <header class="page-header">
+      <h1><Icon name="file-text" /> {subject.name}</h1>
+      {subject.subject_code && <p>Subject Code: <strong>{subject.subject_code}</strong></p>}
+      <div class="page-header-meta">
+        <span class="badge">{course.name}</span>
+        <span class="badge badge-secondary">{semLabel}</span>
+        <span><Icon name="file-text" size={14} /> {papers.length} Papers</span>
+      </div>
+    </header>
+
+    <section class="section" style="padding-top: 1rem;">
+      {
+        papers.length > 0 ? (
+          <div class="grid grid-cols-1 grid-cols-2">
+            {papers.map((paper) => (
+              <PaperCard
+                paper={paper}
+                subjectName={subject.name}
+                paperHref={paperUrl(course.slug, subject.semester, subject.slug, slugMap.get(paper.id)!)}
+              />
+            ))}
+          </div>
+        ) : (
+          <div class="empty-state">
+            <div class="empty-icon">📭</div>
+            <h3>No papers uploaded yet</h3>
+            <p class="text-muted">Papers for this subject are coming soon. Check back later!</p>
+          </div>
+        )
+      }
+    </section>
+
+    <AdBanner slot="subject-mid" />
+
+    {
+      related.length > 0 && (
+        <section class="section">
+          <h2 class="section-title"><Icon name="book" /> Related Subjects</h2>
+          <div class="grid grid-cols-2 grid-cols-4">
+            {related.map((s) => (
+              <a href={subjectUrl(course.slug, s.semester, s.slug)} class="card subject-card animate-in">
+                <div class="subject-card-main">
+                  <h3 style="font-size: 0.95rem;">{s.name}</h3>
+                  <div class="subject-card-meta">
+                    <span><Icon name="file-text" size={13} /> {s.paper_count}</span>
+                  </div>
+                </div>
+                <Icon name="chevron-right" size={16} class="text-muted" />
+              </a>
+            ))}
+          </div>
+        </section>
+      )
+    }
+
+    <CtaSection
+      title="Want the solutions too?"
+      text="Preview and download papers free. Need worked solutions or a paper we don't have yet? Just ask."
+      primaryLabel="Request a Solution"
+      primaryHref="/contact"
+      primaryIcon="mail"
+      secondaryLabel={`More ${course.name} Papers`}
+      secondaryHref={semUrl}
+      secondaryIcon="layers"
+    />
+  </div>
+</BaseLayout>

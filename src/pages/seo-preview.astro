@@ -1,0 +1,31 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Icon from '@components/Icon.astro';
+import SerpPreview from '@components/SerpPreview.tsx';
+import { SITE } from '@lib/config';
+
+// Internal dev-only tool: hide it from production builds entirely.
+if (import.meta.env.PROD) {
+  return Astro.rewrite('/404');
+}
+---
+
+<BaseLayout
+  title="Google Search Preview Tool"
+  description="Preview how every page of MDU Papers appears in Google search results."
+  noindex={true}
+>
+  <div class="container">
+    <header class="page-header">
+      <h1><Icon name="search" /> Google Search Preview</h1>
+      <p>
+        See exactly how each page's title, URL and description will appear in Google search
+        results. Use it to spot titles or descriptions that are too long or too short.
+      </p>
+    </header>
+
+    <section class="section" style="padding-top: 1rem;">
+      <SerpPreview client:load siteUrl={SITE.url} siteName={SITE.name} />
+    </section>
+  </div>
+</BaseLayout>

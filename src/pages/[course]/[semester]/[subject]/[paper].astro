@@ -1,0 +1,244 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Breadcrumb from '@components/Breadcrumb.astro';
+import Icon from '@components/Icon.astro';
+import AdBanner from '@components/AdBanner.astro';
+import PdfViewer from '@components/PdfViewer.tsx';
+import { SITE } from '@lib/config';
+import { getAllPapersWithContext, getPapersBySubject, getPaperSlugMap, getSolutionByPaper } from '@lib/data';
+import { semesterLabel, semesterToSlug, formatFileSize, paperUrl } from '@lib/utils';
+import { marked } from 'marked';
+
+export async function getStaticPaths() {
+  const all = await getAllPapersWithContext();
+  return all.map((item) => ({
+    params: {
+      course: item.course.slug,
+      semester: semesterToSlug(item.subject.semester),
+      subject: item.subject.slug,
+      paper: item.slug,
+    },
+    props: item,
+  }));
+}
+
+const { paper, subject, course } = Astro.props;
+
+// Fetch the worked solution for this paper (if available).
+const solution = await getSolutionByPaper(paper.id);
+const solutionHtml = solution?.content ? await marked.parse(solution.content) : null;
+const hasSolution = Boolean(solutionHtml || solution?.solution_pdf_url);
+
+const semLabel = semesterLabel(subject.semester);
+const examLabel = `${paper.exam_session} ${paper.year}`;
+const courseUrl = `/${course.slug}`;
+const semUrl = `/${course.slug}/${semesterToSlug(subject.semester)}`;
+const subjUrl = `/${course.slug}/${semesterToSlug(subject.semester)}/${subject.slug}`;
+const previewTitle = `${subject.name} — ${examLabel}`;
+
+// Other papers of the same subject for quick navigation.
+const allPapers = await getPapersBySubject(subject.id);
+const slugMap = await getPaperSlugMap(subject.id, subject.subject_code);
+const otherPapers = allPapers
+  .filter((p) => p.id !== paper.id)
+  .map((p) => ({
+    paper: p,
+    url: paperUrl(course.slug, subject.semester, subject.slug, slugMap.get(p.id)!),
+  }));
+
+// Rich, keyword-targeted title and description (mirrors high-ranking PYQ sites).
+const seoTitle = `${course.name} ${subject.name} ${examLabel} Question Paper${subject.subject_code ? ` (${subject.subject_code})` : ''} — Download PDF`;
+const seoDesc = `Download the ${course.name} ${semLabel} ${subject.name} previous year question paper for ${examLabel}${subject.subject_code ? `, subject code ${subject.subject_code}` : ''}, MDU Rohtak. Free PDF preview and download.`;
+
+// Schema.org: describe the paper as a digital document with breadcrumbs.
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'DigitalDocument',
+    name: `${subject.name} ${examLabel} Question Paper`,
+    description: seoDesc,
+    educationalLevel: course.degree_type === 'PG' ? 'Postgraduate' : 'Undergraduate',
+    about: subject.name,
+    isPartOf: `${course.name} ${semLabel}`,
+    provider: { '@type': 'EducationalOrganization', name: SITE.university },
+    encodingFormat: 'application/pdf',
+    url: paper.pdf_url,
+    datePublished: `${paper.year}`,
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE.url}/` },
+      { '@type': 'ListItem', position: 2, name: course.name, item: `${SITE.url}${courseUrl}` },
+      { '@type': 'ListItem', position: 3, name: semLabel, item: `${SITE.url}${semUrl}` },
+      { '@type': 'ListItem', position: 4, name: subject.name, item: `${SITE.url}${subjUrl}` },
+      { '@type': 'ListItem', position: 5, name: examLabel },
+    ],
+  },
+];
+---
+
+<BaseLayout title={seoTitle} description={seoDesc} jsonLd={jsonLd}>
+  <div class="container">
+    <Breadcrumb
+      items={[
+        { label: 'Home', href: '/' },
+        { label: course.name, href: courseUrl },
+        { label: semLabel, href: semUrl },
+        { label: subject.name, href: subjUrl },
+        { label: examLabel },
+      ]}
+    />
+
+    <header class="page-header">
+      <h1><Icon name="file-text" /> {subject.name} — {examLabel}</h1>
+      <p>
+        {course.name} · {semLabel} previous year question paper
+        {subject.subject_code && <> · Code: <strong>{subject.subject_code}</strong></>}
+      </p>
+      <div class="page-header-meta">
+        <span class="badge">{course.name}</span>
+        <span class="badge badge-secondary">{semLabel}</span>
+        <span class="badge badge-success">{paper.exam_session} {paper.year}</span>
+        {paper.is_verified && <span class="badge badge-warning">Verified</span>}
+        {hasSolution && <span class="badge"><Icon name="file-check" size={12} /> Solution Available</span>}
+      </div>
+    </header>
+
+    <!-- Main paper card -->
+    <article class="card" style="margin-bottom: 2rem;">
+      <div class="paper-card-meta" style="margin-bottom: 1.5rem;">
+        <span><Icon name="calendar" size={16} /> Session: {paper.exam_session} {paper.year}</span>
+        <span><Icon name="layers" size={16} /> Size: {formatFileSize(paper.pdf_size_kb)}</span>
+        {paper.page_count && <span><Icon name="file-text" size={16} /> {paper.page_count} pages</span>}
+        <span><Icon name="download" size={16} /> {paper.download_count} downloads</span>
+      </div>
+
+      <div class="paper-card-actions">
+        <PdfViewer
+          client:visible
+          pdfUrl={paper.pdf_url}
+          title={previewTitle}
+          paperId={paper.id}
+          buttonLabel="Preview Paper"
+        />
+        <a
+          href={paper.pdf_url}
+          class="btn btn-success btn-download"
+          target="_blank"
+          rel="noopener noreferrer"
+          data-paper-id={paper.id}
+          data-download
+        >
+          <Icon name="download" size={18} />
+          Download PDF
+        </a>
+      </div>
+    </article>
+
+    <!-- Inline preview for SEO/UX: render the PDF directly on the page. -->
+    <section class="section" style="padding-top: 0;">
+      <h2 class="section-title"><Icon name="eye" /> Paper Preview</h2>
+      <div class="card" style="padding: 0; overflow: hidden; height: 70vh;">
+        <iframe
+          src={paper.pdf_url}
+          title={`Preview: ${previewTitle}`}
+          loading="lazy"
+          style="width: 100%; height: 100%; border: none;"></iframe>
+      </div>
+      <p class="text-muted" style="margin-top: 0.75rem; font-size: 0.875rem;">
+        Can't see the preview? <a href={paper.pdf_url} target="_blank" rel="noopener noreferrer" style="color: var(--accent-primary);">Open the PDF in a new tab</a>.
+      </p>
+    </section>
+
+    <AdBanner slot="paper-mid" />
+
+    {
+      hasSolution && (
+        <section class="section" style="padding-top: 0;" id="solution">
+          <h2 class="section-title"><Icon name="file-check" /> Solution</h2>
+          {solution?.solution_pdf_url && (
+            <div class="paper-card-actions" style="margin-bottom: 1.5rem;">
+              <a
+                href={solution.solution_pdf_url}
+                class="btn btn-primary"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Icon name="download" size={18} /> Download Solution PDF
+              </a>
+            </div>
+          )}
+          {solutionHtml && (
+            <div class="card">
+              <div class="article-body" set:html={solutionHtml} />
+              {solution?.author && (
+                <p class="text-muted" style="margin-top: 1.5rem; font-size: 0.875rem;">
+                  Solution by {solution.author}
+                </p>
+              )}
+            </div>
+          )}
+        </section>
+      )
+    }
+
+    {
+      !hasSolution && (
+        <section class="section" style="padding-top: 0;">
+          <div class="card" style="text-align: center;">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">✍️</div>
+            <h3 style="margin-bottom: 0.5rem;">Solution coming soon</h3>
+            <p class="text-muted" style="margin-bottom: 1rem;">
+              We're working on a detailed solution for this paper. Want it sooner?
+            </p>
+            <a href="/contact" class="btn btn-secondary">Request Solution</a>
+          </div>
+        </section>
+      )
+    }
+
+    <!-- About this paper (textual content for SEO depth) -->
+    <section class="section" style="padding-top: 0;">
+      <h2 class="section-title"><Icon name="info" /> About This Paper</h2>
+      <div class="prose" style="margin-inline: 0;">
+        <p>
+          This is the official-format previous year question paper for
+          <strong>{subject.name}</strong>{subject.subject_code ? ` (${subject.subject_code})` : ''},
+          part of the {course.full_name} ({course.name}) {semLabel} curriculum at
+          Maharshi Dayanand University, Rohtak. It was held in the
+          <strong>{paper.exam_session} {paper.year}</strong> examination session.
+        </p>
+        <p>
+          Use this paper to understand the exam pattern, important topics and the type of
+          questions asked. For the best results, solve it under timed conditions and compare
+          your answers with your study material. Browse
+          <a href={subjUrl}>all {subject.name} papers</a> or explore other
+          <a href={semUrl}>{course.name} {semLabel} subjects</a>.
+        </p>
+      </div>
+    </section>
+
+    {
+      otherPapers.length > 0 && (
+        <section class="section" style="padding-top: 0;">
+          <h2 class="section-title"><Icon name="file-text" /> Other {subject.name} Papers</h2>
+          <div class="grid grid-cols-2 grid-cols-4">
+            {otherPapers.map(({ paper: p, url }) => (
+              <a href={url} class="card subject-card animate-in">
+                <div class="subject-card-main">
+                  <h3 style="font-size: 0.95rem;">{p.exam_session} {p.year}</h3>
+                  <div class="subject-card-meta">
+                    <span><Icon name="download" size={13} /> {p.download_count}</span>
+                  </div>
+                </div>
+                <Icon name="chevron-right" size={16} class="text-muted" />
+              </a>
+            ))}
+          </div>
+        </section>
+      )
+    }
+  </div>
+</BaseLayout>

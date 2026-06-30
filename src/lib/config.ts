@@ -1,0 +1,71 @@
+/**
+ * Site-wide configuration.
+ * Centralizes site metadata, navigation, and social links so they can be
+ * updated in one place.
+ */
+
+export const SITE = {
+  name: 'MDU Papers',
+  shortName: 'MDU Papers',
+  title: 'MDU Papers — Free Previous Year Question Papers | Maharshi Dayanand University',
+  description:
+    'Download free MDU previous year exam papers for BCA, B.Tech, BSc, BCom, MBA, MCA and all courses. Updated papers from 2015-2024.',
+  url: import.meta.env.PUBLIC_SITE_URL || 'https://mdupapers.com',
+  ogImage: '/og-image.svg',
+  author: 'MDU Papers Team',
+  email: 'contact@mdupapers.com',
+  locale: 'en_IN',
+  university: 'Maharshi Dayanand University',
+  universityUrl: 'https://mdu.ac.in',
+} as const;
+
+export const NAV_LINKS = [
+  { label: 'Home', href: '/' },
+  { label: 'Courses', href: '/courses' },
+  { label: 'Blog', href: '/blog' },
+  { label: 'About', href: '/about' },
+] as const;
+
+export const FOOTER_LINKS = {
+  quickLinks: [
+    { label: 'Home', href: '/' },
+    { label: 'All Courses', href: '/courses' },
+    { label: 'Search', href: '/search' },
+    { label: 'Blog', href: '/blog' },
+  ],
+  popularCourses: [
+    { label: 'BCA Papers', href: '/bca' },
+    { label: 'B.Tech CSE Papers', href: '/btech-cse' },
+    { label: 'BCom Papers', href: '/bcom' },
+    { label: 'MBA Papers', href: '/mba' },
+  ],
+  legal: [
+    { label: 'About Us', href: '/about' },
+    { label: 'Contact', href: '/contact' },
+    { label: 'Privacy Policy', href: '/privacy' },
+    { label: 'Terms of Service', href: '/terms' },
+    { label: 'Disclaimer', href: '/disclaimer' },
+  ],
+} as const;
+
+export const SOCIAL_LINKS = [
+  { label: 'Telegram', href: 'https://t.me/mdupapers', icon: 'send' },
+  { label: 'WhatsApp', href: 'https://whatsapp.com/channel/mdupapers', icon: 'message-circle' },
+  { label: 'Instagram', href: 'https://instagram.com/mdupapers', icon: 'instagram' },
+] as const;
+
+export const GA_ID = import.meta.env.PUBLIC_GA_ID || '';
+
+/** Ordinal labels used for semester slugs e.g. 1 -> "1st-sem" */
+export const SEMESTER_SLUGS: Record<number, string> = {
+  1: '1st-sem',
+  2: '2nd-sem',
+  3: '3rd-sem',
+  4: '4th-sem',
+  5: '5th-sem',
+  6: '6th-sem',
+  7: '7th-sem',
+  8: '8th-sem',
+  9: '9th-sem',
+  10: '10th-sem',
+};

@@ -1,0 +1,105 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Breadcrumb from '@components/Breadcrumb.astro';
+import CourseCard from '@components/CourseCard.astro';
+import Icon from '@components/Icon.astro';
+import CtaSection from '@components/CtaSection.astro';
+import { getCourses } from '@lib/data';
+
+const courses = await getCourses();
+const ugCourses = courses.filter((c) => c.degree_type === 'UG');
+const pgCourses = courses.filter((c) => c.degree_type === 'PG');
+---
+
+<BaseLayout
+  title="All MDU Courses — Browse Question Papers by Course"
+  description="Browse previous year question papers for all MDU undergraduate and postgraduate courses including BCA, B.Tech, BSc, BCom, MBA, MCA and more."
+>
+  <div class="container">
+    <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'Courses' }]} />
+
+    <header class="page-header">
+      <h1><Icon name="book-open" /> All Courses</h1>
+      <p>Find previous year papers for every MDU course, organized by semester and subject.</p>
+    </header>
+
+    <!-- Filter input -->
+    <div class="search-wrap" style="max-width: 420px; margin-bottom: 1.5rem;">
+      <div class="search-input-row">
+        <Icon name="search" class="search-icon" />
+        <input
+          type="search"
+          id="course-filter"
+          class="search-input"
+          placeholder="Filter courses..."
+          aria-label="Filter courses"
+        />
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs" role="tablist" aria-label="Course level">
+      <button class="tab-btn active" role="tab" data-tab="ug" aria-selected="true">
+        Undergraduate ({ugCourses.length})
+      </button>
+      <button class="tab-btn" role="tab" data-tab="pg" aria-selected="false">
+        Postgraduate ({pgCourses.length})
+      </button>
+    </div>
+
+    <section id="panel-ug" class="tab-panel">
+      <div class="grid grid-cols-2 grid-cols-3 course-grid">
+        {ugCourses.map((course) => <CourseCard course={course} />)}
+      </div>
+    </section>
+
+    <section id="panel-pg" class="tab-panel" hidden>
+      <div class="grid grid-cols-2 grid-cols-3 course-grid">
+        {pgCourses.map((course) => <CourseCard course={course} />)}
+      </div>
+    </section>
+
+    <CtaSection
+      title="Can’t find your course?"
+      text="We're constantly adding new courses and papers. Search directly or request your course."
+      primaryLabel="Search Papers"
+      primaryHref="/search"
+      primaryIcon="search"
+      secondaryLabel="Request a Course"
+      secondaryHref="/contact"
+      secondaryIcon="mail"
+    />
+  </div>
+</BaseLayout>
+
+<script>
+  // Tab switching
+  const tabs = document.querySelectorAll<HTMLButtonElement>('.tab-btn');
+  const panels = {
+    ug: document.getElementById('panel-ug'),
+    pg: document.getElementById('panel-pg'),
+  };
+  tabs.forEach((tab) => {
+    tab.addEventListener('click', () => {
+      tabs.forEach((t) => {
+        t.classList.remove('active');
+        t.setAttribute('aria-selected', 'false');
+      });
+      tab.classList.add('active');
+      tab.setAttribute('aria-selected', 'true');
+      const key = tab.dataset.tab as 'ug' | 'pg';
+      panels.ug?.toggleAttribute('hidden', key !== 'ug');
+      panels.pg?.toggleAttribute('hidden', key !== 'pg');
+    });
+  });
+
+  // Live course filter
+  const filterInput = document.getElementById('course-filter') as HTMLInputElement | null;
+  filterInput?.addEventListener('input', () => {
+    const q = filterInput.value.toLowerCase().trim();
+    document.querySelectorAll<HTMLElement>('.course-grid .course-card').forEach((card) => {
+      const text = card.textContent?.toLowerCase() || '';
+      card.style.display = text.includes(q) ? '' : 'none';
+    });
+  });
+</script>

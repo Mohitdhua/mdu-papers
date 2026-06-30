@@ -1,0 +1,77 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Breadcrumb from '@components/Breadcrumb.astro';
+import Icon from '@components/Icon.astro';
+import { SITE } from '@lib/config';
+---
+
+<BaseLayout
+  title="Terms of Service"
+  description="Terms of service for using MDU Papers. Educational purpose, no warranties, content removal requests."
+>
+  <div class="container">
+    <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'Terms of Service' }]} />
+
+    <header class="page-header">
+      <h1><Icon name="file-text" /> Terms of Service</h1>
+      <p class="text-muted">Last updated: January 2025</p>
+    </header>
+
+    <div class="prose">
+      <p>
+        By accessing and using {SITE.name}, you agree to the following terms. Please read them
+        carefully.
+      </p>
+
+      <h2>1. Free Educational Use</h2>
+      <p>
+        This website is provided free of charge for educational purposes only. All papers are
+        intended to help students prepare for their examinations.
+      </p>
+
+      <h2>2. No Warranties</h2>
+      <p>
+        The papers and content are provided "as is" without any warranties. We do not guarantee
+        the accuracy, completeness or reliability of any question paper. Use the material at your
+        own discretion and always verify with official sources.
+      </p>
+
+      <h2>3. Not an Official MDU Website</h2>
+      <p>
+        {SITE.name} is an independent platform and is not affiliated with Maharshi Dayanand
+        University. See our <a href="/disclaimer">disclaimer</a> for details.
+      </p>
+
+      <h2>4. Intellectual Property</h2>
+      <p>
+        Question papers are believed to be in the public domain. If you are a copyright holder
+        and believe content should be removed, please
+        <a href="/contact">contact us</a> with details and we will act promptly.
+      </p>
+
+      <h2>5. Acceptable Use</h2>
+      <p>
+        You agree not to misuse the website, attempt to disrupt its operation, or use automated
+        tools to scrape content at scale. The site is meant for personal study use.
+      </p>
+
+      <h2>6. Third-Party Links and Ads</h2>
+      <p>
+        We are not responsible for the content of third-party websites linked from our site or
+        for advertisements served by ad networks.
+      </p>
+
+      <h2>7. Changes to Terms</h2>
+      <p>
+        We may update these terms from time to time. Continued use of the site after changes
+        constitutes acceptance of the revised terms.
+      </p>
+
+      <h2>8. Contact</h2>
+      <p>
+        Questions about these terms? Email us at
+        <a href={`mailto:${SITE.email}`}>{SITE.email}</a>.
+      </p>
+    </div>
+  </div>
+</BaseLayout>

@@ -1,0 +1,33 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import SearchBar from '@components/SearchBar.tsx';
+import Icon from '@components/Icon.astro';
+import { getPopularCourses } from '@lib/data';
+
+const popular = await getPopularCourses();
+---
+
+<BaseLayout title="Page Not Found" noindex={true}>
+  <div class="container">
+    <div class="notfound">
+      <div class="notfound-code">404</div>
+      <h1 style="margin-block: 1rem;">Looks like this paper hasn't been uploaded yet!</h1>
+      <p class="text-secondary" style="margin-bottom: 2rem;">
+        The page you're looking for doesn't exist or may have moved. Try searching instead.
+      </p>
+
+      <div style="max-width: 480px; margin-inline: auto;">
+        <SearchBar client:load />
+      </div>
+
+      <div class="quick-filters" style="margin-top: 2rem;">
+        {popular.slice(0, 5).map((c) => <a href={`/${c.slug}`}>{c.name}</a>)}
+        <a href="/courses">All Courses</a>
+      </div>
+
+      <a href="/" class="btn btn-primary btn-lg" style="margin-top: 2rem;">
+        <Icon name="arrow-right" size={18} /> Back to Home
+      </a>
+    </div>
+  </div>
+</BaseLayout>

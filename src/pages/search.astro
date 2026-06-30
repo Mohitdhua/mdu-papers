@@ -1,0 +1,26 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Breadcrumb from '@components/Breadcrumb.astro';
+import SearchBar from '@components/SearchBar.tsx';
+import Icon from '@components/Icon.astro';
+
+// Read the initial query from the URL (used as a hint; actual search is client-side).
+const query = Astro.url.searchParams.get('q') ?? '';
+---
+
+<BaseLayout
+  title="Search Papers"
+  description="Search across all MDU previous year question papers by course, subject, code or year."
+  noindex={true}
+>
+  <div class="container">
+    <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'Search' }]} />
+
+    <header class="page-header">
+      <h1><Icon name="search" /> Search Papers</h1>
+      <p>Find any paper across all courses instantly.</p>
+    </header>
+
+    <SearchBar client:load fullPage={true} initialQuery={query} autoFocus={true} />
+  </div>
+</BaseLayout>

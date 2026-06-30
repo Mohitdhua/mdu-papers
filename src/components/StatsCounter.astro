@@ -1,0 +1,75 @@
+---
+import Icon from './Icon.astro';
+
+interface Stat {
+  icon: string;
+  emoji: string;
+  value: number;
+  label: string;
+  suffix?: string;
+}
+
+interface Props {
+  stats: Stat[];
+}
+
+const { stats } = Astro.props;
+---
+
+<div class="stats-grid">
+  {
+    stats.map((stat) => (
+      <div class="stat-card animate-in">
+        <div class="stat-icon" aria-hidden="true">{stat.emoji}</div>
+        <div
+          class="stat-value"
+          data-counter
+          data-target={stat.value}
+          data-suffix={stat.suffix ?? '+'}
+        >
+          0
+        </div>
+        <div class="stat-label">{stat.label}</div>
+      </div>
+    ))
+  }
+</div>
+
+<script>
+  // Animate counters when they scroll into view.
+  function animateCounter(el: HTMLElement) {
+    const target = Number(el.dataset.target || '0');
+    const suffix = el.dataset.suffix || '';
+    const duration = 1500;
+    const start = performance.now();
+    const fmt = new Intl.NumberFormat('en-IN');
+
+    function tick(now: number) {
+      const progress = Math.min((now - start) / duration, 1);
+      // easeOutExpo
+      const eased = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+      const value = Math.round(eased * target);
+      el.textContent = fmt.format(value) + (progress === 1 ? suffix : '');
+      if (progress < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  const counters = document.querySelectorAll<HTMLElement>('[data-counter]');
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            animateCounter(entry.target as HTMLElement);
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.4 }
+    );
+    counters.forEach((c) => observer.observe(c));
+  } else {
+    counters.forEach((c) => animateCounter(c));
+  }
+</script>

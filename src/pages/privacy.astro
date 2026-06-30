@@ -1,0 +1,73 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Breadcrumb from '@components/Breadcrumb.astro';
+import Icon from '@components/Icon.astro';
+import { SITE } from '@lib/config';
+---
+
+<BaseLayout
+  title="Privacy Policy"
+  description="Privacy policy for MDU Papers. Learn how we handle data, cookies and third-party advertising."
+>
+  <div class="container">
+    <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'Privacy Policy' }]} />
+
+    <header class="page-header">
+      <h1><Icon name="shield-check" /> Privacy Policy</h1>
+      <p class="text-muted">Last updated: January 2025</p>
+    </header>
+
+    <div class="prose">
+      <p>
+        At {SITE.name}, your privacy matters to us. This policy explains what information we
+        collect and how we use it.
+      </p>
+
+      <h2>Information We Collect</h2>
+      <p>
+        We do <strong>not</strong> require you to create an account or provide personal
+        information to use this website. We do not store names, email addresses or any personal
+        data unless you voluntarily contact us.
+      </p>
+
+      <h2>Analytics</h2>
+      <p>
+        We use Google Analytics to understand how visitors use our site (pages visited, time
+        spent, device type). This data is anonymized and aggregated — it cannot be used to
+        personally identify you.
+      </p>
+
+      <h2>Cookies</h2>
+      <p>
+        We use minimal cookies to remember your theme preference (light/dark mode) and for
+        analytics. You can disable cookies in your browser settings at any time.
+      </p>
+
+      <h2>Third-Party Advertising</h2>
+      <p>
+        We display ads through third-party networks such as Google AdSense. These networks may
+        use cookies to serve relevant ads based on your browsing. You can opt out of personalized
+        advertising via
+        <a href="https://www.google.com/settings/ads" target="_blank" rel="noopener noreferrer">Google Ad Settings</a>.
+      </p>
+
+      <h2>Data Security</h2>
+      <p>
+        Since we don't collect or store personal data, there is no personal information at risk.
+        Our site is served over secure HTTPS.
+      </p>
+
+      <h2>Children's Privacy</h2>
+      <p>
+        Our website is intended for university students. We do not knowingly collect data from
+        children under 13.
+      </p>
+
+      <h2>Contact</h2>
+      <p>
+        For privacy-related questions, email us at
+        <a href={`mailto:${SITE.email}`}>{SITE.email}</a>.
+      </p>
+    </div>
+  </div>
+</BaseLayout>

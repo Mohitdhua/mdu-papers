@@ -1,0 +1,114 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import SearchBar from '@components/SearchBar.tsx';
+import CourseCard from '@components/CourseCard.astro';
+import AdBanner from '@components/AdBanner.astro';
+import DisclaimerBanner from '@components/DisclaimerBanner.astro';
+import Icon from '@components/Icon.astro';
+import { getCourses, getRecentPapers, getSiteStats } from '@lib/data';
+import { getCollection } from 'astro:content';
+import { formatFileSize } from '@lib/utils';
+
+const courses = await getCourses();
+const ugCourses = courses.filter((c) => c.degree_type === 'UG');
+const pgCourses = courses.filter((c) => c.degree_type === 'PG');
+const recentPapers = await getRecentPapers(8);
+const stats = await getSiteStats();
+
+// Latest blog posts.
+const posts = (await getCollection('blog'))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+  .slice(0, 2);
+---
+
+<BaseLayout>
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container hero-content">
+      <h1>
+        Your One-Stop Hub for<br />
+        <span class="hero-gradient-text">MDU Exam Papers</span>
+      </h1>
+      <p>
+        Access {stats.papers}+ previous year papers for all courses, completely free.
+      </p>
+      <div class="hero-search">
+        <SearchBar client:idle />
+      </div>
+    </div>
+  </section>
+
+  <div class="container">
+    <!-- ALL COURSES (directory-style: every course clickable up front) -->
+    <section class="section" style="padding-top: var(--space-10);">
+      <div class="section-header">
+        <h2 class="section-title"><Icon name="book-open" /> Undergraduate Courses</h2>
+      </div>
+      <div class="grid grid-cols-2 grid-cols-4">
+        {ugCourses.map((course) => <CourseCard course={course} />)}
+      </div>
+    </section>
+
+    <section class="section" style="padding-top: 0;">
+      <div class="section-header">
+        <h2 class="section-title"><Icon name="graduation-cap" /> Postgraduate Courses</h2>
+      </div>
+      <div class="grid grid-cols-2 grid-cols-4">
+        {pgCourses.map((course) => <CourseCard course={course} />)}
+      </div>
+    </section>
+
+    <AdBanner slot="home-mid" />
+
+    <!-- RECENTLY ADDED -->
+    <section class="section">
+      <h2 class="section-title"><Icon name="clock" /> Recently Added Papers</h2>
+      <div class="grid grid-cols-1 grid-cols-2">
+        {
+          recentPapers.map((rp) => (
+            <a href={rp.url} class="card subject-card animate-in">
+              <div class="subject-card-main">
+                <h3 style="font-size: 1rem;">
+                  {rp.course.name} — {rp.subject.name}
+                </h3>
+                <div class="subject-card-meta">
+                  <span class="badge badge-secondary">{rp.paper.exam_session} {rp.paper.year}</span>
+                  <span><Icon name="layers" size={14} /> {formatFileSize(rp.paper.pdf_size_kb)}</span>
+                </div>
+              </div>
+              <Icon name="chevron-right" size={18} class="text-muted" />
+            </a>
+          ))
+        }
+      </div>
+    </section>
+
+    <!-- BLOG -->
+    {
+      posts.length > 0 && (
+        <section class="section">
+          <div class="section-header">
+            <h2 class="section-title"><Icon name="file-text" /> From Our Blog</h2>
+            <a href="/blog" class="course-card-link">All posts <Icon name="arrow-right" size={16} /></a>
+          </div>
+          <div class="grid grid-cols-2">
+            {posts.map((post) => (
+              <a href={`/blog/${post.slug}`} class="card blog-card animate-in">
+                <div class="blog-card-tags">
+                  {post.data.tags?.slice(0, 2).map((t) => <span class="badge">{t}</span>)}
+                </div>
+                <h3>{post.data.title}</h3>
+                <p class="blog-card-excerpt">{post.data.description}</p>
+                <div class="blog-card-meta">
+                  <span><Icon name="calendar" size={12} /> {post.data.pubDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                </div>
+              </a>
+            ))}
+          </div>
+        </section>
+      )
+    }
+
+    <DisclaimerBanner />
+  </div>
+</BaseLayout>
