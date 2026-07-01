@@ -10,16 +10,19 @@ const isActive = (href: string) =>
 
 // Fetch visible courses for the 123apps-style dropdown megamenu
 const courses = await getVisibleCourses();
-const ugCourses = courses.filter((c) => c.degree_type === 'ug').slice(0, 8);
-const pgCourses = courses.filter((c) => c.degree_type === 'pg').slice(0, 8);
-const otherCourses = courses.filter((c) => c.degree_type !== 'ug' && c.degree_type !== 'pg').slice(0, 8);
+const ugCourses = courses.filter((c) => c.degree_type?.toUpperCase() === 'UG').slice(0, 8);
+const pgCourses = courses.filter((c) => c.degree_type?.toUpperCase() === 'PG').slice(0, 8);
+const otherCourses = courses.filter((c) => {
+  const type = c.degree_type?.toUpperCase();
+  return type !== 'UG' && type !== 'PG';
+}).slice(0, 8);
 ---
 
 <header class="site-header">
   <div class="container">
     <a href="/" class="logo" aria-label={`${SITE.name} home`}>
       <span class="logo-mark" aria-hidden="true">🎓</span>
-      <span class="logo-text">mdu<span>pyq</span></span>
+      <span class="logo-text">mdu<span>pyq</span>.com</span>
     </a>
 
     <nav class="main-nav" aria-label="Primary">
