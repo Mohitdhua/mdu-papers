@@ -614,7 +614,7 @@ main {
    ============================================================ */
 .hero {
   position: relative;
-  overflow: hidden;
+  overflow-x: clip;
   padding-block: var(--space-16) var(--space-12);
 }
 .hero::before {
