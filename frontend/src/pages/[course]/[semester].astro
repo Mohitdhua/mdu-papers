@@ -1,7 +1,6 @@
 ---
 import BaseLayout from '@layouts/BaseLayout.astro';
 import Breadcrumb from '@components/Breadcrumb.astro';
-import SubjectCard from '@components/SubjectCard.astro';
 import Icon from '@components/Icon.astro';
 import AdBanner from '@components/AdBanner.astro';
 import CtaSection from '@components/CtaSection.astro';
@@ -11,9 +10,8 @@ import {
   getVisibleSubjectsByCourse,
   getSubjectsBySemester,
   getPapersBySubject,
-  yearsRange,
 } from '@lib/data';
-import { semesterLabel, semesterToSlug, slugToSemester } from '@lib/utils';
+import { semesterLabel, semesterToSlug, formatFileSize } from '@lib/utils';
 
 export async function getStaticPaths() {
   const courses = await getVisibleCourses();
@@ -34,30 +32,79 @@ export async function getStaticPaths() {
 const { course, semester } = Astro.props;
 const subjects = await getSubjectsBySemester(course.id, semester);
 
-// Compute years range per subject for display.
-const subjectsWithRange = await Promise.all(
+// Fetch all papers for each subject at build time
+const subjectsWithPapers = await Promise.all(
   subjects.map(async (s) => {
     const papers = await getPapersBySubject(s.id);
-    return { subject: s, range: yearsRange(papers) };
+    // Sort papers: newest first
+    const sortedPapers = papers.sort((a, b) => b.year - a.year);
+    return {
+      ...s,
+      papers: sortedPapers,
+    };
   })
 );
 
+// Filter out subjects that don't have any papers uploaded
+const visibleSubjects = subjectsWithPapers.filter((s) => s.papers.length > 0);
+const totalPapers = visibleSubjects.reduce((sum, s) => sum + s.papers.length, 0);
 const semLabel = semesterLabel(semester);
 
-const jsonLd = {
+const subjectNames = visibleSubjects.map((s) => s.name).join(', ');
+
+// Rich FAQs for SEO Value
+const faqs = [
+  {
+    question: `Which MDU ${course.name} ${semLabel} subjects have previous year question papers available?`,
+    answer: `Question papers are available for MDU ${course.full_name} ${semLabel} subjects including: ${subjectNames || 'all core subjects taught in this semester'}. You can download the PDF files directly.`,
+  },
+  {
+    question: `How can I download the MDU ${course.name} ${semLabel} exam papers?`,
+    answer: `Simply scroll to the subject section on this page, find the year/session you want (e.g., Nov/Dec 2024), and click the "Download" button to save the PDF. You can also click "Preview" to read the paper online.`,
+  },
+  {
+    question: `Are these MDU Rohtak ${course.name} previous year papers free?`,
+    answer: `Yes, all previous year question papers and syllabus guides on this website are 100% free to download. There are no registration forms, ads overlay, or premium walls.`,
+  },
+  {
+    question: `How does practicing previous year papers help in MDU semester exams?`,
+    answer: `Practicing past papers is highly effective for MDU exams. It helps students understand the marking scheme, identify frequently repeated questions, and improve time management during the actual examination.`,
+  },
+];
+
+// Google JSON-LD schema markup
+const collectionJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'CollectionPage',
-  name: `${course.name} ${semLabel} Papers`,
-  description: `Subjects and previous year papers for ${course.name} ${semLabel}, MDU Rohtak`,
-  provider: { '@type': 'EducationalOrganization', name: SITE.university },
+  name: `${course.name} ${semLabel} Previous Year Papers`,
+  description: `Download official previous year question papers (PDF) for MDU Rohtak ${course.full_name} ${semLabel} subjects.`,
+  provider: {
+    '@type': 'EducationalOrganization',
+    name: SITE.university,
+  },
+};
+
+const faqJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map((faq) => ({
+    '@type': 'Question',
+    name: faq.question,
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: faq.answer,
+    },
+  })),
 };
 ---
 
 <BaseLayout
-  title={`${course.name} ${semLabel} Papers — All Subjects`}
-  description={`Browse all ${course.name} ${semLabel} subjects and download previous year question papers (PDF) for MDU Rohtak.`}
-  jsonLd={jsonLd}
+  title={`${course.name} ${semLabel} Previous Year Papers — Download PDF`}
+  description={`Download free ${course.full_name} (${course.name}) ${semLabel} official previous year question papers. preview PDFs online for MDU Rohtak.`}
+  jsonLd={collectionJsonLd}
 >
+  <script type="application/ld+json" set:html={JSON.stringify(faqJsonLd)} />
+
   <div class="container">
     <Breadcrumb
       items={[
@@ -68,29 +115,111 @@ const jsonLd = {
     />
 
     <header class="page-header">
-      <h1><Icon name="layers" /> {course.name} — {semLabel}</h1>
-      <p>Select a subject to view and download its previous year papers.</p>
+      <h1>
+        <span aria-hidden="true">{course.icon_emoji}</span>
+        {course.name} — {semLabel}
+      </h1>
+      <p>
+        Download previous year question papers (PDF) for all MDU Rohtak {course.full_name} ({course.name}) {semLabel} subjects.
+      </p>
       <div class="page-header-meta">
-        <span><Icon name="book" size={14} /> {subjects.length} Subjects</span>
+        <span><Icon name="book" size={14} /> {visibleSubjects.length} Subjects</span>
+        <span><Icon name="file-text" size={14} /> {totalPapers} Papers</span>
       </div>
     </header>
 
+    <!-- Semester Study Info (High SEO Value Content) -->
+    <section class="section study-guide-intro">
+      <div class="card intro-card">
+        <h3>📚 preparation Guide & Resources</h3>
+        <p>
+          Welcome to the study resource page for <strong>{course.full_name} ({course.name}) {semLabel}</strong> at Maharshi Dayanand University (MDU), Rohtak. 
+          Practicing past exam papers is highly recommended by toppers to score high marks in MDU semester examinations. It gives you a clear understanding of the marking pattern, important sections, and question weightage.
+        </p>
+        <p>
+          Below you will find a compiled year-wise list of question papers from <strong>2016 to 2024</strong>. You can click <strong>Preview</strong> to read the papers directly on your mobile or laptop, or click <strong>Download</strong> to save the PDF file offline.
+        </p>
+      </div>
+    </section>
+
+    <!-- Subjects List and Papers (Option B Merge) -->
     <section class="section" style="padding-top: 1rem;">
+      <h2 class="section-title"><Icon name="book-open" /> Available Subjects & Papers</h2>
+      
       {
-        subjectsWithRange.length > 0 ? (
-          <div class="grid grid-cols-1 grid-cols-2">
-            {subjectsWithRange.map(({ subject, range }) => (
-              <SubjectCard subject={subject} courseSlug={course.slug} yearsRange={range} />
+        visibleSubjects.length > 0 ? (
+          <div class="subjects-list">
+            {visibleSubjects.map((s) => (
+              <div class="card subject-section-card animate-in">
+                <div class="subject-header">
+                  <div>
+                    <h3>{s.name}</h3>
+                    <p class="text-muted">MDU {course.name} {semLabel} Syllabus Subject</p>
+                  </div>
+                  <span class="badge badge-success">{s.papers.length} Papers</span>
+                </div>
+
+                <div class="table-container">
+                  <table class="papers-table">
+                    <thead>
+                      <tr>
+                        <th>Exam Session</th>
+                        <th>Year</th>
+                        <th>File Size</th>
+                        <th style="text-align: right;">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {s.papers.map((p) => (
+                        <tr>
+                          <td class="font-medium">{p.exam_session}</td>
+                          <td>{p.year}</td>
+                          <td class="text-muted">{formatFileSize(p.pdf_size_kb)}</td>
+                          <td style="text-align: right;">
+                            <div class="actions-wrapper">
+                              <button 
+                                class="btn btn-secondary btn-sm preview-btn" 
+                                data-url={p.pdf_url} 
+                                data-title={`${s.name} — ${p.exam_session} ${p.year}`}
+                              >
+                                <Icon name="eye" size={13} /> Preview
+                              </button>
+                              <a href={p.pdf_url} target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm">
+                                <Icon name="download" size={13} /> Download
+                              </a>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             ))}
           </div>
         ) : (
           <div class="empty-state">
             <div class="empty-icon">📭</div>
-            <h3>No subjects added yet</h3>
-            <p class="text-muted">Papers for this semester are coming soon.</p>
+            <h3>No papers uploaded yet</h3>
+            <p class="text-muted">Question papers for this semester are being added. Check back shortly!</p>
           </div>
         )
       }
+    </section>
+
+    <!-- FAQs Section (Rich Content) -->
+    <section class="section">
+      <h2 class="section-title"><Icon name="info" /> Frequently Asked Questions</h2>
+      <div class="faq-list">
+        {
+          faqs.map((faq) => (
+            <details class="faq-item card">
+              <summary>{faq.question}</summary>
+              <p>{faq.answer}</p>
+            </details>
+          ))
+        }
+      </div>
     </section>
 
     <AdBanner slot="semester-bottom" />
@@ -106,4 +235,229 @@ const jsonLd = {
       secondaryIcon="search"
     />
   </div>
+
+  <!-- Interactive PDF Preview Modal (Glassmorphism design) -->
+  <div id="preview-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-content-wrapper">
+      <div class="modal-header">
+        <h3 id="modal-title">Paper Preview</h3>
+        <button id="close-modal" class="close-btn" aria-label="Close preview">&times;</button>
+      </div>
+      <div class="modal-body">
+        <iframe id="modal-iframe" src="" title="PDF Preview"></iframe>
+      </div>
+    </div>
+  </div>
 </BaseLayout>
+
+<style>
+  .intro-card {
+    border-left: 4px solid var(--accent-primary);
+    background-color: var(--bg-card);
+  }
+  .intro-card h3 {
+    margin-bottom: 0.75rem;
+    font-size: 1.15rem;
+    color: var(--text-primary);
+  }
+  .intro-card p {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+  }
+  .intro-card p:last-child {
+    margin-bottom: 0;
+  }
+
+  .subjects-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .subject-section-card {
+    padding: 1.5rem;
+  }
+  .subject-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+  }
+  .subject-header h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+  
+  .table-container {
+    overflow-x: auto;
+  }
+  .papers-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+  .papers-table th {
+    text-align: left;
+    padding: 0.5rem 1rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    border-bottom: 1px solid var(--border-color);
+  }
+  .papers-table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+  }
+  .font-medium {
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+  .actions-wrapper {
+    display: inline-flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+    width: 100%;
+  }
+
+  /* FAQs details tags */
+  .faq-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .faq-item {
+    padding: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .faq-item[open] {
+    border-color: var(--accent-primary);
+  }
+  .faq-item summary {
+    font-weight: 500;
+    outline: none;
+    user-select: none;
+  }
+  .faq-item p {
+    margin-top: 0.75rem;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+  }
+
+  /* Modal styling */
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 1.5rem;
+    animation: fadeIn 0.25s ease-out;
+  }
+  .modal-content-wrapper {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem;
+    width: 100%;
+    max-width: 900px;
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+  }
+  .modal-header h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+  .close-btn {
+    background: none;
+    border: none;
+    font-size: 1.75rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s;
+  }
+  .close-btn:hover {
+    color: var(--text-primary);
+  }
+  .modal-body {
+    height: 75vh;
+  }
+  .modal-body iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+</style>
+
+<script>
+  // Simple, robust client-side script to handle Modal previews
+  const modal = document.getElementById('preview-modal');
+  const iframe = document.getElementById('modal-iframe') as HTMLIFrameElement;
+  const title = document.getElementById('modal-title');
+  const closeBtn = document.getElementById('close-modal');
+
+  if (modal && iframe && title && closeBtn) {
+    // Open Modal
+    document.querySelectorAll('.preview-btn').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const url = (btn as HTMLElement).dataset.url || '';
+        const paperTitle = (btn as HTMLElement).dataset.title || 'Paper Preview';
+        
+        iframe.src = url;
+        title.textContent = paperTitle;
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden'; // prevent scrolling behind
+      });
+    });
+
+    // Close Modal helper
+    const closeModal = () => {
+      modal.style.display = 'none';
+      iframe.src = '';
+      document.body.style.overflow = '';
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+
+    // Close on click outside modal content
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+
+    // Close on Escape key press
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal.style.display === 'flex') {
+        closeModal();
+      }
+    });
+  }
+</script>
