@@ -437,8 +437,13 @@ main {
   position: sticky;
   top: 0;
   z-index: 100;
-  padding: var(--space-3) var(--space-4);
-  pointer-events: none;
+  width: 100%;
+  background: color-mix(in srgb, var(--bg-secondary) 85%, transparent);
+  border-bottom: 1px solid var(--glass-border);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: var(--shadow-sm);
+  pointer-events: auto;
 }
 .site-header .container {
   height: var(--header-height);
@@ -446,15 +451,9 @@ main {
   align-items: center;
   justify-content: space-between;
   gap: var(--space-4);
-  pointer-events: auto;
-  max-width: 980px;
-  padding: var(--space-2) var(--space-3) var(--space-2) var(--space-5);
-  border-radius: var(--radius-full);
-  background: color-mix(in srgb, var(--bg-secondary) 80%, transparent);
-  border: 1px solid var(--glass-border);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  box-shadow: var(--shadow-md);
+  max-width: var(--max-width);
+  margin-inline: auto;
+  padding-inline: var(--space-4);
 }
 .logo {
   display: flex;
@@ -473,11 +472,7 @@ main {
 .main-nav {
   display: none;
   align-items: center;
-  gap: var(--space-1);
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-full);
-  padding: var(--space-1);
+  gap: var(--space-2);
 }
 .main-nav a {
   padding: var(--space-2) var(--space-4);
