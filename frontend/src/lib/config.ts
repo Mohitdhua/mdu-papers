@@ -32,6 +32,7 @@ export const FOOTER_LINKS = {
     { label: 'All Courses', href: '/courses' },
     { label: 'Search', href: '/search' },
     { label: 'Blog', href: '/blog' },
+    { label: 'Image Resizer', href: '/image-resizer' },
   ],
   popularCourses: [
     { label: 'BCA Papers', href: '/bca' },
