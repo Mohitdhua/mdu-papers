@@ -4,6 +4,7 @@ import SEO from '@components/SEO.astro';
 import Header from '@components/Header.astro';
 import Footer from '@components/Footer.astro';
 import BackToTop from '@components/BackToTop.astro';
+import AdBanner from '@components/AdBanner.astro';
 
 interface Props {
   title?: string;
@@ -54,13 +55,64 @@ const { title, description, image, type, noindex, jsonLd, publishedTime } = Astr
         }
       })();
     </script>
+    <style>
+      .site-layout-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        width: 100%;
+        max-width: 1600px;
+        margin: 0 auto;
+        gap: 1.5rem;
+        padding-inline: 1rem;
+      }
+
+      .main-content-area {
+        flex: 1;
+        min-width: 0;
+        max-width: 1200px;
+      }
+
+      .sidebar-ad {
+        width: 160px;
+        flex-shrink: 0;
+        display: none;
+      }
+
+      .ad-sticky-container {
+        position: sticky;
+        top: 6rem;
+      }
+
+      @media (min-width: 1480px) {
+        .sidebar-ad {
+          display: block;
+        }
+      }
+    </style>
   </head>
   <body>
     <a href="#main-content" class="skip-link">Skip to content</a>
     <div class="mesh-bg" aria-hidden="true"></div>
     <Header />
     <main id="main-content">
-      <slot />
+      <div class="site-layout-wrapper">
+        <aside class="sidebar-ad left-ad" aria-label="Sidebar Ad Left">
+          <div class="ad-sticky-container">
+            <AdBanner slot="left-skyscraper" label="Skyscraper Left" />
+          </div>
+        </aside>
+
+        <div class="main-content-area">
+          <slot />
+        </div>
+
+        <aside class="sidebar-ad right-ad" aria-label="Sidebar Ad Right">
+          <div class="ad-sticky-container">
+            <AdBanner slot="right-skyscraper" label="Skyscraper Right" />
+          </div>
+        </aside>
+      </div>
     </main>
     <Footer />
     <BackToTop />
