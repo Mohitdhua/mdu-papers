@@ -2,9 +2,6 @@
 -- SEED DATA PART 2 OF 9
 -- ============================================================
 
-INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 2, 'GENERAL ENGLISH 2', 'general-english-2' FROM courses WHERE slug='ballb' ON CONFLICT (course_id, semester, slug) DO NOTHING;
-INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 2, 'GEOGRAPHY ADVANCED GEOGRAPHY OF INDIA', 'geography-advanced-geography-of-india' FROM courses WHERE slug='msc' ON CONFLICT (course_id, semester, slug) DO NOTHING;
-INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 2, 'GEOGRAPHY ENVIRONMENTAL GEOGRAPHY', 'geography-environmental-geography' FROM courses WHERE slug='ma' ON CONFLICT (course_id, semester, slug) DO NOTHING;
 INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 2, 'GEOGRAPHY GEOGRAPHICAL THOUGHT', 'geography-geographical-thought' FROM courses WHERE slug='msc' ON CONFLICT (course_id, semester, slug) DO NOTHING;
 INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 2, 'GEOGRAPHY OCEANOGRAPHY', 'geography-oceanography' FROM courses WHERE slug='msc' ON CONFLICT (course_id, semester, slug) DO NOTHING;
 INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 2, 'GEOGRAPHY REGIONAL DEVELOPMENT AND PLANNING', 'geography-regional-development-and-planning' FROM courses WHERE slug='ma' ON CONFLICT (course_id, semester, slug) DO NOTHING;
@@ -60,7 +57,6 @@ INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 2, 'HONS FAMIL
 INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 2, 'HONS FINANCIAL ACCOUNTING FOR BUSINESS 2', 'hons-financial-accounting-for-business-2' FROM courses WHERE slug='bcom' ON CONFLICT (course_id, semester, slug) DO NOTHING;
 INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 2, 'HONS FINANCIAL MANAGEMENT', 'hons-financial-management' FROM courses WHERE slug='bballb' ON CONFLICT (course_id, semester, slug) DO NOTHING;
 INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 2, 'HONS HINDI 2', 'hons-hindi-2' FROM courses WHERE slug='ballb' ON CONFLICT (course_id, semester, slug) DO NOTHING;
-INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 2, 'HONS HISTORY 2 9673 A NEW', 'hons-history-2-9673-a-new' FROM courses WHERE slug='ballb' ON CONFLICT (course_id, semester, slug) DO NOTHING;
 INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 2, 'HONS HISTORY 2 9673 A', 'hons-history-2-9673-a' FROM courses WHERE slug='ballb' ON CONFLICT (course_id, semester, slug) DO NOTHING;
 INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 2, 'HONS HISTORY 2', 'hons-history-2' FROM courses WHERE slug='ballb' ON CONFLICT (course_id, semester, slug) DO NOTHING;
 INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 2, 'HONS HUMAN RESOURCE MANAGEME', 'hons-human-resource-manageme' FROM courses WHERE slug='bballb' ON CONFLICT (course_id, semester, slug) DO NOTHING;
@@ -123,7 +119,7 @@ INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 2, 'LAW FAMILY
 INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 2, 'LAW MEDIA LAW', 'law-media-law' FROM courses WHERE slug='llm' ON CONFLICT (course_id, semester, slug) DO NOTHING;
 INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 2, 'LAWAND SOCIALTRANSFORMATION', 'lawand-socialtransformation' FROM courses WHERE slug='llm' ON CONFLICT (course_id, semester, slug) DO NOTHING;
 INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 2, 'LOGICAL ORGANIZATION OF COMPUTER 2', 'logical-organization-of-computer-2' FROM courses WHERE slug='bca' ON CONFLICT (course_id, semester, slug) DO NOTHING;
-INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 2, 'LOGICAL ORGANIZATION OF COMPUTER', 'logical-organization-of-computer' FROM courses WHERE slug='bca' ON CONFLICT (course_id, semester, slug) DO NOTHING;
+INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 2, 'LOGICAL ORGANIZATION OF COMPUTERS', 'logical-organization-of-computers' FROM courses WHERE slug='bca' ON CONFLICT (course_id, semester, slug) DO NOTHING;
 INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 2, 'MA AUTOMATION IN MANUFACTURING', 'ma-automation-in-manufacturing' FROM courses WHERE slug='mtech' ON CONFLICT (course_id, semester, slug) DO NOTHING;
 INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 2, 'MA AUTOMOBILE ENGG', 'ma-automobile-engg' FROM courses WHERE slug='mtech' ON CONFLICT (course_id, semester, slug) DO NOTHING;
 INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 2, 'MA AUTOMOBILE ENGINEERING', 'ma-automobile-engineering' FROM courses WHERE slug='mtech' ON CONFLICT (course_id, semester, slug) DO NOTHING;
@@ -137,7 +133,6 @@ INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 2, 'MACRO ECON
 INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 2, 'MACRO ECONOMIC FOUNDATIONS', 'macro-economic-foundations' FROM courses WHERE slug='mba' ON CONFLICT (course_id, semester, slug) DO NOTHING;
 INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 2, 'MACRO ECONOMICS ANALYSIS AND POLICY', 'macro-economics-analysis-and-policy' FROM courses WHERE slug='bba' ON CONFLICT (course_id, semester, slug) DO NOTHING;
 INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 2, 'MANAGEMENT ACCOUNTING', 'management-accounting' FROM courses WHERE slug='mcom' ON CONFLICT (course_id, semester, slug) DO NOTHING;
-INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 2, 'MANAGEMENT INFORMATION SYSTEM', 'management-information-system' FROM courses WHERE slug='mba' ON CONFLICT (course_id, semester, slug) DO NOTHING;
 INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 2, 'MANAGEMENT INFORMATION SYSTEMS', 'management-information-systems' FROM courses WHERE slug='mba' ON CONFLICT (course_id, semester, slug) DO NOTHING;
 INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 2, 'MANAGEMENT OF BANKINGAND INSURANCE', 'management-of-bankingand-insurance' FROM courses WHERE slug='mba' ON CONFLICT (course_id, semester, slug) DO NOTHING;
 INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 2, 'MANAGERIAL SKILLS', 'managerial-skills' FROM courses WHERE slug='bba' ON CONFLICT (course_id, semester, slug) DO NOTHING;
@@ -383,8 +378,8 @@ INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 3, 'DATA COMMU
 INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 3, 'DATA COMMUNICATION AND COMPUTER NETWORK', 'data-communication-and-computer-network' FROM courses WHERE slug='mca' ON CONFLICT (course_id, semester, slug) DO NOTHING;
 INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 3, 'DATA COMMUNICATION AND COMPUTER NETWORKS', 'data-communication-and-computer-networks' FROM courses WHERE slug='mca' ON CONFLICT (course_id, semester, slug) DO NOTHING;
 INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 3, 'DATA STRUCTURE 1', 'data-structure-1' FROM courses WHERE slug='bca' ON CONFLICT (course_id, semester, slug) DO NOTHING;
-INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 3, 'DATABASE MANAGEMENT SYSTEM', 'database-management-system' FROM courses WHERE slug='bba' ON CONFLICT (course_id, semester, slug) DO NOTHING;
-INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 3, 'DATABASE MANAGEMENT SYSTEM', 'database-management-system' FROM courses WHERE slug='mba' ON CONFLICT (course_id, semester, slug) DO NOTHING;
+INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 3, 'DATABASE MANAGEMENT SYSTEMS', 'database-management-systems' FROM courses WHERE slug='bba' ON CONFLICT (course_id, semester, slug) DO NOTHING;
+INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 3, 'DATABASE MANAGEMENT SYSTEMS', 'database-management-systems' FROM courses WHERE slug='mba' ON CONFLICT (course_id, semester, slug) DO NOTHING;
 INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 3, 'DEVELOPMENT ECONOMICS SE', 'development-economics-se' FROM courses WHERE slug='mba' ON CONFLICT (course_id, semester, slug) DO NOTHING;
 INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 3, 'DISASTER MANAGEMENT', 'disaster-management' FROM courses WHERE slug='ballb' ON CONFLICT (course_id, semester, slug) DO NOTHING;
 INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 3, 'DISASTER MANAGEMENT', 'disaster-management' FROM courses WHERE slug='bba' ON CONFLICT (course_id, semester, slug) DO NOTHING;
@@ -549,7 +544,7 @@ INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 3, 'MA MECHANI
 INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 3, 'MA SIMULATION AND ANALYSIS', 'ma-simulation-and-analysis' FROM courses WHERE slug='mtech' ON CONFLICT (course_id, semester, slug) DO NOTHING;
 INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 3, 'MA TOTAL QUALITY MANAGEMENT', 'ma-total-quality-management' FROM courses WHERE slug='mtech' ON CONFLICT (course_id, semester, slug) DO NOTHING;
 INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 3, 'MA TOTAL QYALITY MANAGEMENT', 'ma-total-qyality-management' FROM courses WHERE slug='mtech' ON CONFLICT (course_id, semester, slug) DO NOTHING;
-INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 3, 'MANAGEMENT INFORMATION SYSTEM', 'management-information-system' FROM courses WHERE slug='mba' ON CONFLICT (course_id, semester, slug) DO NOTHING;
+INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 3, 'MANAGEMENT INFORMATION SYSTEMS', 'management-information-systems' FROM courses WHERE slug='mba' ON CONFLICT (course_id, semester, slug) DO NOTHING;
 INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 3, 'MANAGEMENT OF FINANCIAL INSTITUTIONS', 'management-of-financial-institutions' FROM courses WHERE slug='mba' ON CONFLICT (course_id, semester, slug) DO NOTHING;
 INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 3, 'MANAGEMENT OF FINANCIAL SERVICES AND INSITITUTIONS', 'management-of-financial-services-and-insititutions' FROM courses WHERE slug='mba' ON CONFLICT (course_id, semester, slug) DO NOTHING;
 INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 3, 'MANAGEMENT OF FINANCIAL SERVICES AND INSTITUTIONS', 'management-of-financial-services-and-institutions' FROM courses WHERE slug='mba' ON CONFLICT (course_id, semester, slug) DO NOTHING;
@@ -575,18 +570,18 @@ INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 3, 'MD SIMULAT
 INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 3, 'MD TOTAL QUALITY MANAGEMENT', 'md-total-quality-management' FROM courses WHERE slug='mtech' ON CONFLICT (course_id, semester, slug) DO NOTHING;
 INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 3, 'ME ROBOTICS AND AUTOMATION', 'me-robotics-and-automation' FROM courses WHERE slug='mtech' ON CONFLICT (course_id, semester, slug) DO NOTHING;
 INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 3, 'MECHANICAL ENGINEERING', 'mechanical-engineering' FROM courses WHERE slug='mtech' ON CONFLICT (course_id, semester, slug) DO NOTHING;
+INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 3, 'MEDIA', 'media' FROM courses WHERE slug='ma' ON CONFLICT (course_id, semester, slug) DO NOTHING;
 INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 3, 'MGT OF FINANCIAL SERVICES AND INSTITUTIONS', 'mgt-of-financial-services-and-institutions' FROM courses WHERE slug='mba' ON CONFLICT (course_id, semester, slug) DO NOTHING;
 INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 3, 'MICRO PROCESSER ASSEMBLY LANGUAGE', 'micro-processer-assembly-language' FROM courses WHERE slug='bca' ON CONFLICT (course_id, semester, slug) DO NOTHING;
 INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 3, 'MICRO PROCESSOR ASSEMBLY LANGUAGE', 'micro-processor-assembly-language' FROM courses WHERE slug='bca' ON CONFLICT (course_id, semester, slug) DO NOTHING;
 INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 3, 'MULTIMEDIA AND WEB DEVELOPMENT', 'multimedia-and-web-development' FROM courses WHERE slug='mba' ON CONFLICT (course_id, semester, slug) DO NOTHING;
 INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 3, 'MULTINATIONAL BANKING', 'multinational-banking' FROM courses WHERE slug='mba' ON CONFLICT (course_id, semester, slug) DO NOTHING;
 INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 3, 'MULTINATIONAL FINANCIAL MANAGEMENT', 'multinational-financial-management' FROM courses WHERE slug='mba' ON CONFLICT (course_id, semester, slug) DO NOTHING;
-INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 3, 'NEW MEDIA', 'new-media' FROM courses WHERE slug='ma' ON CONFLICT (course_id, semester, slug) DO NOTHING;
 INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 3, 'OBJECT ORIENTED ANALYSIS AND DESIGN', 'object-oriented-analysis-and-design' FROM courses WHERE slug='mba' ON CONFLICT (course_id, semester, slug) DO NOTHING;
 INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 3, 'OBJECT ORIENTED ANLAYSIS AND DESIGN', 'object-oriented-anlaysis-and-design' FROM courses WHERE slug='mba' ON CONFLICT (course_id, semester, slug) DO NOTHING;
 INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 3, 'OBJECT TECHNOLOGY', 'object-technology' FROM courses WHERE slug='mca' ON CONFLICT (course_id, semester, slug) DO NOTHING;
 INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 3, 'OBJECTED ORIENTED ANALYSIS AND DESIGN', 'objected-oriented-analysis-and-design' FROM courses WHERE slug='mba' ON CONFLICT (course_id, semester, slug) DO NOTHING;
-INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 3, 'OPERATING SYSTEM', 'operating-system' FROM courses WHERE slug='bca' ON CONFLICT (course_id, semester, slug) DO NOTHING;
+INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 3, 'OPERATING SYSTEMS', 'operating-systems' FROM courses WHERE slug='bca' ON CONFLICT (course_id, semester, slug) DO NOTHING;
 INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 3, 'OPERATING SYSTEMS', 'operating-systems' FROM courses WHERE slug='mca' ON CONFLICT (course_id, semester, slug) DO NOTHING;
 INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 3, 'OPERATION MANAGEMENT', 'operation-management' FROM courses WHERE slug='bba' ON CONFLICT (course_id, semester, slug) DO NOTHING;
 INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 3, 'OPERATION MANAGEMENT', 'operation-management' FROM courses WHERE slug='mba' ON CONFLICT (course_id, semester, slug) DO NOTHING;
@@ -712,7 +707,7 @@ INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 4, 'CUSTOMER R
 INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 4, 'DATA STRUCTURE 2', 'data-structure-2' FROM courses WHERE slug='bca' ON CONFLICT (course_id, semester, slug) DO NOTHING;
 INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 4, 'DATA STRUCTURES 2', 'data-structures-2' FROM courses WHERE slug='bca' ON CONFLICT (course_id, semester, slug) DO NOTHING;
 INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 4, 'DATA WAREHOUSING AND MINING', 'data-warehousing-and-mining' FROM courses WHERE slug='mca' ON CONFLICT (course_id, semester, slug) DO NOTHING;
-INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 4, 'DATABASE MANAGEMENT SYSTEM', 'database-management-system' FROM courses WHERE slug='bba' ON CONFLICT (course_id, semester, slug) DO NOTHING;
+INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 4, 'DATABASE MANAGEMENT SYSTEMS', 'database-management-systems' FROM courses WHERE slug='bba' ON CONFLICT (course_id, semester, slug) DO NOTHING;
 INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 4, 'DBMS AND RDBMS', 'dbms-and-rdbms' FROM courses WHERE slug='bba' ON CONFLICT (course_id, semester, slug) DO NOTHING;
 INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 4, 'DRUG ADDICFION''CRIMINALJUSTICE AND HUMAN RIGHTS', 'drug-addicfioncriminaljustice-and-human-rights' FROM courses WHERE slug='llm' ON CONFLICT (course_id, semester, slug) DO NOTHING;
 INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 4, 'DRUGADDICTION CRIMINAL JUSTICE AND HUMAN RIGHTS', 'drugaddiction-criminal-justice-and-human-rights' FROM courses WHERE slug='llm' ON CONFLICT (course_id, semester, slug) DO NOTHING;
@@ -802,3 +797,8 @@ INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 4, 'HONS ENGLI
 INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 4, 'HONS ENTREPRENEURSHIP', 'hons-entrepreneurship' FROM courses WHERE slug='bballb' ON CONFLICT (course_id, semester, slug) DO NOTHING;
 INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 4, 'HONS ENVIRONMENTAL LAW 9642A', 'hons-environmental-law-9642a' FROM courses WHERE slug='llb' ON CONFLICT (course_id, semester, slug) DO NOTHING;
 INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 4, 'HONS ENVIRONMENTAL LAW', 'hons-environmental-law' FROM courses WHERE slug='ballb' ON CONFLICT (course_id, semester, slug) DO NOTHING;
+INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 4, 'HONS ENVIRONMENTAL LAW', 'hons-environmental-law' FROM courses WHERE slug='llb' ON CONFLICT (course_id, semester, slug) DO NOTHING;
+INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 4, 'HONS EQUITY AND TRUST', 'hons-equity-and-trust' FROM courses WHERE slug='llb' ON CONFLICT (course_id, semester, slug) DO NOTHING;
+INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 4, 'HONS FINANCIAL INSTITUTIONS AND MARKETS', 'hons-financial-institutions-and-markets' FROM courses WHERE slug='bcom' ON CONFLICT (course_id, semester, slug) DO NOTHING;
+INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 4, 'HONS HINDI', 'hons-hindi' FROM courses WHERE slug='ballb' ON CONFLICT (course_id, semester, slug) DO NOTHING;
+INSERT INTO subjects (course_id, semester, name, slug) SELECT id, 4, 'HONS HISTORY 9687 A', 'hons-history-9687-a' FROM courses WHERE slug='ballb' ON CONFLICT (course_id, semester, slug) DO NOTHING;
