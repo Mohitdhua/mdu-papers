@@ -71,13 +71,13 @@ const posts = (await getAllBlogPosts()).slice(0, 2);
               </div>
             </div>
 
-            <div id="home-panel-pg" class="course-panel" hidden>
+            <div id="home-panel-pg" class="course-panel" hidden style="display: none;">
               <div class="grid grid-cols-2 grid-cols-4">
                 {pgCourses.map((course) => <CourseCard course={course} />)}
               </div>
             </div>
 
-            <div id="home-panel-others" class="course-panel" hidden>
+            <div id="home-panel-others" class="course-panel" hidden style="display: none;">
               <div class="grid grid-cols-2 grid-cols-4">
                 {othersCourses.map((course) => <CourseCard course={course} />)}
               </div>
@@ -159,9 +159,18 @@ const posts = (await getAllBlogPosts()).slice(0, 2);
       tab.classList.add('active');
       tab.setAttribute('aria-selected', 'true');
       const key = tab.dataset.tab as 'ug' | 'pg' | 'others';
-      panels.ug?.toggleAttribute('hidden', key !== 'ug');
-      panels.pg?.toggleAttribute('hidden', key !== 'pg');
-      panels.others?.toggleAttribute('hidden', key !== 'others');
+      if (panels.ug) {
+        panels.ug.toggleAttribute('hidden', key !== 'ug');
+        panels.ug.style.display = key === 'ug' ? '' : 'none';
+      }
+      if (panels.pg) {
+        panels.pg.toggleAttribute('hidden', key !== 'pg');
+        panels.pg.style.display = key === 'pg' ? '' : 'none';
+      }
+      if (panels.others) {
+        panels.others.toggleAttribute('hidden', key !== 'others');
+        panels.others.style.display = key === 'others' ? '' : 'none';
+      }
     });
   });
 </script>
