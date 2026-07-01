@@ -120,12 +120,11 @@ const { title, description, image, type, noindex, jsonLd, publishedTime } = Astr
 
     <!-- Global download tracking: increments the counter via Supabase RPC. -->
     <script>
-      import { supabase, isSupabaseConfigured } from '@lib/supabase';
-
       // Expose a helper for the PdfViewer island.
       (window as any).__incrementDownload = async (paperId: number) => {
-        if (!isSupabaseConfigured || !supabase) return;
         try {
+          const { supabase, isSupabaseConfigured } = await import('@lib/supabase');
+          if (!isSupabaseConfigured || !supabase) return;
           await supabase.rpc('increment_download', { paper_id: paperId });
         } catch (e) {
           /* ignore */
