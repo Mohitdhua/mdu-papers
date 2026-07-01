@@ -4,6 +4,29 @@ import type { Course, Subject, Paper, SearchEntry, RecentPaper, Solution } from 
 import { subjectUrl, paperUrl, paperSlug } from './utils';
 
 /**
+ * Helper to fetch all rows from Supabase, bypassing the 1000-row API limit.
+ */
+async function fetchAllRows<T>(
+  fetchFn: (from: number, to: number) => any
+): Promise<T[]> {
+  let allData: T[] = [];
+  let from = 0;
+  const limit = 1000;
+  while (true) {
+    const { data, error } = await fetchFn(from, from + limit - 1);
+    if (error) {
+      console.error('[data] fetchAllRows error:', error);
+      throw error;
+    }
+    if (!data || data.length === 0) break;
+    allData = allData.concat(data as T[]);
+    if (data.length < limit) break;
+    from += limit;
+  }
+  return allData;
+}
+
+/**
  * Data access layer. Every function transparently uses Supabase when it is
  * configured, otherwise falls back to the local mock dataset so the site
  * builds and runs without any backend.
@@ -25,8 +48,14 @@ async function subjectsWithPapers(): Promise<Set<number>> {
   if (_subjectsWithPapers) return _subjectsWithPapers;
   const ids = new Set<number>();
   if (isSupabaseConfigured && supabase) {
-    const { data } = await supabase.from('papers').select('subject_id');
-    for (const row of (data as { subject_id: number }[]) ?? []) ids.add(row.subject_id);
+    try {
+      const data = await fetchAllRows<{ subject_id: number }>((from, to) =>
+        supabase.from('papers').select('subject_id').range(from, to)
+      );
+      for (const row of data) ids.add(row.subject_id);
+    } catch (err) {
+      console.error('[data] Failed to load subjects with papers:', err);
+    }
   } else {
     for (const p of mockPapers) ids.add(p.subject_id);
   }
@@ -42,8 +71,13 @@ async function coursesWithPapers(): Promise<Set<number>> {
   // Map subjects -> course.
   let subjects: Subject[] = mockSubjects;
   if (isSupabaseConfigured && supabase) {
-    const { data } = await supabase.from('subjects').select('id, course_id');
-    subjects = (data as Subject[]) ?? [];
+    try {
+      subjects = await fetchAllRows<Subject>((from, to) =>
+        supabase.from('subjects').select('id, course_id').range(from, to)
+      );
+    } catch (err) {
+      console.error('[data] Failed to load subjects for coursesWithPapers:', err);
+    }
   }
   const ids = new Set<number>();
   for (const s of subjects) {
@@ -92,12 +126,17 @@ export async function getVisibleCourses(): Promise<Course[]> {
 async function attachRealPaperCounts(courses: Course[]): Promise<Course[]> {
   if (!supabase) return courses;
   // Pull all subjects once and aggregate per course.
-  const { data, error } = await supabase.from('subjects').select('course_id, paper_count');
-  if (error || !data) {
+  let data: { course_id: number; paper_count: number | null }[] = [];
+  try {
+    data = await fetchAllRows<{ course_id: number; paper_count: number | null }>((from, to) =>
+      supabase.from('subjects').select('course_id, paper_count').range(from, to)
+    );
+  } catch (err) {
+    console.error('[data] Failed to load real paper counts:', err);
     return courses.map((c) => ({ ...c, paper_count: 0 }));
   }
   const totals = new Map<number, number>();
-  for (const row of data as { course_id: number; paper_count: number | null }[]) {
+  for (const row of data) {
     totals.set(row.course_id, (totals.get(row.course_id) ?? 0) + (row.paper_count ?? 0));
   }
   return courses.map((c) => ({ ...c, paper_count: totals.get(c.id) ?? 0 }));
@@ -189,9 +228,18 @@ export async function getRecentPapers(limit = 8): Promise<RecentPaper[]> {
       .select('*')
       .order('created_at', { ascending: false })
       .limit(limit);
-    const { data: subjectsData } = await supabase.from('subjects').select('*');
+    
+    let subjectsData: Subject[] = [];
+    try {
+      subjectsData = await fetchAllRows<Subject>((from, to) =>
+        supabase.from('subjects').select('*').range(from, to)
+      );
+    } catch (err) {
+      console.error('[data] Failed to load subjects for recent papers:', err);
+    }
+
     const subjectById = new Map(
-      ((subjectsData as Subject[]) ?? []).map((s) => [s.id, s])
+      subjectsData.map((s) => [s.id, s])
     );
     const result: RecentPaper[] = [];
     for (const paper of (papersData as Paper[]) ?? []) {
@@ -240,12 +288,14 @@ export async function getSiteStats(): Promise<{
   const courses = await getCourses();
 
   if (isSupabaseConfigured && supabase) {
-    const [{ count: paperCount }, { count: subjectCount }, { data: dl }] = await Promise.all([
+    const [{ count: paperCount }, { count: subjectCount }, dlData] = await Promise.all([
       supabase.from('papers').select('*', { count: 'exact', head: true }),
       supabase.from('subjects').select('*', { count: 'exact', head: true }),
-      supabase.from('papers').select('download_count'),
+      fetchAllRows<{ download_count: number }>((from, to) =>
+        supabase.from('papers').select('download_count').range(from, to)
+      ).catch(() => []),
     ]);
-    const downloads = ((dl as { download_count: number }[]) ?? []).reduce(
+    const downloads = dlData.reduce(
       (sum, p) => sum + (p.download_count ?? 0),
       0
     );
@@ -329,12 +379,20 @@ export async function getAllPapersWithContext(): Promise<PaperWithContext[]> {
   let subjects: Subject[] = mockSubjects;
   let papers: Paper[] = mockPapers;
   if (isSupabaseConfigured && supabase) {
-    const [{ data: subjectsData }, { data: papersData }] = await Promise.all([
-      supabase.from('subjects').select('*'),
-      supabase.from('papers').select('*'),
-    ]);
-    subjects = (subjectsData as Subject[]) ?? [];
-    papers = (papersData as Paper[]) ?? [];
+    try {
+      const [subjectsData, papersData] = await Promise.all([
+        fetchAllRows<Subject>((from, to) =>
+          supabase.from('subjects').select('*').range(from, to)
+        ),
+        fetchAllRows<Paper>((from, to) =>
+          supabase.from('papers').select('*').range(from, to)
+        ),
+      ]);
+      subjects = subjectsData;
+      papers = papersData;
+    } catch (err) {
+      console.error('[data] Failed to load data for getAllPapersWithContext:', err);
+    }
   }
 
   const subjectById = new Map(subjects.map((s) => [s.id, s]));
