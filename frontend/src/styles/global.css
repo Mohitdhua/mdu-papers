@@ -1030,6 +1030,12 @@ main {
   align-items: center;
   justify-content: center;
 }
+.ad-banner:empty {
+  display: none !important;
+}
+.sidebar-ad:has(.ad-banner:empty) {
+  display: none !important;
+}
 .disclaimer-banner {
   margin-block: var(--space-8);
   padding: var(--space-4) var(--space-6);
