@@ -116,7 +116,18 @@ export async function deletePaper(id: number) {
 }
 
 export async function verifyPaper(id: number) {
-  return getClient().from('papers').update({ is_verified: true }).eq('id', id);
+  const token = await getAccessToken();
+  const res = await fetch('/api/approve', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify({ paperId: id }),
+  });
+  const result = await res.json() as { success?: boolean; error?: string };
+  if (!res.ok) throw new Error(result.error || 'Failed to approve paper.');
+  return result;
 }
 
 export async function listUnverifiedPapers(): Promise<any[]> {
