@@ -15,7 +15,7 @@ export default function PublishButton() {
     if (!confirm('Trigger a site rebuild to publish your latest changes?')) return;
     setState('busy');
     try {
-      await fetch(DEPLOY_HOOK, { method: 'POST' });
+      await fetch(DEPLOY_HOOK, { method: 'POST', mode: 'no-cors' });
       setState('done');
       setTimeout(() => setState('idle'), 4000);
     } catch {
