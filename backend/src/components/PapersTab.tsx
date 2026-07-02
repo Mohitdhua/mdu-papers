@@ -8,6 +8,8 @@ import {
   deletePaper,
   uploadPaperPdf,
   deletePaperPdf,
+  verifyPaper,
+  listUnverifiedPapers,
   EXAM_SESSIONS,
 } from '../lib/admin';
 import { slugify, semesterLabel, formatFileSize } from '../lib/utils';
@@ -19,6 +21,7 @@ export default function PapersTab() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [papers, setPapers] = useState<Paper[]>([]);
+  const [unverifiedPapers, setUnverifiedPapers] = useState<any[]>([]);
   const [msg, setMsg] = useState<{ type: string; text: string } | null>(null);
   const [busy, setBusy] = useState(false);
   const [file, setFile] = useState<File | null>(null);
@@ -34,10 +37,17 @@ export default function PapersTab() {
     is_verified: true,
   });
 
+  const loadUnverified = () => {
+    listUnverifiedPapers()
+      .then(setUnverifiedPapers)
+      .catch((e) => console.error('[admin] Failed to load unverified papers:', e));
+  };
+
   useEffect(() => {
     listCourses()
       .then(setCourses)
       .catch((e) => setMsg({ type: 'error', text: e.message }));
+    loadUnverified();
   }, []);
 
   // Load subjects when course changes.
@@ -119,6 +129,23 @@ export default function PapersTab() {
     }
   };
 
+  const approve = async (pId: number) => {
+    try {
+      setBusy(true);
+      setMsg({ type: 'info', text: 'Approving paper…' });
+      await verifyPaper(pId);
+      setMsg({ type: 'success', text: 'Paper approved successfully! Rebuild the site to publish it.' });
+      loadUnverified();
+      if (form.subject_id) {
+        listPapers(form.subject_id as number).then(setPapers);
+      }
+    } catch (err) {
+      setMsg({ type: 'error', text: (err as Error).message });
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const remove = async (p: Paper) => {
     if (!confirm(`Delete the ${p.exam_session} ${p.year} paper?`)) return;
     const { error } = await deletePaper(p.id);
@@ -134,7 +161,10 @@ export default function PapersTab() {
         /* ignore — DB record already gone */
       }
     }
-    listPapers(form.subject_id as number).then(setPapers);
+    if (form.subject_id) {
+      listPapers(form.subject_id as number).then(setPapers);
+    }
+    loadUnverified();
   };
 
   return (
@@ -263,6 +293,57 @@ export default function PapersTab() {
         </form>
       </div>
 
+      {unverifiedPapers.length > 0 && (
+        <div className="card" style={{ marginBottom: '2rem', border: '1px solid var(--accent-warning)' }}>
+          <h3 style={{ marginBottom: '1rem', color: 'var(--accent-warning)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            ⚠️ Pending Student Submissions ({unverifiedPapers.length})
+          </h3>
+          <div style={{ overflowX: 'auto' }}>
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>Course</th>
+                  <th>Subject</th>
+                  <th>Session</th>
+                  <th>Year</th>
+                  <th>Size</th>
+                  <th>Uploaded By</th>
+                  <th>PDF</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {unverifiedPapers.map((p) => (
+                  <tr key={p.id}>
+                    <td style={{ fontWeight: 600 }}>{p.course_name}</td>
+                    <td>{p.subject_name}</td>
+                    <td>{p.exam_session}</td>
+                    <td>{p.year}</td>
+                    <td>{formatFileSize(p.pdf_size_kb)}</td>
+                    <td>{p.uploaded_by || 'student'}</td>
+                    <td>
+                      <a href={p.pdf_url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-primary)', fontWeight: 600 }}>
+                        Open PDF
+                      </a>
+                    </td>
+                    <td>
+                      <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <button className="btn btn-primary btn-sm" onClick={() => approve(p.id)}>
+                          Approve
+                        </button>
+                        <button className="btn btn-danger btn-sm" onClick={() => remove(p)}>
+                          Reject
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
       {form.subject_id && (
         <div className="card">
           <h3 style={{ marginBottom: '1rem' }}>
@@ -275,6 +356,7 @@ export default function PapersTab() {
                   <th>Session</th>
                   <th>Year</th>
                   <th>Size</th>
+                  <th>Status</th>
                   <th>Downloads</th>
                   <th>PDF</th>
                   <th></th>
@@ -282,10 +364,17 @@ export default function PapersTab() {
               </thead>
               <tbody>
                 {papers.map((p) => (
-                  <tr>
+                  <tr key={p.id}>
                     <td>{p.exam_session}</td>
                     <td>{p.year}</td>
                     <td>{formatFileSize(p.pdf_size_kb)}</td>
+                    <td>
+                      {p.is_verified ? (
+                        <span style={{ color: 'var(--accent-success)', fontWeight: 600 }}>Verified</span>
+                      ) : (
+                        <span style={{ color: 'var(--accent-warning)', fontWeight: 600 }}>Pending</span>
+                      )}
+                    </td>
                     <td>{p.download_count}</td>
                     <td>
                       <a href={p.pdf_url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-primary)' }}>
@@ -294,6 +383,11 @@ export default function PapersTab() {
                     </td>
                     <td>
                       <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        {!p.is_verified && (
+                          <button className="btn btn-primary btn-sm" onClick={() => approve(p.id)}>
+                            Approve
+                          </button>
+                        )}
                         <button className="btn btn-secondary btn-sm" onClick={() => setEditingSolution(p)}>
                           Solution
                         </button>
