@@ -18,6 +18,7 @@
 
 interface Env {
   PAPERS_BUCKET: R2Bucket;
+  SUBMISSIONS_BUCKET: R2Bucket;
   PUBLIC_SUPABASE_URL: string;
   PUBLIC_SUPABASE_ANON_KEY: string;
   PUBLIC_R2_BASE_URL: string;
@@ -127,19 +128,32 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       const sessionSlug = slugify(exam_session);
       const targetKey = `${courseSlug}/sem-${semester}/${subjectSlug}-${sessionSlug}-${year}.pdf`;
 
-      // Copy file within R2
+      // Move file from SUBMISSIONS_BUCKET to PAPERS_BUCKET
+      let sourceObj;
       try {
-        await env.PAPERS_BUCKET.copy(r2_key, targetKey);
-      } catch (copyErr) {
-        console.error('[approve-api] R2 copy failed:', copyErr);
-        return json({ error: `Failed to move file to organized folder: ${(copyErr as Error).message}` }, 500);
+        sourceObj = await env.SUBMISSIONS_BUCKET.get(r2_key);
+        if (!sourceObj) {
+          return json({ error: 'Source file not found in submissions bucket.' }, 404);
+        }
+      } catch (getErr) {
+        console.error('[approve-api] R2 get failed:', getErr);
+        return json({ error: `Failed to retrieve source file: ${(getErr as Error).message}` }, 500);
       }
 
-      // Delete the old file from submissions folder in R2
       try {
-        await env.PAPERS_BUCKET.delete(r2_key);
+        await env.PAPERS_BUCKET.put(targetKey, sourceObj.body, {
+          httpMetadata: { contentType: 'application/pdf' },
+        });
+      } catch (putErr) {
+        console.error('[approve-api] R2 put failed:', putErr);
+        return json({ error: `Failed to save file to main bucket: ${(putErr as Error).message}` }, 500);
+      }
+
+      // Delete the old file from submissions bucket
+      try {
+        await env.SUBMISSIONS_BUCKET.delete(r2_key);
       } catch (delErr) {
-        console.warn('[approve-api] R2 source deletion failed (non-blocking):', delErr);
+        console.warn('[approve-api] R2 submissions source deletion failed (non-blocking):', delErr);
       }
 
       finalR2Key = targetKey;

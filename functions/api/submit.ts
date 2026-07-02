@@ -12,7 +12,7 @@
  */
 
 interface Env {
-  PAPERS_BUCKET: R2Bucket;
+  SUBMISSIONS_BUCKET: R2Bucket;
   PUBLIC_SUPABASE_URL: string;
   PUBLIC_SUPABASE_ANON_KEY: string;
   PUBLIC_R2_BASE_URL: string;
@@ -82,7 +82,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
   // 2. Write file to Cloudflare R2
   try {
-    await env.PAPERS_BUCKET.put(r2Key, file.stream(), {
+    await env.SUBMISSIONS_BUCKET.put(r2Key, file.stream(), {
       httpMetadata: { contentType: 'application/pdf' },
     });
   } catch (err) {

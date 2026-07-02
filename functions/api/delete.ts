@@ -7,6 +7,7 @@
 
 interface Env {
   PAPERS_BUCKET: R2Bucket;
+  SUBMISSIONS_BUCKET: R2Bucket;
   PUBLIC_SUPABASE_URL: string;
   PUBLIC_SUPABASE_ANON_KEY: string;
 }
@@ -53,7 +54,12 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
   if (!key) return json({ error: 'No key provided.' }, 400);
 
   try {
-    await env.PAPERS_BUCKET.delete(key);
+    const isSubmission = key.startsWith('submissions/');
+    if (isSubmission) {
+      await env.SUBMISSIONS_BUCKET.delete(key);
+    } else {
+      await env.PAPERS_BUCKET.delete(key);
+    }
   } catch (err) {
     return json({ error: `Delete failed: ${(err as Error).message}` }, 500);
   }
