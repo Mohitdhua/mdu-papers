@@ -30,10 +30,17 @@ const otherCourses = courses.filter((c) => {
       
       <!-- 123apps-style Hover Dropdown Megamenu -->
       <div class="nav-dropdown-wrapper">
-        <a href="/courses" class="nav-item dropdown-trigger" aria-current={isActive('/courses') ? 'page' : undefined}>
+        <a
+          href="/courses"
+          class="nav-item dropdown-trigger"
+          aria-current={isActive('/courses') ? 'page' : undefined}
+          aria-haspopup="true"
+          aria-expanded="false"
+          aria-controls="courses-dropdown"
+        >
           Courses <Icon name="chevron-down" size={11} class="dropdown-chevron" />
         </a>
-        <div class="nav-dropdown-content">
+        <div class="nav-dropdown-content" id="courses-dropdown">
           <div class="dropdown-columns">
             <div class="dropdown-column">
               <h5>Undergraduate</h5>
@@ -141,7 +148,8 @@ const otherCourses = courses.filter((c) => {
   .dropdown-chevron {
     transition: transform 0.2s ease;
   }
-  .nav-dropdown-wrapper:hover .dropdown-chevron {
+  .nav-dropdown-wrapper:hover .dropdown-chevron,
+  .nav-dropdown-wrapper:focus-within .dropdown-chevron {
     transform: rotate(180deg);
   }
 
@@ -164,8 +172,9 @@ const otherCourses = courses.filter((c) => {
     pointer-events: none;
   }
 
-  /* Activate on hover */
-  .nav-dropdown-wrapper:hover .nav-dropdown-content {
+  /* Activate on hover and keyboard focus */
+  .nav-dropdown-wrapper:hover .nav-dropdown-content,
+  .nav-dropdown-wrapper:focus-within .nav-dropdown-content {
     display: block;
     opacity: 1;
     transform: translateX(-50%) translateY(6px);
