@@ -22,14 +22,14 @@ export default function LoginForm({ onSignIn }: Props) {
   return (
     <div className="admin-login">
       <div className="card">
-        <h2 style={{ marginBottom: '0.5rem' }}>🔒 Admin Login</h2>
-        <p className="text-muted" style={{ fontSize: '0.875rem', marginBottom: '1.5rem' }}>
-          Sign in with your Supabase admin account to manage papers.
+        <h2 style={{ marginBottom: '0.5rem', fontWeight: 800 }}>🎓 mduypq admin</h2>
+        <p className="text-muted" style={{ fontSize: '0.85rem', marginBottom: '1.5rem' }}>
+          Sign in with your administrator credentials to manage papers, subjects, courses, and blogs.
         </p>
         {error && <div className="admin-alert error">{error}</div>}
         <form onSubmit={submit}>
           <div className="form-group">
-            <label htmlFor="admin-email">Email</label>
+            <label htmlFor="admin-email">Email Address</label>
             <input
               id="admin-email"
               type="email"
@@ -50,7 +50,7 @@ export default function LoginForm({ onSignIn }: Props) {
               required
             />
           </div>
-          <button type="submit" className="btn btn-primary btn-block" disabled={busy}>
+          <button type="submit" className="btn btn-primary btn-block" style={{ padding: '0.65rem' }} disabled={busy}>
             {busy ? 'Signing in…' : 'Sign In'}
           </button>
         </form>

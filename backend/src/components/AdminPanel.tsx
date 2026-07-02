@@ -55,51 +55,80 @@ export default function AdminPanel() {
     return <LoginForm onSignIn={signIn} />;
   }
 
+  const tabLabel = () => {
+    switch (tab) {
+      case 'papers': return '📄 Papers & Submissions';
+      case 'subjects': return '📚 Syllabus Subjects';
+      case 'courses': return '🎓 Courses & Degrees';
+      case 'blog': return '📝 Blog Posts';
+    }
+  };
+
   return (
     <div className="admin-shell">
-      <div className="admin-bar">
-        <span className="admin-user">
-          Signed in as <strong>{session.user.email}</strong>
-        </span>
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
-          <PublishButton />
-          <button className="btn btn-secondary btn-sm" onClick={() => signOut()}>
+      {/* Left Sidebar */}
+      <aside className="admin-sidebar">
+        <div className="sidebar-logo">
+          🎓 <span>mdu</span>pyq
+        </div>
+
+        <nav className="sidebar-nav">
+          <button
+            className={`sidebar-btn ${tab === 'papers' ? 'active' : ''}`}
+            onClick={() => setTab('papers')}
+          >
+            <span className="icon">📄</span> Papers
+          </button>
+          <button
+            className={`sidebar-btn ${tab === 'subjects' ? 'active' : ''}`}
+            onClick={() => setTab('subjects')}
+          >
+            <span className="icon">📚</span> Subjects
+          </button>
+          <button
+            className={`sidebar-btn ${tab === 'courses' ? 'active' : ''}`}
+            onClick={() => setTab('courses')}
+          >
+            <span className="icon">🎓</span> Courses
+          </button>
+          <button
+            className={`sidebar-btn ${tab === 'blog' ? 'active' : ''}`}
+            onClick={() => setTab('blog')}
+          >
+            <span className="icon">📝</span> Blog
+          </button>
+        </nav>
+
+        <div className="sidebar-footer">
+          <div className="user-profile">
+            <span className="profile-role">Administrator</span>
+            <span className="profile-email">{session.user.email}</span>
+          </div>
+          <button className="btn btn-secondary btn-block btn-sm" onClick={() => signOut()}>
             Sign out
           </button>
         </div>
-      </div>
+      </aside>
 
-      <div className="admin-tabs" role="tablist">
-        <button
-          className={`tab-btn ${tab === 'papers' ? 'active' : ''}`}
-          onClick={() => setTab('papers')}
-        >
-          📄 Papers
-        </button>
-        <button
-          className={`tab-btn ${tab === 'subjects' ? 'active' : ''}`}
-          onClick={() => setTab('subjects')}
-        >
-          📚 Subjects
-        </button>
-        <button
-          className={`tab-btn ${tab === 'courses' ? 'active' : ''}`}
-          onClick={() => setTab('courses')}
-        >
-          🎓 Courses
-        </button>
-        <button
-          className={`tab-btn ${tab === 'blog' ? 'active' : ''}`}
-          onClick={() => setTab('blog')}
-        >
-          📝 Blog
-        </button>
-      </div>
+      {/* Right Content Area */}
+      <main className="main-content">
+        <header className="top-bar">
+          <h2>{tabLabel()}</h2>
+          <div className="top-bar-actions">
+            <PublishButton />
+            <button className="btn btn-secondary btn-sm" onClick={() => signOut()}>
+              Sign out
+            </button>
+          </div>
+        </header>
 
-      {tab === 'papers' && <PapersTab />}
-      {tab === 'subjects' && <SubjectsTab />}
-      {tab === 'courses' && <CoursesTab />}
-      {tab === 'blog' && <BlogTab />}
+        <div className="tab-content-wrapper">
+          {tab === 'papers' && <PapersTab />}
+          {tab === 'subjects' && <SubjectsTab />}
+          {tab === 'courses' && <CoursesTab />}
+          {tab === 'blog' && <BlogTab />}
+        </div>
+      </main>
     </div>
   );
 }
