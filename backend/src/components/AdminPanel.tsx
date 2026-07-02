@@ -6,20 +6,33 @@ import {
   signIn,
   signOut,
   onAuthChange,
+  verifyPaper,
+  listUnverifiedPapers,
+  deletePaper,
+  deletePaperPdf,
 } from '../lib/admin';
 import LoginForm from './LoginForm';
 import CoursesTab from './CoursesTab';
 import SubjectsTab from './SubjectsTab';
 import PapersTab from './PapersTab';
+import ContributionsTab from './ContributionsTab';
 import BlogTab from './BlogTab';
 import PublishButton from './PublishButton';
 
-type Tab = 'papers' | 'subjects' | 'courses' | 'blog';
+type Tab = 'papers' | 'contributions' | 'subjects' | 'courses' | 'blog';
 
 export default function AdminPanel() {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<Tab>('papers');
+  const [unverifiedPapers, setUnverifiedPapers] = useState<any[]>([]);
+
+  const loadUnverified = () => {
+    if (!adminConfigured) return;
+    listUnverifiedPapers()
+      .then(setUnverifiedPapers)
+      .catch((e) => console.error('[admin] Failed to load unverified papers:', e));
+  };
 
   useEffect(() => {
     if (!adminConfigured) {
@@ -31,8 +44,36 @@ export default function AdminPanel() {
       setLoading(false);
     });
     const { data } = onAuthChange((s) => setSession(s));
+    loadUnverified();
     return () => data.subscription.unsubscribe();
   }, []);
+
+  const handleApprove = async (pId: number) => {
+    try {
+      await verifyPaper(pId);
+      loadUnverified();
+    } catch (err) {
+      alert((err as Error).message);
+    }
+  };
+
+  const handleReject = async (p: any) => {
+    if (!confirm(`Reject and delete the ${p.exam_session} ${p.year} paper?`)) return;
+    try {
+      const { error } = await deletePaper(p.id);
+      if (error) throw error;
+      if (p.r2_key) {
+        try {
+          await deletePaperPdf(p.r2_key);
+        } catch {
+          /* ignore */
+        }
+      }
+      loadUnverified();
+    } catch (err) {
+      alert((err as Error).message);
+    }
+  };
 
   if (!adminConfigured) {
     return (
@@ -57,7 +98,8 @@ export default function AdminPanel() {
 
   const tabLabel = () => {
     switch (tab) {
-      case 'papers': return '📄 Papers & Submissions';
+      case 'papers': return '📄 Papers & Materials';
+      case 'contributions': return '📥 Student Contributions';
       case 'subjects': return '📚 Syllabus Subjects';
       case 'courses': return '🎓 Courses & Degrees';
       case 'blog': return '📝 Blog Posts';
@@ -78,6 +120,18 @@ export default function AdminPanel() {
             onClick={() => setTab('papers')}
           >
             <span className="icon">📄</span> Papers
+          </button>
+          <button
+            className={`sidebar-btn ${tab === 'contributions' ? 'active' : ''}`}
+            onClick={() => setTab('contributions')}
+            style={{ display: 'flex', alignItems: 'center', width: '100%' }}
+          >
+            <span className="icon">📥</span> Contributions
+            {unverifiedPapers.length > 0 && (
+              <span className="badge badge-warning" style={{ marginLeft: 'auto' }}>
+                {unverifiedPapers.length}
+              </span>
+            )}
           </button>
           <button
             className={`sidebar-btn ${tab === 'subjects' ? 'active' : ''}`}
@@ -123,7 +177,15 @@ export default function AdminPanel() {
         </header>
 
         <div className="tab-content-wrapper">
-          {tab === 'papers' && <PapersTab />}
+          {tab === 'papers' && <PapersTab onVerificationChange={loadUnverified} />}
+          {tab === 'contributions' && (
+            <ContributionsTab
+              unverifiedPapers={unverifiedPapers}
+              loadUnverified={loadUnverified}
+              onApprove={handleApprove}
+              onRemove={handleReject}
+            />
+          )}
           {tab === 'subjects' && <SubjectsTab />}
           {tab === 'courses' && <CoursesTab />}
           {tab === 'blog' && <BlogTab />}

@@ -67,14 +67,43 @@ export async function deleteCourse(id: number) {
   return getClient().from('courses').delete().eq('id', id);
 }
 
+// Helper to fetch all rows from Supabase, bypassing the 1000-row API limit.
+async function fetchAllRows<T>(
+  fetchFn: (from: number, to: number) => any
+): Promise<T[]> {
+  let allData: T[] = [];
+  let from = 0;
+  const limit = 1000;
+  while (true) {
+    const { data, error } = await fetchFn(from, from + limit - 1);
+    if (error) {
+      console.error('[admin] fetchAllRows error:', error);
+      throw error;
+    }
+    if (!data || data.length === 0) break;
+    allData = allData.concat(data as T[]);
+    if (data.length < limit) break;
+    from += limit;
+  }
+  return allData;
+}
+
 // ---------- Subjects ----------
 
 export async function listSubjects(courseId?: number): Promise<Subject[]> {
-  let q = getClient().from('subjects').select('*').order('semester');
-  if (courseId) q = q.eq('course_id', courseId);
-  const { data, error } = await q;
-  if (error) throw error;
-  return (data as Subject[]) ?? [];
+  if (courseId) {
+    const { data, error } = await getClient()
+      .from('subjects')
+      .select('*')
+      .eq('course_id', courseId)
+      .order('semester');
+    if (error) throw error;
+    return (data as Subject[]) ?? [];
+  }
+
+  return fetchAllRows<Subject>((from, to) =>
+    getClient().from('subjects').select('*').order('semester').range(from, to)
+  );
 }
 
 export async function createSubject(
@@ -128,6 +157,10 @@ export async function verifyPaper(id: number) {
   const result = await res.json() as { success?: boolean; error?: string };
   if (!res.ok) throw new Error(result.error || 'Failed to approve paper.');
   return result;
+}
+
+export async function updatePaper(id: number, patch: Partial<Paper>) {
+  return getClient().from('papers').update(patch).eq('id', id).select().single();
 }
 
 export async function listUnverifiedPapers(): Promise<any[]> {
