@@ -16,6 +16,7 @@ interface Env {
   PUBLIC_SUPABASE_URL: string;
   PUBLIC_SUPABASE_ANON_KEY: string;
   PUBLIC_R2_BASE_URL: string;
+  PUBLIC_SUBMISSIONS_R2_BASE_URL?: string;
 }
 
 const MAX_BYTES = 10 * 1024 * 1024; // 10 MB cap for public uploads
@@ -89,7 +90,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     return json({ error: `Storage upload failed: ${(err as Error).message}` }, 500);
   }
 
-  const baseR2Url = (env.PUBLIC_R2_BASE_URL || '').replace(/\/+$/, '');
+  const baseR2Url = (env.PUBLIC_SUBMISSIONS_R2_BASE_URL || env.PUBLIC_R2_BASE_URL || '').replace(/\/+$/, '');
   const pdfUrl = `${baseR2Url}/${r2Key}`;
   const sizeKb = Math.round(file.size / 1024);
   const pageCount = pageCountVal ? Number(pageCountVal) : null;
