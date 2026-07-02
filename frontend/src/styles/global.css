@@ -1814,3 +1814,8 @@ textarea.form-control {
   font-size: var(--text-sm);
   line-height: 1.7;
 }
+
+/* Global utility for hiding elements */
+.hidden {
+  display: none !important;
+}

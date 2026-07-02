@@ -396,7 +396,13 @@ const coursesData = courses.map((c) => ({
         body: formData,
       });
 
-      const result = await res.json();
+      let result;
+      try {
+        result = await res.json();
+      } catch (jsonErr) {
+        throw new Error(`Server returned status ${res.status}. Please check R2 Bucket Bindings in Cloudflare Pages settings.`);
+      }
+
       if (!res.ok) {
         throw new Error(result.error || 'Failed to submit question paper.');
       }
