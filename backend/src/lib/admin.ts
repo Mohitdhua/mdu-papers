@@ -154,7 +154,7 @@ export async function verifyPaper(id: number) {
     },
     body: JSON.stringify({ paperId: id }),
   });
-  const result = await res.json() as { success?: boolean; error?: string };
+  const result = await res.json() as { success?: boolean; error?: string; message?: string };
   if (!res.ok) throw new Error(result.error || 'Failed to approve paper.');
   return result;
 }

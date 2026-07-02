@@ -54,10 +54,11 @@ export default function AdminPanel() {
 
   const handleApprove = async (pId: number) => {
     try {
-      await verifyPaper(pId);
+      const result = await verifyPaper(pId);
+      alert(result.message || 'Paper approved successfully!');
       loadContributions();
     } catch (err) {
-      alert((err as Error).message);
+      alert('Approval failed: ' + (err as Error).message);
     }
   };
 
