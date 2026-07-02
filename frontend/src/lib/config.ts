@@ -23,6 +23,7 @@ export const NAV_LINKS = [
   { label: 'Home', href: '/' },
   { label: 'Courses', href: '/courses' },
   { label: 'Blog', href: '/blog' },
+  { label: 'Contribute', href: '/contribute' },
   { label: 'About', href: '/about' },
 ] as const;
 
@@ -30,6 +31,7 @@ export const FOOTER_LINKS = {
   quickLinks: [
     { label: 'Home', href: '/' },
     { label: 'All Courses', href: '/courses' },
+    { label: 'Contribute Papers', href: '/contribute' },
     { label: 'Search', href: '/search' },
     { label: 'Blog', href: '/blog' },
   ],

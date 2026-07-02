@@ -50,7 +50,7 @@ async function subjectsWithPapers(): Promise<Set<number>> {
   if (isSupabaseConfigured && supabase) {
     try {
       const data = await fetchAllRows<{ subject_id: number }>((from, to) =>
-        supabase.from('papers').select('subject_id').range(from, to)
+        supabase.from('papers').select('subject_id').eq('is_verified', true).range(from, to)
       );
       for (const row of data) ids.add(row.subject_id);
     } catch (err) {
@@ -206,6 +206,7 @@ export async function getPapersBySubject(subjectId: number): Promise<Paper[]> {
       .from('papers')
       .select('*')
       .eq('subject_id', subjectId)
+      .eq('is_verified', true)
       .order('year', { ascending: false });
     if (!error && data) return data as Paper[];
   }
@@ -226,6 +227,7 @@ export async function getRecentPapers(limit = 8): Promise<RecentPaper[]> {
     const { data: papersData } = await supabase
       .from('papers')
       .select('*')
+      .eq('is_verified', true)
       .order('created_at', { ascending: false })
       .limit(limit);
     
@@ -289,10 +291,10 @@ export async function getSiteStats(): Promise<{
 
   if (isSupabaseConfigured && supabase) {
     const [{ count: paperCount }, { count: subjectCount }, dlData] = await Promise.all([
-      supabase.from('papers').select('*', { count: 'exact', head: true }),
+      supabase.from('papers').select('*', { count: 'exact', head: true }).eq('is_verified', true),
       supabase.from('subjects').select('*', { count: 'exact', head: true }),
       fetchAllRows<{ download_count: number }>((from, to) =>
-        supabase.from('papers').select('download_count').range(from, to)
+        supabase.from('papers').select('download_count').eq('is_verified', true).range(from, to)
       ).catch(() => []),
     ]);
     const downloads = dlData.reduce(
@@ -385,7 +387,7 @@ export async function getAllPapersWithContext(): Promise<PaperWithContext[]> {
           supabase.from('subjects').select('*').range(from, to)
         ),
         fetchAllRows<Paper>((from, to) =>
-          supabase.from('papers').select('*').range(from, to)
+          supabase.from('papers').select('*').eq('is_verified', true).range(from, to)
         ),
       ]);
       subjects = subjectsData;
