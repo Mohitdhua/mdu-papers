@@ -11,7 +11,7 @@ interface Props {
 export default function SolutionEditor({ paper, label, onClose }: Props) {
   const [content, setContent] = useState('');
   const [pdfUrl, setPdfUrl] = useState('');
-  const [author, setAuthor] = useState('mdupyq Team');
+  const [author, setAuthor] = useState('MDU Papers Team');
   const [published, setPublished] = useState(true);
   const [msg, setMsg] = useState<{ type: string; text: string } | null>(null);
   const [busy, setBusy] = useState(false);
@@ -24,7 +24,7 @@ export default function SolutionEditor({ paper, label, onClose }: Props) {
           setExists(true);
           setContent(s.content ?? '');
           setPdfUrl(s.solution_pdf_url ?? '');
-          setAuthor(s.author ?? 'mdupyq Team');
+          setAuthor(s.author ?? 'MDU Papers Team');
           setPublished(s.is_published);
         }
       })
@@ -39,7 +39,7 @@ export default function SolutionEditor({ paper, label, onClose }: Props) {
       paper_id: paper.id,
       content: content.trim() || null,
       solution_pdf_url: pdfUrl.trim() || null,
-      author: author.trim() || 'mdupyq Team',
+      author: author.trim() || 'MDU Papers Team',
       is_published: published,
     });
     setBusy(false);

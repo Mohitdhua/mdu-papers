@@ -109,7 +109,7 @@ export default function AdminPanel() {
       {/* Left Sidebar */}
       <aside className="admin-sidebar">
         <div className="sidebar-logo">
-          🎓 <span>mdu</span>pyq
+          🎓 <span>mdu</span>papers
         </div>
 
         <nav className="sidebar-nav">
