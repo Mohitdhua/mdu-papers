@@ -87,7 +87,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
   const supabaseHeaders = {
     'apikey': env.PUBLIC_SUPABASE_ANON_KEY,
-    'Authorization': `Bearer ${env.PUBLIC_SUPABASE_ANON_KEY}`,
+    'Authorization': `Bearer ${token}`,
     'Content-Type': 'application/json',
     'Prefer': 'return=representation',
   };
@@ -172,10 +172,10 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       }),
     });
 
-    if (!updateRes.ok) {
-      const errMsg = await updateRes.text();
-      console.error('[approve-api] Database update failed:', errMsg);
-      return json({ error: 'Failed to update paper verification status in database.' }, 500);
+    const updatedRows = await updateRes.json() as any[];
+    if (!updateRes.ok || !updatedRows || updatedRows.length === 0) {
+      console.error('[approve-api] Database update failed or RLS blocked. Status:', updateRes.status, 'Rows:', updatedRows);
+      return json({ error: 'Failed to update paper verification status in database. Check RLS policies.' }, 500);
     }
 
     return json({
