@@ -1,33 +1,22 @@
 import { useEffect, useState } from 'react';
-import type { Course, Subject, Paper, ExamSession } from '../lib/types';
+import type { Course, Subject, ExamSession } from '../lib/types';
 import {
   listCourses,
   listSubjects,
-  listPapers,
   createPaper,
-  deletePaper,
   uploadPaperPdf,
-  deletePaperPdf,
-  verifyPaper,
   EXAM_SESSIONS,
 } from '../lib/admin';
 import { slugify, semesterLabel, formatFileSize } from '../lib/utils';
-import SolutionEditor from './SolutionEditor';
-
-interface Props {
-  onVerificationChange: () => void;
-}
 
 const CURRENT_YEAR = new Date().getFullYear();
 
-export default function PapersTab({ onVerificationChange }: Props) {
+export default function PapersTab() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [subjects, setSubjects] = useState<Subject[]>([]);
-  const [papers, setPapers] = useState<Paper[]>([]);
   const [msg, setMsg] = useState<{ type: string; text: string } | null>(null);
   const [busy, setBusy] = useState(false);
   const [file, setFile] = useState<File | null>(null);
-  const [editingSolution, setEditingSolution] = useState<Paper | null>(null);
 
   const [form, setForm] = useState({
     course_id: '' as number | '',
@@ -55,14 +44,7 @@ export default function PapersTab({ onVerificationChange }: Props) {
     setForm((f) => ({ ...f, subject_id: '' }));
   }, [form.course_id]);
 
-  // Load papers when subject changes.
-  useEffect(() => {
-    if (form.subject_id) {
-      listPapers(form.subject_id as number).then(setPapers);
-    } else {
-      setPapers([]);
-    }
-  }, [form.subject_id]);
+
 
   const set = (k: string, v: unknown) => setForm((f) => ({ ...f, [k]: v }));
 
@@ -116,7 +98,6 @@ export default function PapersTab({ onVerificationChange }: Props) {
       });
       setFile(null);
       setForm((f) => ({ ...f, page_count: '', topics: '' }));
-      listPapers(form.subject_id as number).then(setPapers);
     } catch (err) {
       setMsg({ type: 'error', text: (err as Error).message });
     } finally {
@@ -124,43 +105,6 @@ export default function PapersTab({ onVerificationChange }: Props) {
     }
   };
 
-  const approve = async (pId: number) => {
-    try {
-      setBusy(true);
-      setMsg({ type: 'info', text: 'Approving paper…' });
-      await verifyPaper(pId);
-      setMsg({ type: 'success', text: 'Paper approved successfully! Rebuild the site to publish it.' });
-      onVerificationChange();
-      if (form.subject_id) {
-        listPapers(form.subject_id as number).then(setPapers);
-      }
-    } catch (err) {
-      setMsg({ type: 'error', text: (err as Error).message });
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const remove = async (p: Paper) => {
-    if (!confirm(`Delete the ${p.exam_session} ${p.year} paper?`)) return;
-    const { error } = await deletePaper(p.id);
-    if (error) {
-      setMsg({ type: 'error', text: error.message });
-      return;
-    }
-    // Best-effort: also remove the PDF from R2.
-    if (p.r2_key) {
-      try {
-        await deletePaperPdf(p.r2_key);
-      } catch {
-        /* ignore — DB record already gone */
-      }
-    }
-    if (form.subject_id) {
-      listPapers(form.subject_id as number).then(setPapers);
-    }
-    onVerificationChange();
-  };
 
   return (
     <div>
@@ -287,74 +231,6 @@ export default function PapersTab({ onVerificationChange }: Props) {
           </button>
         </form>
       </div>
-
-      {form.subject_id && (
-        <div className="card">
-          <h3 style={{ marginBottom: '1rem' }}>
-            Papers for {selectedSubject?.name} ({papers.length})
-          </h3>
-          <div style={{ overflowX: 'auto' }}>
-            <table className="admin-table">
-              <thead>
-                <tr>
-                  <th>Session</th>
-                  <th>Year</th>
-                  <th>Size</th>
-                  <th>Status</th>
-                  <th>Downloads</th>
-                  <th>PDF</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                {papers.map((p) => (
-                  <tr key={p.id}>
-                    <td>{p.exam_session}</td>
-                    <td>{p.year}</td>
-                    <td>{formatFileSize(p.pdf_size_kb)}</td>
-                    <td>
-                      {p.is_verified ? (
-                        <span style={{ color: 'var(--accent-success)', fontWeight: 600 }}>Verified</span>
-                      ) : (
-                        <span style={{ color: 'var(--accent-warning)', fontWeight: 600 }}>Pending</span>
-                      )}
-                    </td>
-                    <td>{p.download_count}</td>
-                    <td>
-                      <a href={p.pdf_url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-primary)' }}>
-                        View
-                      </a>
-                    </td>
-                    <td>
-                      <div style={{ display: 'flex', gap: '0.5rem' }}>
-                        {!p.is_verified && (
-                          <button className="btn btn-primary btn-sm" onClick={() => approve(p.id)}>
-                            Approve
-                          </button>
-                        )}
-                        <button className="btn btn-secondary btn-sm" onClick={() => setEditingSolution(p)}>
-                          Solution
-                        </button>
-                        <button className="btn btn-danger btn-sm" onClick={() => remove(p)}>
-                          Delete
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {editingSolution && (
-        <SolutionEditor
-          paper={editingSolution}
-          label={`${selectedSubject?.name ?? ''} ${editingSolution.exam_session} ${editingSolution.year}`}
-          onClose={() => setEditingSolution(null)}
-        />
-      )}
     </div>
   );
 }

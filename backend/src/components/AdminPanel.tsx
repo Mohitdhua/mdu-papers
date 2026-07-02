@@ -12,19 +12,18 @@ import {
   deletePaperPdf,
 } from '../lib/admin';
 import LoginForm from './LoginForm';
-import CoursesTab from './CoursesTab';
-import SubjectsTab from './SubjectsTab';
 import PapersTab from './PapersTab';
+import ManageTab from './ManageTab';
 import ContributionsTab from './ContributionsTab';
 import BlogTab from './BlogTab';
 import PublishButton from './PublishButton';
 
-type Tab = 'papers' | 'contributions' | 'subjects' | 'courses' | 'blog';
+type Tab = 'add' | 'manage' | 'contributions' | 'blog';
 
 export default function AdminPanel() {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<Tab>('papers');
+  const [tab, setTab] = useState<Tab>('add');
   const [unverifiedPapers, setUnverifiedPapers] = useState<any[]>([]);
 
   const loadUnverified = () => {
@@ -98,10 +97,9 @@ export default function AdminPanel() {
 
   const tabLabel = () => {
     switch (tab) {
-      case 'papers': return '📄 Papers & Materials';
+      case 'add': return '📄 Add Paper';
+      case 'manage': return '⚙️ Manage Site';
       case 'contributions': return '📥 Student Contributions';
-      case 'subjects': return '📚 Syllabus Subjects';
-      case 'courses': return '🎓 Courses & Degrees';
       case 'blog': return '📝 Blog Posts';
     }
   };
@@ -116,10 +114,16 @@ export default function AdminPanel() {
 
         <nav className="sidebar-nav">
           <button
-            className={`sidebar-btn ${tab === 'papers' ? 'active' : ''}`}
-            onClick={() => setTab('papers')}
+            className={`sidebar-btn ${tab === 'add' ? 'active' : ''}`}
+            onClick={() => setTab('add')}
           >
-            <span className="icon">📄</span> Papers
+            <span className="icon">📄</span> Add Paper
+          </button>
+          <button
+            className={`sidebar-btn ${tab === 'manage' ? 'active' : ''}`}
+            onClick={() => setTab('manage')}
+          >
+            <span className="icon">⚙️</span> Manage
           </button>
           <button
             className={`sidebar-btn ${tab === 'contributions' ? 'active' : ''}`}
@@ -132,18 +136,6 @@ export default function AdminPanel() {
                 {unverifiedPapers.length}
               </span>
             )}
-          </button>
-          <button
-            className={`sidebar-btn ${tab === 'subjects' ? 'active' : ''}`}
-            onClick={() => setTab('subjects')}
-          >
-            <span className="icon">📚</span> Subjects
-          </button>
-          <button
-            className={`sidebar-btn ${tab === 'courses' ? 'active' : ''}`}
-            onClick={() => setTab('courses')}
-          >
-            <span className="icon">🎓</span> Courses
           </button>
           <button
             className={`sidebar-btn ${tab === 'blog' ? 'active' : ''}`}
@@ -177,7 +169,8 @@ export default function AdminPanel() {
         </header>
 
         <div className="tab-content-wrapper">
-          {tab === 'papers' && <PapersTab onVerificationChange={loadUnverified} />}
+          {tab === 'add' && <PapersTab />}
+          {tab === 'manage' && <ManageTab />}
           {tab === 'contributions' && (
             <ContributionsTab
               unverifiedPapers={unverifiedPapers}
@@ -186,8 +179,6 @@ export default function AdminPanel() {
               onRemove={handleReject}
             />
           )}
-          {tab === 'subjects' && <SubjectsTab />}
-          {tab === 'courses' && <CoursesTab />}
           {tab === 'blog' && <BlogTab />}
         </div>
       </main>
