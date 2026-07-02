@@ -8,19 +8,24 @@ import {
 } from '../lib/admin';
 import { formatFileSize, semesterLabel } from '../lib/utils';
 
+type SubTab = 'pending' | 'approved';
+
 interface Props {
   unverifiedPapers: any[];
-  loadUnverified: () => void;
+  approvedPapers: any[];
+  loadContributions: () => void;
   onApprove: (id: number) => Promise<void>;
   onRemove: (p: any) => Promise<void>;
 }
 
 export default function ContributionsTab({
   unverifiedPapers,
-  loadUnverified,
+  approvedPapers,
+  loadContributions,
   onApprove,
   onRemove,
 }: Props) {
+  const [subTab, setSubTab] = useState<SubTab>('pending');
   const [courses, setCourses] = useState<Course[]>([]);
   const [editingPaper, setEditingPaper] = useState<any | null>(null);
   const [busy, setBusy] = useState(false);
@@ -98,7 +103,7 @@ export default function ContributionsTab({
       if (updateErr) throw updateErr;
 
       setEditingPaper(null);
-      loadUnverified();
+      loadContributions();
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -108,76 +113,162 @@ export default function ContributionsTab({
 
   return (
     <div>
-      <div className="card">
-        {unverifiedPapers.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '2rem 0', color: 'var(--text-secondary)' }}>
-            <span style={{ fontSize: '3rem', display: 'block', marginBottom: '1rem' }}>🎉</span>
-            <h3>No pending submissions!</h3>
-            <p style={{ fontSize: '0.875rem', marginTop: '0.5rem' }}>All student contributions have been reviewed.</p>
-          </div>
-        ) : (
-          <div style={{ overflowX: 'auto' }}>
-            <table className="admin-table">
-              <thead>
-                <tr>
-                  <th>Course</th>
-                  <th>Subject</th>
-                  <th>Session</th>
-                  <th>Year</th>
-                  <th>Size</th>
-                  <th>Uploaded By</th>
-                  <th>PDF</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {unverifiedPapers.map((p) => (
-                  <tr key={p.id}>
-                    <td style={{ fontWeight: 600 }}>{p.course_name}</td>
-                    <td>{p.subject_name}</td>
-                    <td>{p.exam_session}</td>
-                    <td>{p.year}</td>
-                    <td>{formatFileSize(p.pdf_size_kb)}</td>
-                    <td>{p.uploaded_by || 'student'}</td>
-                    <td>
-                      <a
-                        href={p.pdf_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{ color: 'var(--accent-primary)', fontWeight: 600 }}
-                      >
-                        Open PDF
-                      </a>
-                    </td>
-                    <td>
-                      <div style={{ display: 'flex', gap: '0.5rem' }}>
-                        <button
-                          className="btn btn-primary btn-sm"
-                          onClick={() => onApprove(p.id)}
-                        >
-                          Approve
-                        </button>
-                        <button
-                          className="btn btn-secondary btn-sm"
-                          onClick={() => handleEditClick(p)}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          className="btn btn-danger btn-sm"
-                          onClick={() => onRemove(p)}
-                        >
-                          Reject
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+      {/* Sub-tab pills */}
+      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.25rem' }}>
+        <button
+          className={`btn btn-sm ${subTab === 'pending' ? 'btn-primary' : 'btn-secondary'}`}
+          onClick={() => setSubTab('pending')}
+          style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+        >
+          📥 Pending Approval
+          {unverifiedPapers.length > 0 && (
+            <span className="badge badge-warning" style={{ marginLeft: '0.25rem' }}>
+              {unverifiedPapers.length}
+            </span>
+          )}
+        </button>
+        <button
+          className={`btn btn-sm ${subTab === 'approved' ? 'btn-primary' : 'btn-secondary'}`}
+          onClick={() => setSubTab('approved')}
+          style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+        >
+          ✅ Approved
+          {approvedPapers.length > 0 && (
+            <span className="badge" style={{ marginLeft: '0.25rem', background: 'var(--accent-primary)', color: '#fff', borderRadius: '10px', padding: '0.1rem 0.5rem', fontSize: '0.75rem' }}>
+              {approvedPapers.length}
+            </span>
+          )}
+        </button>
       </div>
+
+      {/* Pending Approval Section */}
+      {subTab === 'pending' && (
+        <div className="card">
+          {unverifiedPapers.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '2rem 0', color: 'var(--text-secondary)' }}>
+              <span style={{ fontSize: '3rem', display: 'block', marginBottom: '1rem' }}>🎉</span>
+              <h3>No pending submissions!</h3>
+              <p style={{ fontSize: '0.875rem', marginTop: '0.5rem' }}>All student contributions have been reviewed.</p>
+            </div>
+          ) : (
+            <div style={{ overflowX: 'auto' }}>
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Course</th>
+                    <th>Subject</th>
+                    <th>Session</th>
+                    <th>Year</th>
+                    <th>Size</th>
+                    <th>Uploaded By</th>
+                    <th>PDF</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {unverifiedPapers.map((p) => (
+                    <tr key={p.id}>
+                      <td style={{ fontWeight: 600 }}>{p.course_name}</td>
+                      <td>{p.subject_name}</td>
+                      <td>{p.exam_session}</td>
+                      <td>{p.year}</td>
+                      <td>{formatFileSize(p.pdf_size_kb)}</td>
+                      <td>{p.uploaded_by || 'student'}</td>
+                      <td>
+                        <a
+                          href={p.pdf_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ color: 'var(--accent-primary)', fontWeight: 600 }}
+                        >
+                          Open PDF
+                        </a>
+                      </td>
+                      <td>
+                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                          <button
+                            className="btn btn-primary btn-sm"
+                            onClick={() => onApprove(p.id)}
+                          >
+                            Approve
+                          </button>
+                          <button
+                            className="btn btn-secondary btn-sm"
+                            onClick={() => handleEditClick(p)}
+                          >
+                            Edit
+                          </button>
+                          <button
+                            className="btn btn-danger btn-sm"
+                            onClick={() => onRemove(p)}
+                          >
+                            Reject
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Approved Section */}
+      {subTab === 'approved' && (
+        <div className="card">
+          {approvedPapers.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '2rem 0', color: 'var(--text-secondary)' }}>
+              <span style={{ fontSize: '3rem', display: 'block', marginBottom: '1rem' }}>📭</span>
+              <h3>No approved contributions yet</h3>
+              <p style={{ fontSize: '0.875rem', marginTop: '0.5rem' }}>Student contributions will appear here once approved.</p>
+            </div>
+          ) : (
+            <div style={{ overflowX: 'auto' }}>
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Course</th>
+                    <th>Subject</th>
+                    <th>Session</th>
+                    <th>Year</th>
+                    <th>Size</th>
+                    <th>Approved On</th>
+                    <th>PDF</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {approvedPapers.map((p) => (
+                    <tr key={p.id}>
+                      <td style={{ fontWeight: 600 }}>{p.course_name}</td>
+                      <td>{p.subject_name}</td>
+                      <td>{p.exam_session}</td>
+                      <td>{p.year}</td>
+                      <td>{formatFileSize(p.pdf_size_kb)}</td>
+                      <td style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                        {new Date(p.created_at).toLocaleDateString('en-IN', {
+                          day: 'numeric', month: 'short', year: 'numeric'
+                        })}
+                      </td>
+                      <td>
+                        <a
+                          href={p.pdf_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ color: 'var(--accent-primary)', fontWeight: 600 }}
+                        >
+                          View PDF
+                        </a>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Edit Details Modal */}
       {editingPaper && (

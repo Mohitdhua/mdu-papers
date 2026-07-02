@@ -8,6 +8,7 @@ import {
   onAuthChange,
   verifyPaper,
   listUnverifiedPapers,
+  listApprovedContributions,
   deletePaper,
   deletePaperPdf,
 } from '../lib/admin';
@@ -25,12 +26,16 @@ export default function AdminPanel() {
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<Tab>('add');
   const [unverifiedPapers, setUnverifiedPapers] = useState<any[]>([]);
+  const [approvedContributions, setApprovedContributions] = useState<any[]>([]);
 
-  const loadUnverified = () => {
+  const loadContributions = () => {
     if (!adminConfigured) return;
     listUnverifiedPapers()
       .then(setUnverifiedPapers)
       .catch((e) => console.error('[admin] Failed to load unverified papers:', e));
+    listApprovedContributions()
+      .then(setApprovedContributions)
+      .catch((e) => console.error('[admin] Failed to load approved contributions:', e));
   };
 
   useEffect(() => {
@@ -43,14 +48,14 @@ export default function AdminPanel() {
       setLoading(false);
     });
     const { data } = onAuthChange((s) => setSession(s));
-    loadUnverified();
+    loadContributions();
     return () => data.subscription.unsubscribe();
   }, []);
 
   const handleApprove = async (pId: number) => {
     try {
       await verifyPaper(pId);
-      loadUnverified();
+      loadContributions();
     } catch (err) {
       alert((err as Error).message);
     }
@@ -68,7 +73,7 @@ export default function AdminPanel() {
           /* ignore */
         }
       }
-      loadUnverified();
+      loadContributions();
     } catch (err) {
       alert((err as Error).message);
     }
@@ -174,7 +179,8 @@ export default function AdminPanel() {
           {tab === 'contributions' && (
             <ContributionsTab
               unverifiedPapers={unverifiedPapers}
-              loadUnverified={loadUnverified}
+              approvedPapers={approvedContributions}
+              loadContributions={loadContributions}
               onApprove={handleApprove}
               onRemove={handleReject}
             />

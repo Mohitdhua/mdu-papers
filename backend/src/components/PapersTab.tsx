@@ -76,7 +76,7 @@ export default function PapersTab() {
     try {
       // Build a clean R2 object key: course/sem-N/subject-session-year.pdf
       const sessionSlug = slugify(form.exam_session);
-      const key = `${selectedCourse.slug}/sem-${selectedSubject.semester}/${selectedSubject.slug}-${sessionSlug}-${form.year}.pdf`;
+      const key = `${selectedCourse.slug}/sem-${selectedSubject.semester}/${selectedSubject.slug}/${sessionSlug}-${form.year}.pdf`;
       const { url, sizeKb, key: storedKey } = await uploadPaperPdf(file, key);
 
       const { error } = await createPaper({

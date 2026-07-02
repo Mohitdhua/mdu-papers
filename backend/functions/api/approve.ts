@@ -126,7 +126,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     // 4. File-moving inside R2 if the paper key is temporary
     if (isTemporary) {
       const sessionSlug = slugify(exam_session);
-      const targetKey = `${courseSlug}/sem-${semester}/${subjectSlug}-${sessionSlug}-${year}.pdf`;
+      const targetKey = `${courseSlug}/sem-${semester}/${subjectSlug}/${sessionSlug}-${year}.pdf`;
 
       // Move file from SUBMISSIONS_BUCKET to PAPERS_BUCKET
       let sourceObj;

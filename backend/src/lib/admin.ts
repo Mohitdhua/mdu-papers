@@ -185,6 +185,29 @@ export async function listUnverifiedPapers(): Promise<any[]> {
   }));
 }
 
+export async function listApprovedContributions(): Promise<any[]> {
+  const { data, error } = await getClient()
+    .from('papers')
+    .select(`
+      *,
+      subject:subjects (
+        name,
+        course:courses (
+          name
+        )
+      )
+    `)
+    .eq('is_verified', true)
+    .eq('uploaded_by', 'student')
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+  return (data || []).map((p: any) => ({
+    ...p,
+    subject_name: p.subject?.name || 'Unknown Subject',
+    course_name: p.subject?.course?.name || 'Unknown Course',
+  }));
+}
+
 /** Get the current user's access token (for authenticating R2 function calls). */
 async function getAccessToken(): Promise<string> {
   const { data } = await getClient().auth.getSession();
