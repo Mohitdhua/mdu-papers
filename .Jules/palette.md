@@ -1,1 +1,4 @@
 ## 2026-06-30 - Improve Accessibility in SerpPreview.tsx\n**Learning:** Tab-like buttons in filter lists often lack proper ARIA attributes to communicate their state and function. Missing `role="group"` on filter containers and `aria-pressed` on stateful toggle buttons makes keyboard and screen reader navigation unclear.\n**Action:** Always ensure that custom button groups acting as tabs or filters have an appropriate `role="group"` on their container, and use `aria-pressed` on the buttons themselves to indicate the active state. Add `aria-label` to search inputs lacking visible labels.
+## 2024-07-03 - Header Megamenu Keyboard Accessibility
+**Learning:** The Courses hover megamenu in the main header was inaccessible to keyboard users because it only relied on the `:hover` pseudo-class.
+**Action:** Always add `:focus-within` styles parallel to `:hover` styles for custom dropdowns, and ensure the trigger has `aria-haspopup="true"`.
