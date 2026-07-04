@@ -73,15 +73,27 @@ const jsonLd = {
       <div class="grid grid-cols-2 grid-cols-4">
         {
           semesters.map(({ sem, subjectCount, paperCount }) => (
-            <a href={`/${course.slug}/${semesterToSlug(sem)}`} class="card semester-card animate-in">
-              <div class="sem-number">{sem}</div>
-              <h3>{semesterLabel(sem)}</h3>
-              <div class="subject-card-meta" style="justify-content: center;">
-                <span>{subjectCount} subjects</span>
-                <span>·</span>
-                <span>{paperCount} papers</span>
-              </div>
-            </a>
+            paperCount > 0 ? (
+              <a href={`/${course.slug}/${semesterToSlug(sem)}`} class="card semester-card animate-in">
+                <div class="sem-number">{sem}</div>
+                <h3>{semesterLabel(sem)}</h3>
+                <div class="subject-card-meta" style="justify-content: center;">
+                  <span>{subjectCount} subjects</span>
+                  <span>·</span>
+                  <span>{paperCount} papers</span>
+                </div>
+              </a>
+            ) : (
+              <a href={`/contribute?course=${encodeURIComponent(course.name)}&sem=${encodeURIComponent(semesterLabel(sem))}`} rel="nofollow" class="card semester-card empty-contribution animate-in">
+                <div class="sem-number empty">?</div>
+                <h3>{semesterLabel(sem)}</h3>
+                <div class="subject-card-meta upload-prompt" style="justify-content: center;">
+                  <span>No papers yet</span>
+                  <span>·</span>
+                  <span class="upload-link">Upload one &rarr;</span>
+                </div>
+              </a>
+            )
           ))
         }
       </div>
@@ -93,7 +105,7 @@ const jsonLd = {
           <h2 class="section-title"><Icon name="file-check" /> Popular Subjects</h2>
           <div class="grid grid-cols-2 grid-cols-3">
             {popularSubjects.map((s) => (
-              <a href={`/${course.slug}/${semesterToSlug(s.semester)}/${s.slug}`} class="card subject-card animate-in">
+              <a href={`/${course.slug}/${semesterToSlug(s.semester)}#${s.slug}`} class="card subject-card animate-in">
                 <div class="subject-card-main">
                   <h3 style="font-size: 1rem;">{s.name}</h3>
                   <div class="subject-card-meta">
@@ -123,3 +135,26 @@ const jsonLd = {
     />
   </div>
 </BaseLayout>
+
+<style>
+  .empty-contribution {
+    border: 1px dashed var(--border-color);
+    background: transparent;
+    opacity: 0.85;
+    transition: all 0.2s ease;
+  }
+  .empty-contribution:hover {
+    border-color: var(--accent-primary);
+    opacity: 1;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+  .empty-contribution .sem-number.empty {
+    background-color: var(--bg-secondary);
+    color: var(--text-muted);
+  }
+  .upload-link {
+    color: var(--accent-primary);
+    font-weight: 500;
+  }
+</style>

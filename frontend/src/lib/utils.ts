@@ -79,7 +79,7 @@ export function truncate(text: string, max = 150): string {
 
 /** Build the canonical URL path for a paper's subject page. */
 export function subjectUrl(courseSlug: string, semester: number, subjectSlug: string): string {
-  return `/${courseSlug}/${semesterToSlug(semester)}/${subjectSlug}`;
+  return `/${courseSlug}/${semesterToSlug(semester)}#${subjectSlug}`;
 }
 
 /** Slugify an exam session, e.g. "Nov/Dec" -> "nov-dec", "May/June" -> "may-june". */
@@ -109,5 +109,5 @@ export function paperUrl(
   subjectSlug: string,
   slug: string
 ): string {
-  return `/${courseSlug}/${semesterToSlug(semester)}/${subjectSlug}/${slug}`;
+  return `/${courseSlug}/${semesterToSlug(semester)}#${subjectSlug}`;
 }

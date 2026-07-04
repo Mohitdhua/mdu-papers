@@ -123,7 +123,7 @@ export async function buildSeoIndex(): Promise<SeoEntry[]> {
       const papers = await getPapersBySubject(subject.id);
       const semLabel = semesterLabel(subject.semester);
       entries.push({
-        path: `/${course.slug}/${semesterToSlug(subject.semester)}/${subject.slug}`,
+        path: `/${course.slug}/${semesterToSlug(subject.semester)}#${subject.slug}`,
         title: composeTitle(`${course.name} ${semLabel} ${subject.name} Papers — Download PDF`),
         description: `Download free ${subject.name} previous year question papers for ${course.name} ${semLabel}, MDU Rohtak. ${papers.length} papers available.`,
         type: 'subject',
