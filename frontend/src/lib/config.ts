@@ -21,32 +21,32 @@ export const SITE = {
 
 export const NAV_LINKS = [
   { label: 'Home', href: '/' },
-  { label: 'Courses', href: '/courses' },
-  { label: 'Blog', href: '/blog' },
-  { label: 'Contribute', href: '/contribute' },
-  { label: 'About', href: '/about' },
+  { label: 'Courses', href: '/courses/' },
+  { label: 'Blog', href: '/blog/' },
+  { label: 'Contribute', href: '/contribute/' },
+  { label: 'About', href: '/about/' },
 ] as const;
 
 export const FOOTER_LINKS = {
   quickLinks: [
     { label: 'Home', href: '/' },
-    { label: 'All Courses', href: '/courses' },
-    { label: 'Contribute Papers', href: '/contribute' },
-    { label: 'Search', href: '/search' },
-    { label: 'Blog', href: '/blog' },
+    { label: 'All Courses', href: '/courses/' },
+    { label: 'Contribute Papers', href: '/contribute/' },
+    { label: 'Search', href: '/search/' },
+    { label: 'Blog', href: '/blog/' },
   ],
   popularCourses: [
-    { label: 'BCA Papers', href: '/bca' },
-    { label: 'B.Tech CSE Papers', href: '/btech-cse' },
-    { label: 'BCom Papers', href: '/bcom' },
-    { label: 'MBA Papers', href: '/mba' },
+    { label: 'BCA Papers', href: '/bca/' },
+    { label: 'B.Tech CSE Papers', href: '/btech-cse/' },
+    { label: 'BCom Papers', href: '/bcom/' },
+    { label: 'MBA Papers', href: '/mba/' },
   ],
   legal: [
-    { label: 'About Us', href: '/about' },
-    { label: 'Contact', href: '/contact' },
-    { label: 'Privacy Policy', href: '/privacy' },
-    { label: 'Terms of Service', href: '/terms' },
-    { label: 'Disclaimer', href: '/disclaimer' },
+    { label: 'About Us', href: '/about/' },
+    { label: 'Contact', href: '/contact/' },
+    { label: 'Privacy Policy', href: '/privacy/' },
+    { label: 'Terms of Service', href: '/terms/' },
+    { label: 'Disclaimer', href: '/disclaimer/' },
   ],
 } as const;
 

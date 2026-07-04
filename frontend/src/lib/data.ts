@@ -154,15 +154,23 @@ function attachCoursePaperCounts(courses: Course[]): Course[] {
 // ---------- Subjects ----------
 
 export async function getSubjectsByCourse(courseId: number): Promise<Subject[]> {
+  let list: Subject[] = [];
   if (isSupabaseConfigured && supabase) {
     const { data, error } = await supabase
       .from('subjects')
       .select('*')
       .eq('course_id', courseId)
       .order('semester');
-    if (!error && data) return data as Subject[];
+    if (!error && data) list = data as Subject[];
+  } else {
+    list = isSupabaseConfigured ? [] : mockSubjects.filter((s) => s.course_id === courseId);
   }
-  return isSupabaseConfigured ? [] : mockSubjects.filter((s) => s.course_id === courseId);
+  const courses = await getCourses();
+  const course = courses.find((c) => c.id === courseId);
+  if (course) {
+    return list.filter((s) => s.semester <= course.total_semesters);
+  }
+  return list;
 }
 
 /**
@@ -478,6 +486,7 @@ export interface UnifiedBlogPost {
   /** Raw markdown body (rendered by the page with `marked`). */
   body: string;
   source: 'db' | 'markdown';
+  image?: string;
 }
 
 /** Fetch published blog posts from Supabase (empty if not configured). */

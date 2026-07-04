@@ -19,7 +19,9 @@ export async function getStaticPaths() {
   const paths = [];
   for (const course of courses) {
     const subjects = await getVisibleSubjectsByCourse(course.id);
-    const semesters = [...new Set(subjects.map((s) => s.semester))];
+    const semesters = [...new Set(subjects.map((s) => s.semester))].filter(
+      (sem) => sem <= course.total_semesters
+    );
     for (const sem of semesters) {
       paths.push({
         params: { course: course.slug, semester: semesterToSlug(sem) },

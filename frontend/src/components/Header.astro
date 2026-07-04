@@ -30,7 +30,7 @@ const otherCourses = courses.filter((c) => {
       
       <!-- 123apps-style Hover Dropdown Megamenu -->
       <div class="nav-dropdown-wrapper">
-        <a href="/courses" class="nav-item dropdown-trigger" aria-current={isActive('/courses') ? 'page' : undefined}>
+        <a href="/courses/" class="nav-item dropdown-trigger" aria-current={isActive('/courses/') ? 'page' : undefined}>
           Courses <Icon name="chevron-down" size={11} class="dropdown-chevron" />
         </a>
         <div class="nav-dropdown-content">
@@ -40,7 +40,7 @@ const otherCourses = courses.filter((c) => {
               <ul>
                 {ugCourses.map((c) => (
                   <li>
-                    <a href={`/${c.slug}`} title={`${c.name} Papers`}>{c.name}</a>
+                    <a href={`/${c.slug}/`} title={`${c.name} Papers`}>{c.name}</a>
                   </li>
                 ))}
               </ul>
@@ -50,7 +50,7 @@ const otherCourses = courses.filter((c) => {
               <ul>
                 {pgCourses.map((c) => (
                   <li>
-                    <a href={`/${c.slug}`} title={`${c.name} Papers`}>{c.name}</a>
+                    <a href={`/${c.slug}/`} title={`${c.name} Papers`}>{c.name}</a>
                   </li>
                 ))}
               </ul>
@@ -60,7 +60,7 @@ const otherCourses = courses.filter((c) => {
               <ul>
                 {otherCourses.map((c) => (
                   <li>
-                    <a href={`/${c.slug}`} title={`${c.name} Papers`}>{c.name}</a>
+                    <a href={`/${c.slug}/`} title={`${c.name} Papers`}>{c.name}</a>
                   </li>
                 ))}
               </ul>
@@ -69,13 +69,13 @@ const otherCourses = courses.filter((c) => {
         </div>
       </div>
 
-      <a href="/blog" class="nav-item" aria-current={isActive('/blog') ? 'page' : undefined}>Blog</a>
-      <a href="/contribute" class="nav-item" aria-current={isActive('/contribute') ? 'page' : undefined}>Contribute</a>
-      <a href="/about" class="nav-item" aria-current={isActive('/about') ? 'page' : undefined}>About</a>
+      <a href="/blog/" class="nav-item" aria-current={isActive('/blog/') ? 'page' : undefined}>Blog</a>
+      <a href="/contribute/" class="nav-item" aria-current={isActive('/contribute/') ? 'page' : undefined}>Contribute</a>
+      <a href="/about/" class="nav-item" aria-current={isActive('/about/') ? 'page' : undefined}>About</a>
     </nav>
 
     <div class="header-actions">
-      <a href="/search" class="icon-btn" aria-label="Search papers">
+      <a href="/search/" class="icon-btn" aria-label="Search papers">
         <Icon name="search" />
       </a>
       <ThemeToggle client:load />
@@ -94,7 +94,7 @@ const otherCourses = courses.filter((c) => {
 
   <nav class="mobile-nav" id="mobile-nav" aria-label="Mobile">
     {NAV_LINKS.map((link) => <a href={link.href}>{link.label}</a>)}
-    <a href="/search">Search</a>
+    <a href="/search/">Search</a>
   </nav>
 </header>
 

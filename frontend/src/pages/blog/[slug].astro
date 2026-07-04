@@ -31,12 +31,15 @@ const related = allPosts
 
 const shareUrl = new URL(`/blog/${post.slug}`, SITE.url).href;
 
+const authorType = (post.author.includes('Team') || post.author.includes('admin')) ? 'Organization' : 'Person';
+
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'BlogPosting',
   headline: post.title,
   description: post.description,
-  author: { '@type': 'Organization', name: post.author },
+  image: post.image ? new URL(post.image, SITE.url).href : new URL(SITE.ogImage, SITE.url).href,
+  author: { '@type': authorType, name: post.author },
   publisher: { '@type': 'Organization', name: SITE.name },
   datePublished: post.pubDate.toISOString(),
   mainEntityOfPage: shareUrl,

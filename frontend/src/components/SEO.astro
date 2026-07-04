@@ -26,6 +26,9 @@ const pageTitle = title ? `${title} | ${SITE.name}` : SITE.title;
 const canonicalURL = new URL(Astro.url.pathname, SITE.url).href;
 const ogImageURL = new URL(image, SITE.url).href;
 
+const isHome = Astro.url.pathname === '/' || Astro.url.pathname === '';
+const gscToken = import.meta.env.PUBLIC_GSC_TOKEN || 'REPLACE_WITH_VERIFICATION_TOKEN';
+
 const jsonLdArray = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
 
 // Always include a WebSite schema.
@@ -68,10 +71,10 @@ const websiteSchema = {
 <meta name="twitter:image" content={ogImageURL} />
 
 <!-- Search console verification placeholder -->
-<meta name="google-site-verification" content="REPLACE_WITH_VERIFICATION_TOKEN" />
+<meta name="google-site-verification" content={gscToken} />
 
 <!-- Structured Data -->
-<script type="application/ld+json" set:html={JSON.stringify(websiteSchema)} />
+{isHome && <script type="application/ld+json" set:html={JSON.stringify(websiteSchema)} />}
 {
   jsonLdArray.map((schema) => (
     <script type="application/ld+json" set:html={JSON.stringify(schema)} />

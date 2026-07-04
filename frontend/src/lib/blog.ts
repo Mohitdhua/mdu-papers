@@ -21,6 +21,7 @@ export async function getAllBlogPosts(): Promise<UnifiedBlogPost[]> {
     pubDate: entry.data.pubDate,
     body: entry.body,
     source: 'markdown' as const,
+    image: entry.data.image,
   }));
 
   // DB wins on slug collisions.
