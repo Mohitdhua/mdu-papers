@@ -32,7 +32,21 @@ const posts = (await getAllBlogPosts()).slice(0, 2);
         Access {stats.papers}+ previous year papers for all courses, completely free.
       </p>
       <div class="hero-search">
-        <SearchBar client:idle />
+        <div id="search-root" class="search-wrap">
+          <div class="search-input-row">
+            <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.3-4.3" />
+            </svg>
+            <input
+              type="search"
+              class="search-input"
+              placeholder="Search papers... e.g. 'BCA math 2024'"
+              aria-label="Search exam papers"
+              autocomplete="off"
+            />
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -173,4 +187,34 @@ const posts = (await getAllBlogPosts()).slice(0, 2);
       }
     });
   });
+</script>
+
+<script>
+  // Dynamic hydration on focus / hover to optimize initial page speed
+  const root = document.getElementById('search-root');
+  if (root) {
+    const input = root.querySelector('input');
+    const initSearch = async () => {
+      if (!input) return;
+      input.removeEventListener('focus', initSearch);
+      input.removeEventListener('pointerover', initSearch);
+
+      // Load Preact and the SearchBar component dynamically
+      const [preact, searchBarModule] = await Promise.all([
+        import('preact'),
+        import('../components/SearchBar')
+      ]);
+
+      const { render, h } = preact;
+      const SearchBar = searchBarModule.default;
+
+      // Render the active Preact SearchBar over the static placeholder root
+      render(h(SearchBar, { autoFocus: true }), root);
+    };
+
+    if (input) {
+      input.addEventListener('focus', initSearch);
+      input.addEventListener('pointerover', initSearch);
+    }
+  }
 </script>
