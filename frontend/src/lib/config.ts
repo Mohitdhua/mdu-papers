@@ -10,7 +10,7 @@ export const SITE = {
   title: 'MDU Papers — Free MDU Previous Year Question Papers & Notes | Maharshi Dayanand University',
   description:
     'Download free MDU previous year exam papers and study notes for BCA, B.Tech, BSc, BCom, MBA, MCA and all courses. Updated papers from 2015-2024.',
-  url: import.meta.env.PUBLIC_SITE_URL || 'https://mdupapers.com',
+  url: 'https://mdupapers.com',
   ogImage: '/og-image.svg',
   author: 'MDU Papers Team',
   email: 'contact@mdupapers.com',
