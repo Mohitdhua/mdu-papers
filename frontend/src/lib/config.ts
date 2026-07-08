@@ -7,7 +7,7 @@
 export const SITE = {
   name: 'mdupapers',
   shortName: 'mdupapers',
-  title: 'MDU All Courses All Sem Previous Year Paper PDF Free Download',
+  title: 'MDU PYQ & Notes — Free Previous Year Paper PDF Download',
   description:
     'Download free MDU Rohtak previous year question papers PDF & notes. Instant access for all courses & semesters. Direct PDF download with no ads or sign-up!',
   url: 'https://mdupapers.com',
