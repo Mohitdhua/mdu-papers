@@ -37,7 +37,7 @@ const jsonLdArray = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
 const websiteSchema = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
-  name: SITE.name,
+  name: SITE.brandName,
   url: SITE.url,
   description: SITE.description,
   potentialAction: {
@@ -61,7 +61,7 @@ const websiteSchema = {
 <meta property="og:title" content={pageTitle} />
 <meta property="og:description" content={description} />
 <meta property="og:image" content={ogImageURL} />
-<meta property="og:site_name" content={SITE.name} />
+<meta property="og:site_name" content={SITE.brandName} />
 <meta property="og:locale" content={SITE.locale} />
 {publishedTime && <meta property="article:published_time" content={publishedTime} />}
 

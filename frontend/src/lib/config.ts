@@ -6,6 +6,7 @@
 
 export const SITE = {
   name: 'mdupapers',
+  brandName: 'MDU Papers',
   shortName: 'mdupapers',
   title: 'MDU PYQ & Notes — Free Previous Year Paper PDF Download',
   description:
