@@ -10,7 +10,7 @@ interface Props {
 const { course } = Astro.props;
 ---
 
-<a href={`/${course.slug}`} class="card course-card animate-in">
+<a href={`/${course.slug}/`} class="card course-card animate-in">
   <div class="course-card-icon" aria-hidden="true">{course.icon_emoji}</div>
   <h3>{course.name}</h3>
   <p class="course-card-fullname">{course.full_name}</p>

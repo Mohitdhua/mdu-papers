@@ -1,6 +1,6 @@
 ---
-title: "MDU Exam Pattern Explained: Marking Scheme & Question Types"
-description: "Understand the MDU semester exam pattern, marking scheme, question types and how knowing the structure helps you prepare smarter."
+title: "MDU Exam Pattern & Marking Scheme Explained"
+description: "Demystify the MDU exam pattern and marking scheme. Learn about question structures, division of marks, and tips to write high-scoring answers."
 pubDate: 2025-01-22
 author: "MDU Papers Team"
 tags: ["Exam Pattern", "Study Guide"]

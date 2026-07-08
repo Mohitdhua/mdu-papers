@@ -7,9 +7,9 @@
 export const SITE = {
   name: 'mdupapers',
   shortName: 'mdupapers',
-  title: 'MDU Papers — Free MDU Previous Year Question Papers & Notes | Maharshi Dayanand University',
+  title: 'MDU All Courses All Sem Previous Year Paper PDF Free Download',
   description:
-    'Download free MDU previous year exam papers and study notes for BCA, B.Tech, BSc, BCom, MBA, MCA and all courses. Updated papers from 2015-2024.',
+    'Download free MDU Rohtak previous year question papers PDF & notes. Instant access for all courses & semesters. Direct PDF download with no ads or sign-up!',
   url: 'https://mdupapers.com',
   ogImage: '/og-image.svg',
   author: 'MDU Papers Team',

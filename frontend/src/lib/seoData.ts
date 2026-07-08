@@ -6,7 +6,7 @@ import {
   getPaperSlugMap,
   getAllPapersWithContext,
 } from './data';
-import { semesterLabel, semesterToSlug } from './utils';
+import { semesterLabel, semesterToSlug, ordinal } from './utils';
 import { getCollection } from 'astro:content';
 
 /** One row describing how a page appears in Google search results. */
@@ -25,7 +25,7 @@ export interface SeoEntry {
 
 /** Mirror SEO.astro's title composition. */
 function composeTitle(title?: string): string {
-  return title ? `${title} | ${SITE.name}` : SITE.title;
+  return title || SITE.title;
 }
 
 /**
@@ -44,16 +44,16 @@ export async function buildSeoIndex(): Promise<SeoEntry[]> {
   });
   entries.push({
     path: '/courses',
-    title: composeTitle('All MDU Courses — Browse Question Papers by Course'),
+    title: composeTitle('MDU All Courses All Semester Latest Previous Year Paper Download'),
     description:
-      'Browse previous year question papers for all MDU undergraduate and postgraduate courses including BCA, B.Tech, BSc, BCom, MBA, MCA and more.',
+      'Browse all undergraduate and postgraduate MDU Rohtak courses. Get direct PDF downloads of previous year question papers. 100% free with no ads!',
     type: 'core',
   });
   entries.push({
     path: '/blog',
-    title: composeTitle('Blog — Study Tips, Exam Guides & MDU Updates'),
+    title: composeTitle('MDU Study Material, Exam Guides & Tips'),
     description:
-      'Read study tips, exam preparation guides and MDU updates to help you score better in your semester exams.',
+      'Boost your CGPA with MDU exam preparation guides, pattern analysis, and expert study tips. Learn how to write high-scoring answers. Read now!',
     type: 'core',
   });
   entries.push({
@@ -103,18 +103,18 @@ export async function buildSeoIndex(): Promise<SeoEntry[]> {
 
     entries.push({
       path: `/${course.slug}`,
-      title: composeTitle(`${course.name} Previous Year Papers — All Semesters`),
-      description: `Download free ${course.full_name} (${course.name}) previous year question papers for all ${course.total_semesters} semesters at MDU Rohtak.`,
+      title: composeTitle(`MDU ${course.name} All Semester Previous Year Paper PDF Download`),
+      description: `Get direct PDF downloads of MDU Rohtak ${course.name} (${course.full_name}) previous year question papers. 100% free, no ads, no sign-up!`,
       type: 'course',
     });
 
     const semesters = [...new Set(subjects.map((s) => s.semester))].sort((a, b) => a - b);
     for (const sem of semesters) {
-      const semLabel = semesterLabel(sem);
+      const subjectNames = subjects.filter((s) => s.semester === sem).map((s) => s.name).join(', ');
       entries.push({
         path: `/${course.slug}/${semesterToSlug(sem)}`,
-        title: composeTitle(`${course.name} ${semLabel} Papers — All Subjects`),
-        description: `Browse all ${course.name} ${semLabel} subjects and download previous year question papers (PDF) for MDU Rohtak.`,
+        title: `MDU ${course.name} ${ordinal(sem)} Sem Previous Year Paper`,
+        description: `Download free MDU Rohtak ${course.name} ${semesterLabel(sem)} previous year question papers PDF for ${subjectNames.slice(0, 50)}... Direct download, no ads!`,
         type: 'semester',
       });
     }

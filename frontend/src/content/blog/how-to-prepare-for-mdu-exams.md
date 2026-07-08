@@ -1,6 +1,6 @@
 ---
-title: "How to Prepare for MDU Exams Using Previous Year Papers"
-description: "A practical, no-nonsense guide on using MDU previous year question papers to score better in your semester exams. Tips that actually work."
+title: "Prepare for MDU Exams Using Past Papers"
+description: "Learn how to use MDU previous year papers to study smart, identify repeat questions, and score high marks in your semester exams. Read now!"
 pubDate: 2025-01-15
 author: "MDU Papers Team"
 tags: ["Exam Tips", "Study Guide", "BCA"]

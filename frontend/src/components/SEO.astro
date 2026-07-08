@@ -10,6 +10,7 @@ interface Props {
   /** Optional JSON-LD structured data object(s). */
   jsonLd?: Record<string, unknown> | Record<string, unknown>[];
   publishedTime?: string;
+  appendBrand?: boolean;
 }
 
 const {
@@ -20,9 +21,10 @@ const {
   noindex = false,
   jsonLd,
   publishedTime,
+  appendBrand = true,
 } = Astro.props;
 
-const pageTitle = title ? `${title} | ${SITE.name}` : SITE.title;
+const pageTitle = title || SITE.title;
 const canonicalURL = new URL(Astro.url.pathname, SITE.url).href;
 const ogImageURL = new URL(image, SITE.url).href;
 

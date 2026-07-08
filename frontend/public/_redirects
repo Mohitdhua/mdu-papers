@@ -1,3 +1,5 @@
 # Cloudflare Pages redirects
 # Redirect www to apex (adjust to your preference)
 https://www.mdupapers.com/* https://mdupapers.com/:splat 301
+/sitemap.xml /sitemap-index.xml 301
+

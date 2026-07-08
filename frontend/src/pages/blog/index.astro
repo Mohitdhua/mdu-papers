@@ -15,8 +15,8 @@ const postsWithMeta = posts.map((post) => ({
 ---
 
 <BaseLayout
-  title="Blog — Study Tips, Exam Guides & MDU Updates"
-  description="Read study tips, exam preparation guides and MDU updates to help you score better in your semester exams."
+  title="MDU Study Material, Exam Guides & Tips"
+  description="Boost your CGPA with MDU exam preparation guides, pattern analysis, and expert study tips. Learn how to write high-scoring answers. Read now!"
 >
   <div class="container">
     <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'Blog' }]} />
@@ -30,7 +30,7 @@ const postsWithMeta = posts.map((post) => ({
       <div class="grid grid-cols-1 grid-cols-2">
         {
           postsWithMeta.map(({ post, minutes }) => (
-            <a href={`/blog/${post.slug}`} class="card blog-card animate-in">
+            <a href={`/blog/${post.slug}/`} class="card blog-card animate-in">
               <div class="blog-card-tags">
                 {post.tags.slice(0, 3).map((t) => <span class="badge">{t}</span>)}
               </div>
@@ -50,10 +50,10 @@ const postsWithMeta = posts.map((post) => ({
       title="Ready to start practicing?"
       text="Put these tips into action with real previous year papers from your course."
       primaryLabel="Browse Papers"
-      primaryHref="/courses"
+      primaryHref="/courses/"
       primaryIcon="book-open"
       secondaryLabel="Search Papers"
-      secondaryHref="/search"
+      secondaryHref="/search/"
       secondaryIcon="search"
     />
   </div>

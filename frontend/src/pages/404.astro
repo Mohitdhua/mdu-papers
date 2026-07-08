@@ -21,8 +21,8 @@ const popular = await getPopularCourses();
       </div>
 
       <div class="quick-filters" style="margin-top: 2rem;">
-        {popular.slice(0, 5).map((c) => <a href={`/${c.slug}`}>{c.name}</a>)}
-        <a href="/courses">All Courses</a>
+        {popular.slice(0, 5).map((c) => <a href={`/${c.slug}/`}>{c.name}</a>)}
+        <a href="/courses/">All Courses</a>
       </div>
 
       <a href="/" class="btn btn-primary btn-lg" style="margin-top: 2rem;">

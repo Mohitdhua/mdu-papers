@@ -14,9 +14,10 @@ interface Props {
   noindex?: boolean;
   jsonLd?: Record<string, unknown> | Record<string, unknown>[];
   publishedTime?: string;
+  appendBrand?: boolean;
 }
 
-const { title, description, image, type, noindex, jsonLd, publishedTime } = Astro.props;
+const { title, description, image, type, noindex, jsonLd, publishedTime, appendBrand } = Astro.props;
 ---
 
 <!doctype html>
@@ -38,6 +39,7 @@ const { title, description, image, type, noindex, jsonLd, publishedTime } = Astr
       noindex={noindex}
       jsonLd={jsonLd}
       publishedTime={publishedTime}
+      appendBrand={appendBrand}
     />
 
     <!-- Apply theme before paint to avoid FOUC -->

@@ -40,8 +40,8 @@ const jsonLd = {
 ---
 
 <BaseLayout
-  title={`${course.name} Previous Year Papers — All Semesters`}
-  description={`Download free ${course.full_name} (${course.name}) previous year question papers for all ${course.total_semesters} semesters at MDU Rohtak.`}
+  title={`MDU ${course.name} All Semester Previous Year Paper PDF Download`}
+  description={`Get direct PDF downloads of MDU Rohtak ${course.name} (${course.full_name}) previous year question papers. 100% free, no ads, no sign-up!`}
   jsonLd={jsonLd}
 >
   <div class="container">
@@ -74,7 +74,7 @@ const jsonLd = {
         {
           semesters.map(({ sem, subjectCount, paperCount }) => (
             paperCount > 0 ? (
-              <a href={`/${course.slug}/${semesterToSlug(sem)}`} class="card semester-card animate-in">
+              <a href={`/${course.slug}/${semesterToSlug(sem)}/`} class="card semester-card animate-in">
                 <div class="sem-number">{sem}</div>
                 <h3>{semesterLabel(sem)}</h3>
                 <div class="subject-card-meta" style="justify-content: center;">
@@ -105,7 +105,7 @@ const jsonLd = {
           <h2 class="section-title"><Icon name="file-check" /> Popular Subjects</h2>
           <div class="grid grid-cols-2 grid-cols-3">
             {popularSubjects.map((s) => (
-              <a href={`/${course.slug}/${semesterToSlug(s.semester)}#${s.slug}`} class="card subject-card animate-in">
+              <a href={`/${course.slug}/${semesterToSlug(s.semester)}/#${s.slug}`} class="card subject-card animate-in">
                 <div class="subject-card-main">
                   <h3 style="font-size: 1rem;">{s.name}</h3>
                   <div class="subject-card-meta">
@@ -127,10 +127,10 @@ const jsonLd = {
       title={`Looking for a specific ${course.name} paper?`}
       text="Use search to instantly find any paper by subject, code or year."
       primaryLabel="Search Papers"
-      primaryHref="/search"
+      primaryHref="/search/"
       primaryIcon="search"
       secondaryLabel="All Courses"
-      secondaryHref="/courses"
+      secondaryHref="/courses/"
       secondaryIcon="book-open"
     />
   </div>

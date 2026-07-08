@@ -1,6 +1,6 @@
 ---
 title: "Top 10 Tips to Score 80%+ in MDU Semester Exams"
-description: "Ten proven, practical tips to help you score 80% or more in your MDU semester examinations. From smart revision to exam-hall strategy."
+description: "Discover 10 proven strategies to score 80%+ in MDU semester exams. Learn how to write high-scoring answers, manage exam time, and study smart!"
 pubDate: 2025-02-01
 author: "MDU Papers Team"
 tags: ["Exam Tips", "High Score", "Study Guide"]

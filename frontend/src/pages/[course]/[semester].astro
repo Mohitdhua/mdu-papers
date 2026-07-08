@@ -11,7 +11,7 @@ import {
   getSubjectsBySemester,
   getPapersBySubject,
 } from '@lib/data';
-import { semesterLabel, semesterToSlug, formatFileSize } from '@lib/utils';
+import { semesterLabel, semesterToSlug, formatFileSize, ordinal } from '@lib/utils';
 import { getAllBlogPosts } from '@lib/blog';
 
 export async function getStaticPaths() {
@@ -122,22 +122,23 @@ const breadcrumbJsonLd = {
       '@type': 'ListItem',
       position: 2,
       name: course.name,
-      item: `${SITE.url}/${course.slug}`,
+      item: `${SITE.url}/${course.slug}/`,
     },
     {
       '@type': 'ListItem',
       position: 3,
       name: semLabel,
-      item: `${SITE.url}/${course.slug}/${semSlug}`,
+      item: `${SITE.url}/${course.slug}/${semSlug}/`,
     },
   ],
 };
 ---
 
 <BaseLayout
-  title={`${course.name} ${semLabel} Previous Year Papers — Download PDF`}
-  description={`Download free MDU Rohtak ${course.name} ${semLabel} previous year question papers for ${subjectNames.slice(0, 120)}... Preview PDFs online.`}
+  title={`MDU ${course.name} ${ordinal(semester)} Sem Previous Year Paper`}
+  description={`Download free MDU Rohtak ${course.name} ${semesterLabel(semester)} previous year question papers PDF for ${subjectNames.slice(0, 50)}... Direct download, no ads!`}
   jsonLd={collectionJsonLd}
+  appendBrand={false}
 >
   <script type="application/ld+json" set:html={JSON.stringify(faqJsonLd)} />
   <script type="application/ld+json" set:html={JSON.stringify(breadcrumbJsonLd)} />
@@ -146,7 +147,7 @@ const breadcrumbJsonLd = {
     <Breadcrumb
       items={[
         { label: 'Home', href: '/' },
-        { label: course.name, href: `/${course.slug}` },
+        { label: course.name, href: `/${course.slug}/` },
         { label: semLabel },
       ]}
     />
@@ -262,7 +263,7 @@ const breadcrumbJsonLd = {
       <h2 class="section-title"><Icon name="layers" /> Explore Other Courses</h2>
       <div class="courses-grid-compact">
         {otherCourses.map((c) => (
-          <a href={`/${c.slug}`} class="card course-link-card">
+          <a href={`/${c.slug}/`} class="card course-link-card">
             <span aria-hidden="true" class="emoji">{c.icon_emoji}</span>
             <div class="details">
               <h4>{c.name}</h4>
@@ -279,7 +280,7 @@ const breadcrumbJsonLd = {
         <h2 class="section-title"><Icon name="file-text" /> MDU Exam Guides & Resources</h2>
         <div class="blogs-grid-compact">
           {latestBlogs.map((b) => (
-            <a href={`/blog/${b.slug}`} class="card blog-link-card">
+            <a href={`/blog/${b.slug}/`} class="card blog-link-card">
               <h4>{b.title}</h4>
               <p class="text-muted">{b.description.slice(0, 100)}...</p>
               <span class="read-more-link">Read Prep Guide &rarr;</span>
@@ -295,7 +296,7 @@ const breadcrumbJsonLd = {
       title="Need papers from another semester?"
       text={`Browse all ${course.name} semesters or search across every paper.`}
       primaryLabel={`All ${course.name} Semesters`}
-      primaryHref={`/${course.slug}`}
+      primaryHref={`/${course.slug}/`}
       primaryIcon="layers"
       secondaryLabel="Search Papers"
       secondaryHref="/search"
