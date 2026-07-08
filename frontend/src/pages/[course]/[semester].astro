@@ -172,7 +172,15 @@ const breadcrumbJsonLd = {
       
       {
         visibleSubjects.length > 0 ? (
-          <div class="subjects-list">
+          <>
+            <nav class="subject-quick-nav" aria-label="Subjects Quick Links">
+              {visibleSubjects.map((s) => (
+                <a href={`#${s.slug}`} class="quick-nav-pill">
+                  <Icon name="book" size={12} /> {s.name}
+                </a>
+              ))}
+            </nav>
+            <div class="subjects-list">
             {visibleSubjects.map((s) => (
               <div id={s.slug} class="card subject-section-card animate-in">
                 <div class="subject-header">
@@ -219,6 +227,7 @@ const breadcrumbJsonLd = {
               </div>
             ))}
           </div>
+          </>
         ) : (
           <div class="empty-state">
             <div class="empty-icon">📭</div>
@@ -335,6 +344,41 @@ const breadcrumbJsonLd = {
   }
   .intro-card p:last-child {
     margin-bottom: 0;
+  }
+
+  .subject-quick-nav {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    padding: 0.75rem 0;
+    margin-bottom: 1.5rem;
+    scrollbar-width: none; /* Hide scrollbar for clean design */
+    -webkit-overflow-scrolling: touch;
+    border-bottom: 1px solid var(--border-color);
+  }
+  .subject-quick-nav::-webkit-scrollbar {
+    display: none; /* Hide scrollbar on Chrome/Safari */
+  }
+  .quick-nav-pill {
+    white-space: nowrap; /* Prevent subject name wrapping */
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.4rem 0.8rem;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 9999px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+  }
+  .quick-nav-pill:hover {
+    background-color: var(--accent-primary-light);
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
   }
 
   .subjects-list {
