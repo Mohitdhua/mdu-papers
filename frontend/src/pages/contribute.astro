@@ -155,7 +155,7 @@ const coursesData = courses.map((c) => ({
         <!-- File Upload Dropzone -->
         <div class="input-group mt-6">
           <label>PDF Document <span class="required">*</span></label>
-          <div class="upload-dropzone" id="upload-dropzone">
+          <div class="upload-dropzone" id="upload-dropzone" tabindex="0" role="button" aria-label="Upload PDF Document">
             <input type="file" id="pdf-input" accept="application/pdf" style="display: none;" required />
             <div class="dropzone-prompt">
               <svg class="dropzone-svg" xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -295,6 +295,13 @@ const coursesData = courses.map((c) => ({
   // 4. File Dropzone Actions
   uploadDropzone.addEventListener('click', () => {
     pdfInput.click();
+  });
+
+  uploadDropzone.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      pdfInput.click();
+    }
   });
 
   uploadDropzone.addEventListener('dragover', (e) => {
@@ -549,10 +556,11 @@ const coursesData = courses.map((c) => ({
     position: relative;
   }
 
-  .upload-dropzone:hover, .upload-dropzone.dragover {
+  .upload-dropzone:hover, .upload-dropzone.dragover, .upload-dropzone:focus-visible {
     border-color: var(--accent-primary);
     background: color-mix(in srgb, var(--accent-primary) 4%, transparent);
     box-shadow: 0 0 20px color-mix(in srgb, var(--accent-primary) 10%, transparent);
+    outline: none;
   }
 
   .dropzone-svg {
@@ -561,7 +569,7 @@ const coursesData = courses.map((c) => ({
     transition: var(--transition);
   }
 
-  .upload-dropzone:hover .dropzone-svg {
+  .upload-dropzone:hover .dropzone-svg, .upload-dropzone:focus-visible .dropzone-svg {
     color: var(--accent-primary);
     transform: translateY(-2px);
   }
