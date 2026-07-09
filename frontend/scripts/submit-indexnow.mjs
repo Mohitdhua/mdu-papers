@@ -48,8 +48,8 @@ async function run() {
   // 3. Prepare payload
   const payload = {
     host: 'mdupapers.com',
-    key: 'c28763223d6040dba3448cf9a0c87ad6',
-    keyLocation: 'https://mdupapers.com/c28763223d6040dba3448cf9a0c87ad6.txt',
+    key: '10fdbcbbab33498c89f0e046e98a6b8e',
+    keyLocation: 'https://mdupapers.com/10fdbcbbab33498c89f0e046e98a6b8e.txt',
     urlList: urls,
   };
 
