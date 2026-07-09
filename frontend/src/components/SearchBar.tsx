@@ -142,6 +142,15 @@ export default function SearchBar({
     }
   };
 
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const clearQuery = () => {
+    setQuery('');
+    setActiveIndex(-1);
+    if (!fullPage) setOpen(false);
+    inputRef.current?.focus();
+  };
+
   const SearchIcon = (
     <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
       <circle cx="11" cy="11" r="8" />
@@ -154,8 +163,10 @@ export default function SearchBar({
       <div class="search-input-row">
         {SearchIcon}
         <input
-          type="search"
+          ref={inputRef}
+          type="text"
           class="search-input"
+          style={{ paddingRight: query.length > 0 ? '2.5rem' : '1rem' }}
           value={query}
           placeholder={placeholder}
           aria-label="Search exam papers"
@@ -172,6 +183,20 @@ export default function SearchBar({
           aria-controls="search-listbox"
           autocomplete="off"
         />
+        {query.length > 0 && (
+          <button
+            type="button"
+            class="icon-btn"
+            style={{ position: 'absolute', right: '0.5rem', width: '28px', height: '28px' }}
+            onClick={clearQuery}
+            aria-label="Clear search"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        )}
       </div>
 
       {/* Dropdown (homepage / header mode) */}
