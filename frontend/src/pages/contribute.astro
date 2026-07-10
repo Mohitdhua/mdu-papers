@@ -1,8 +1,8 @@
 ---
-import BaseLayout from '@layouts/BaseLayout.astro';
-import Breadcrumb from '@components/Breadcrumb.astro';
-import Icon from '@components/Icon.astro';
-import { getCourses, getSubjectsByCourse } from '@lib/data';
+import BaseLayout from "@layouts/BaseLayout.astro";
+import Breadcrumb from "@components/Breadcrumb.astro";
+import Icon from "@components/Icon.astro";
+import { getCourses, getSubjectsByCourse } from "@lib/data";
 
 // Fetch courses and pre-fetch subjects grouped by course + semester for instant client-side dropdown toggles
 const courses = await getCourses();
@@ -17,7 +17,10 @@ for (const c of courses) {
       subjectsByCourseSem[key].push({ id: s.id, name: s.name });
     }
   } catch (err) {
-    console.error(`[contribute] Failed to load subjects for course ${c.name}:`, err);
+    console.error(
+      `[contribute] Failed to load subjects for course ${c.name}:`,
+      err,
+    );
   }
 }
 
@@ -34,13 +37,16 @@ const coursesData = courses.map((c) => ({
   description="Contribute Maharshi Dayanand University (MDU) previous year question papers. Upload PDFs safely and help your fellow students prepare for exams."
 >
   <div class="container max-w-3xl">
-    <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'Contribute Papers' }]} />
+    <Breadcrumb
+      items={[{ label: "Home", href: "/" }, { label: "Contribute Papers" }]}
+    />
 
     <header class="page-header text-center">
       <h1><Icon name="send" /> Contribute Question Papers</h1>
       <p class="text-muted max-w-2xl mx-auto mt-2">
-        Got a question paper that is not listed on the site? Upload it here! 
-        Your contribution helps thousands of MDU students prepare for their semester exams.
+        Got a question paper that is not listed on the site? Upload it here!
+        Your contribution helps thousands of MDU students prepare for their
+        semester exams.
       </p>
       <div class="info-badge">
         <Icon name="shield-check" size={16} />
@@ -54,11 +60,16 @@ const coursesData = courses.map((c) => ({
         <div class="success-icon">🎉</div>
         <h2>Thank You for Contributing!</h2>
         <p class="text-muted max-w-md mx-auto mt-2">
-          Your question paper has been submitted successfully. Our team will verify the document and it will go live shortly.
+          Your question paper has been submitted successfully. Our team will
+          verify the document and it will go live shortly.
         </p>
         <div class="actions mt-8">
           <a href="/" class="btn btn-primary">Back to Home</a>
-          <button type="button" id="upload-another-btn" class="btn btn-secondary ml-4">Upload Another</button>
+          <button
+            type="button"
+            id="upload-another-btn"
+            class="btn btn-secondary ml-4">Upload Another</button
+          >
         </div>
       </div>
 
@@ -67,16 +78,26 @@ const coursesData = courses.map((c) => ({
         <div class="form-grid">
           <!-- Course -->
           <div class="input-group">
-            <label for="course-select">Course <span class="required">*</span></label>
+            <label for="course-select"
+              >Course <span class="required">*</span></label
+            >
             <select id="course-select" required>
               <option value="">Select Course...</option>
-              {courses.map((c) => <option value={c.id}>{c.name} — {c.full_name}</option>)}
+              {
+                courses.map((c) => (
+                  <option value={c.id}>
+                    {c.name} — {c.full_name}
+                  </option>
+                ))
+              }
             </select>
           </div>
 
           <!-- Semester -->
           <div class="input-group">
-            <label for="semester-select">Semester <span class="required">*</span></label>
+            <label for="semester-select"
+              >Semester <span class="required">*</span></label
+            >
             <select id="semester-select" required disabled>
               <option value="">Select course first</option>
             </select>
@@ -86,7 +107,9 @@ const coursesData = courses.map((c) => ({
         <div class="form-grid mt-4">
           <!-- Subject Selection -->
           <div class="input-group flex-2">
-            <label for="subject-select">Subject <span class="required">*</span></label>
+            <label for="subject-select"
+              >Subject <span class="required">*</span></label
+            >
             <select id="subject-select" required disabled>
               <option value="">Select semester first</option>
             </select>
@@ -103,31 +126,37 @@ const coursesData = courses.map((c) => ({
 
         <!-- Custom Subject Name Input (Hidden by default) -->
         <div class="input-group mt-3 hidden" id="custom-subject-group">
-          <label for="custom-subject-input">New Subject Name <span class="required">*</span></label>
-          <input 
-            type="text" 
-            id="custom-subject-input" 
-            placeholder="e.g. Object Oriented Programming using C++" 
+          <label for="custom-subject-input"
+            >New Subject Name <span class="required">*</span></label
+          >
+          <input
+            type="text"
+            id="custom-subject-input"
+            placeholder="e.g. Object Oriented Programming using C++"
           />
         </div>
 
         <div class="form-grid mt-4">
           <!-- Year -->
           <div class="input-group">
-            <label for="year-input">Exam Year <span class="required">*</span></label>
-            <input 
-              type="number" 
-              id="year-input" 
-              min="2015" 
-              max="2030" 
-              value={new Date().getFullYear()} 
-              required 
+            <label for="year-input"
+              >Exam Year <span class="required">*</span></label
+            >
+            <input
+              type="number"
+              id="year-input"
+              min="2015"
+              max="2030"
+              value={new Date().getFullYear()}
+              required
             />
           </div>
 
           <!-- Session -->
           <div class="input-group">
-            <label for="session-select">Exam Session <span class="required">*</span></label>
+            <label for="session-select"
+              >Exam Session <span class="required">*</span></label
+            >
             <select id="session-select" required>
               <option value="Nov/Dec">Nov/Dec (Odd Semesters)</option>
               <option value="May/June">May/June (Even Semesters)</option>
@@ -142,34 +171,76 @@ const coursesData = courses.map((c) => ({
           <!-- Page Count -->
           <div class="input-group">
             <label for="page-count-input">Page Count (Optional)</label>
-            <input type="number" id="page-count-input" min="1" placeholder="e.g. 4" />
+            <input
+              type="number"
+              id="page-count-input"
+              min="1"
+              placeholder="e.g. 4"
+            />
           </div>
 
           <!-- Main Topics -->
           <div class="input-group flex-2">
-            <label for="topics-input">Key Topics (Optional, comma separated)</label>
-            <input type="text" id="topics-input" placeholder="e.g. Pointer arithmetic, Virtual functions, Inheritance" />
+            <label for="topics-input"
+              >Key Topics (Optional, comma separated)</label
+            >
+            <input
+              type="text"
+              id="topics-input"
+              placeholder="e.g. Pointer arithmetic, Virtual functions, Inheritance"
+            />
           </div>
         </div>
 
         <!-- File Upload Dropzone -->
         <div class="input-group mt-6">
           <label>PDF Document <span class="required">*</span></label>
-          <div class="upload-dropzone" id="upload-dropzone">
-            <input type="file" id="pdf-input" accept="application/pdf" style="display: none;" required />
+          <div
+            class="upload-dropzone"
+            id="upload-dropzone"
+            tabindex="0"
+            role="button"
+            aria-label="Upload PDF document"
+          >
+            <input
+              type="file"
+              id="pdf-input"
+              accept="application/pdf"
+              style="display: none;"
+              required
+            />
             <div class="dropzone-prompt">
-              <svg class="dropzone-svg" xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                <polyline points="7 10 12 15 17 10"/>
-                <line x1="12" x2="12" y1="15" y2="3"/>
+              <svg
+                class="dropzone-svg"
+                xmlns="http://www.w3.org/2000/svg"
+                width="36"
+                height="36"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" x2="12" y1="15" y2="3"></line>
               </svg>
-              <p>Drag & drop your question paper PDF here, or <strong>browse files</strong></p>
+              <p>
+                Drag & drop your question paper PDF here, or <strong
+                  >browse files</strong>
+              </p>
               <span class="file-limits">PDF format only, maximum 10MB</span>
             </div>
             <div class="dropzone-file hidden" id="dropzone-file">
               <span class="file-icon">📄</span>
               <span class="file-name" id="file-name">-</span>
-              <button type="button" class="remove-file" id="remove-file-btn" aria-label="Remove file">×</button>
+              <button
+                type="button"
+                class="remove-file"
+                id="remove-file-btn"
+                aria-label="Remove file">×</button
+              >
             </div>
           </div>
         </div>
@@ -178,7 +249,12 @@ const coursesData = courses.map((c) => ({
         <div id="error-alert" class="error-alert hidden"></div>
 
         <!-- Submit Button -->
-        <button type="submit" id="submit-btn" class="btn btn-primary w-full mt-6" style="padding: var(--space-4);">
+        <button
+          type="submit"
+          id="submit-btn"
+          class="btn btn-primary w-full mt-6"
+          style="padding: var(--space-4);"
+        >
           <Icon name="send" size={18} /> Submit Question Paper
         </button>
       </form>
@@ -188,27 +264,27 @@ const coursesData = courses.map((c) => ({
 
 <!-- Expose build variables dynamically to the client JS -->
 <script define:vars={{ subjectsByCourseSem, coursesData }} is:inline>
-  const courseSelect = document.getElementById('course-select');
-  const semesterSelect = document.getElementById('semester-select');
-  const subjectSelect = document.getElementById('subject-select');
-  const customSubjectToggle = document.getElementById('custom-subject-toggle');
-  const customSubjectGroup = document.getElementById('custom-subject-group');
-  const customSubjectInput = document.getElementById('custom-subject-input');
-  const uploadDropzone = document.getElementById('upload-dropzone');
-  const pdfInput = document.getElementById('pdf-input');
-  const dropzonePrompt = uploadDropzone.querySelector('.dropzone-prompt');
-  const dropzoneFile = document.getElementById('dropzone-file');
-  const fileNameSpan = document.getElementById('file-name');
-  const removeFileBtn = document.getElementById('remove-file-btn');
-  const form = document.getElementById('contribute-form');
-  const successScreen = document.getElementById('success-screen');
-  const errorAlert = document.getElementById('error-alert');
-  const submitBtn = document.getElementById('submit-btn');
+  const courseSelect = document.getElementById("course-select");
+  const semesterSelect = document.getElementById("semester-select");
+  const subjectSelect = document.getElementById("subject-select");
+  const customSubjectToggle = document.getElementById("custom-subject-toggle");
+  const customSubjectGroup = document.getElementById("custom-subject-group");
+  const customSubjectInput = document.getElementById("custom-subject-input");
+  const uploadDropzone = document.getElementById("upload-dropzone");
+  const pdfInput = document.getElementById("pdf-input");
+  const dropzonePrompt = uploadDropzone.querySelector(".dropzone-prompt");
+  const dropzoneFile = document.getElementById("dropzone-file");
+  const fileNameSpan = document.getElementById("file-name");
+  const removeFileBtn = document.getElementById("remove-file-btn");
+  const form = document.getElementById("contribute-form");
+  const successScreen = document.getElementById("success-screen");
+  const errorAlert = document.getElementById("error-alert");
+  const submitBtn = document.getElementById("submit-btn");
 
   let activeFile = null;
 
   // 1. Populate semesters dynamically based on selected course
-  courseSelect.addEventListener('change', () => {
+  courseSelect.addEventListener("change", () => {
     const courseId = courseSelect.value;
     if (!courseId) {
       resetSemesterSelect();
@@ -221,23 +297,23 @@ const coursesData = courses.map((c) => ({
 
     semesterSelect.innerHTML = '<option value="">Select Semester...</option>';
     for (let i = 1; i <= course.total_semesters; i++) {
-      let suffix = 'th';
-      if (i === 1) suffix = 'st';
-      else if (i === 2) suffix = 'nd';
-      else if (i === 3) suffix = 'rd';
+      let suffix = "th";
+      if (i === 1) suffix = "st";
+      else if (i === 2) suffix = "nd";
+      else if (i === 3) suffix = "rd";
       semesterSelect.innerHTML += `<option value="${i}">${i}${suffix} Semester</option>`;
     }
-    semesterSelect.removeAttribute('disabled');
+    semesterSelect.removeAttribute("disabled");
     resetSubjectSelect();
   });
 
   function resetSemesterSelect() {
     semesterSelect.innerHTML = '<option value="">Select course first</option>';
-    semesterSelect.setAttribute('disabled', 'true');
+    semesterSelect.setAttribute("disabled", "true");
   }
 
   // 2. Populate subjects dynamically based on course + semester selection
-  semesterSelect.addEventListener('change', () => {
+  semesterSelect.addEventListener("change", () => {
     const courseId = courseSelect.value;
     const semester = semesterSelect.value;
 
@@ -254,8 +330,8 @@ const coursesData = courses.map((c) => ({
       subjectSelect.innerHTML += `<option value="${sub.id}">${sub.name}</option>`;
     });
 
-    subjectSelect.removeAttribute('disabled');
-    customSubjectToggle.removeAttribute('disabled');
+    subjectSelect.removeAttribute("disabled");
+    customSubjectToggle.removeAttribute("disabled");
 
     // Default to listed dropdown
     customSubjectToggle.checked = false;
@@ -264,135 +340,145 @@ const coursesData = courses.map((c) => ({
 
   function resetSubjectSelect() {
     subjectSelect.innerHTML = '<option value="">Select semester first</option>';
-    subjectSelect.setAttribute('disabled', 'true');
-    customSubjectToggle.setAttribute('disabled', 'true');
+    subjectSelect.setAttribute("disabled", "true");
+    customSubjectToggle.setAttribute("disabled", "true");
     customSubjectToggle.checked = false;
     toggleCustomSubject(false);
   }
 
   // 3. Toggle Custom Subject Suggestion Input
-  customSubjectToggle.addEventListener('change', () => {
+  customSubjectToggle.addEventListener("change", () => {
     toggleCustomSubject(customSubjectToggle.checked);
   });
 
   function toggleCustomSubject(showCustom) {
     if (showCustom) {
-      customSubjectGroup.classList.remove('hidden');
-      customSubjectInput.setAttribute('required', 'true');
-      subjectSelect.setAttribute('disabled', 'true');
-      subjectSelect.removeAttribute('required');
+      customSubjectGroup.classList.remove("hidden");
+      customSubjectInput.setAttribute("required", "true");
+      subjectSelect.setAttribute("disabled", "true");
+      subjectSelect.removeAttribute("required");
     } else {
-      customSubjectGroup.classList.add('hidden');
-      customSubjectInput.removeAttribute('required');
-      customSubjectInput.value = '';
+      customSubjectGroup.classList.add("hidden");
+      customSubjectInput.removeAttribute("required");
+      customSubjectInput.value = "";
       if (semesterSelect.value) {
-        subjectSelect.removeAttribute('disabled');
-        subjectSelect.setAttribute('required', 'true');
+        subjectSelect.removeAttribute("disabled");
+        subjectSelect.setAttribute("required", "true");
       }
     }
   }
 
   // 4. File Dropzone Actions
-  uploadDropzone.addEventListener('click', () => {
+  uploadDropzone.addEventListener("click", () => {
     pdfInput.click();
   });
 
-  uploadDropzone.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    uploadDropzone.classList.add('dragover');
+  uploadDropzone.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      pdfInput.click();
+    }
   });
 
-  uploadDropzone.addEventListener('dragleave', () => {
-    uploadDropzone.classList.remove('dragover');
+  uploadDropzone.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    uploadDropzone.classList.add("dragover");
   });
 
-  uploadDropzone.addEventListener('drop', (e) => {
+  uploadDropzone.addEventListener("dragleave", () => {
+    uploadDropzone.classList.remove("dragover");
+  });
+
+  uploadDropzone.addEventListener("drop", (e) => {
     e.preventDefault();
-    uploadDropzone.classList.remove('dragover');
+    uploadDropzone.classList.remove("dragover");
     const files = e.dataTransfer.files;
     if (files && files.length > 0) {
       handleSelectedFile(files[0]);
     }
   });
 
-  pdfInput.addEventListener('change', () => {
+  pdfInput.addEventListener("change", () => {
     if (pdfInput.files && pdfInput.files.length > 0) {
       handleSelectedFile(pdfInput.files[0]);
     }
   });
 
   function handleSelectedFile(file) {
-    if (file.type !== 'application/pdf') {
-      showError('Please select a valid PDF document.');
+    if (file.type !== "application/pdf") {
+      showError("Please select a valid PDF document.");
       return;
     }
     if (file.size > 10 * 1024 * 1024) {
-      showError('File exceeds the 10MB maximum limit.');
+      showError("File exceeds the 10MB maximum limit.");
       return;
     }
 
     activeFile = file;
     fileNameSpan.textContent = `${file.name} (${Math.round(file.size / 1024)} KB)`;
-    dropzonePrompt.classList.add('hidden');
-    dropzoneFile.classList.remove('hidden');
+    dropzonePrompt.classList.add("hidden");
+    dropzoneFile.classList.remove("hidden");
     hideError();
   }
 
-  removeFileBtn.addEventListener('click', (e) => {
+  removeFileBtn.addEventListener("click", (e) => {
     e.stopPropagation(); // Avoid triggering file chooser dialog
     activeFile = null;
-    pdfInput.value = '';
-    dropzoneFile.classList.add('hidden');
-    dropzonePrompt.classList.remove('hidden');
+    pdfInput.value = "";
+    dropzoneFile.classList.add("hidden");
+    dropzonePrompt.classList.remove("hidden");
   });
 
   // Helper alerts
   function showError(msg) {
     errorAlert.textContent = msg;
-    errorAlert.classList.remove('hidden');
+    errorAlert.classList.remove("hidden");
   }
 
   function hideError() {
-    errorAlert.textContent = '';
-    errorAlert.classList.add('hidden');
+    errorAlert.textContent = "";
+    errorAlert.classList.add("hidden");
   }
 
   // 5. Submit Form to serverless Pages Function API
-  form.addEventListener('submit', async (e) => {
+  form.addEventListener("submit", async (e) => {
     e.preventDefault();
     hideError();
 
     if (!activeFile) {
-      showError('Please upload a PDF question paper.');
+      showError("Please upload a PDF question paper.");
       return;
     }
 
-    submitBtn.setAttribute('disabled', 'true');
-    submitBtn.classList.add('loading');
-    submitBtn.innerHTML = 'Submitting paper...';
+    submitBtn.setAttribute("disabled", "true");
+    submitBtn.classList.add("loading");
+    submitBtn.innerHTML = "Submitting paper...";
 
     const formData = new FormData();
-    formData.append('file', activeFile);
-    formData.append('course_id', courseSelect.value);
-    formData.append('semester', semesterSelect.value);
-    formData.append('year', document.getElementById('year-input').value);
-    formData.append('exam_session', document.getElementById('session-select').value);
-    
+    formData.append("file", activeFile);
+    formData.append("course_id", courseSelect.value);
+    formData.append("semester", semesterSelect.value);
+    formData.append("year", document.getElementById("year-input").value);
+    formData.append(
+      "exam_session",
+      document.getElementById("session-select").value,
+    );
+
     if (customSubjectToggle.checked) {
-      formData.append('custom_subject_name', customSubjectInput.value);
+      formData.append("custom_subject_name", customSubjectInput.value);
     } else {
-      formData.append('subject_id', subjectSelect.value);
+      formData.append("subject_id", subjectSelect.value);
     }
 
-    const pageCount = document.getElementById('page-count-input').value;
-    if (pageCount) formData.append('page_count', pageCount);
+    const pageCount = document.getElementById("page-count-input").value;
+    if (pageCount) formData.append("page_count", pageCount);
 
-    const topics = document.getElementById('topics-input').value;
-    if (topics) formData.append('topics', topics);
+    const topics = document.getElementById("topics-input").value;
+    if (topics) formData.append("topics", topics);
 
     try {
-      const res = await fetch('/api/submit', {
-        method: 'POST',
+      const res = await fetch("/api/submit", {
+        method: "POST",
         body: formData,
       });
 
@@ -400,38 +486,42 @@ const coursesData = courses.map((c) => ({
       try {
         result = await res.json();
       } catch (jsonErr) {
-        throw new Error(`Server returned status ${res.status}. Please check R2 Bucket Bindings in Cloudflare Pages settings.`);
+        throw new Error(
+          `Server returned status ${res.status}. Please check R2 Bucket Bindings in Cloudflare Pages settings.`,
+        );
       }
 
       if (!res.ok) {
-        throw new Error(result.error || 'Failed to submit question paper.');
+        throw new Error(result.error || "Failed to submit question paper.");
       }
 
       // Success transition
-      form.classList.add('hidden');
-      successScreen.classList.remove('hidden');
+      form.classList.add("hidden");
+      successScreen.classList.remove("hidden");
     } catch (err) {
       showError(err.message);
-      submitBtn.removeAttribute('disabled');
-      submitBtn.classList.remove('loading');
+      submitBtn.removeAttribute("disabled");
+      submitBtn.classList.remove("loading");
       submitBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"/><path d="m21.854 2.147-10.94 10.939"/></svg> Submit Question Paper`;
     }
   });
 
   // Reset another submission
-  document.getElementById('upload-another-btn').addEventListener('click', () => {
-    form.reset();
-    activeFile = null;
-    pdfInput.value = '';
-    resetSemesterSelect();
-    resetSubjectSelect();
-    dropzoneFile.classList.add('hidden');
-    dropzonePrompt.classList.remove('hidden');
-    successScreen.classList.add('hidden');
-    form.classList.remove('hidden');
-    submitBtn.removeAttribute('disabled');
-    submitBtn.classList.remove('loading');
-  });
+  document
+    .getElementById("upload-another-btn")
+    .addEventListener("click", () => {
+      form.reset();
+      activeFile = null;
+      pdfInput.value = "";
+      resetSemesterSelect();
+      resetSubjectSelect();
+      dropzoneFile.classList.add("hidden");
+      dropzonePrompt.classList.remove("hidden");
+      successScreen.classList.add("hidden");
+      form.classList.remove("hidden");
+      submitBtn.removeAttribute("disabled");
+      submitBtn.classList.remove("loading");
+    });
 </script>
 
 <style>
@@ -502,7 +592,8 @@ const coursesData = courses.map((c) => ({
   .input-group select:focus {
     border-color: var(--accent-primary);
     outline: none;
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-primary) 15%, transparent);
+    box-shadow: 0 0 0 3px
+      color-mix(in srgb, var(--accent-primary) 15%, transparent);
   }
 
   .input-group select:disabled,
@@ -549,10 +640,13 @@ const coursesData = courses.map((c) => ({
     position: relative;
   }
 
-  .upload-dropzone:hover, .upload-dropzone.dragover {
+  .upload-dropzone:hover,
+  .upload-dropzone.dragover,
+  .upload-dropzone:focus-visible {
     border-color: var(--accent-primary);
     background: color-mix(in srgb, var(--accent-primary) 4%, transparent);
-    box-shadow: 0 0 20px color-mix(in srgb, var(--accent-primary) 10%, transparent);
+    box-shadow: 0 0 20px
+      color-mix(in srgb, var(--accent-primary) 10%, transparent);
   }
 
   .dropzone-svg {
@@ -643,7 +737,8 @@ const coursesData = courses.map((c) => ({
     color: var(--text-primary);
   }
 
-  .btn.disabled, button[disabled] {
+  .btn.disabled,
+  button[disabled] {
     opacity: 0.5;
     pointer-events: none;
   }
