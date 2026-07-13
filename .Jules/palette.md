@@ -1,1 +1,5 @@
 ## 2026-06-30 - Improve Accessibility in SerpPreview.tsx\n**Learning:** Tab-like buttons in filter lists often lack proper ARIA attributes to communicate their state and function. Missing `role="group"` on filter containers and `aria-pressed` on stateful toggle buttons makes keyboard and screen reader navigation unclear.\n**Action:** Always ensure that custom button groups acting as tabs or filters have an appropriate `role="group"` on their container, and use `aria-pressed` on the buttons themselves to indicate the active state. Add `aria-label` to search inputs lacking visible labels.
+
+## 2024-07-13 - [Accessibility] Custom Div Dropzones Require Explicit Keyboard Support
+**Learning:** Custom `div`-based dropzones that trigger hidden file inputs require explicit `tabindex`, `role="button"`, and `keydown` event listeners for `Enter`/`Space` to ensure keyboard accessibility.
+**Action:** When implementing custom dropzones, always map keyboard interactions to the underlying hidden input to ensure parity with mouse interactions.
