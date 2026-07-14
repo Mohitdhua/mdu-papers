@@ -1,1 +1,5 @@
 ## 2026-06-30 - Improve Accessibility in SerpPreview.tsx\n**Learning:** Tab-like buttons in filter lists often lack proper ARIA attributes to communicate their state and function. Missing `role="group"` on filter containers and `aria-pressed` on stateful toggle buttons makes keyboard and screen reader navigation unclear.\n**Action:** Always ensure that custom button groups acting as tabs or filters have an appropriate `role="group"` on their container, and use `aria-pressed` on the buttons themselves to indicate the active state. Add `aria-label` to search inputs lacking visible labels.
+
+## 2026-07-14 - Added native tooltips to icon-only buttons
+**Learning:** Sighted users lack context for icon-only buttons even when ARIA labels are present. Providing a native browser `title` attribute natively triggers tooltips on hover, which significantly improves usability for these users without changing styling.
+**Action:** Always complement `aria-label` with a `title` attribute on global interactive elements consisting entirely of icons to serve both sighted and non-sighted users.
