@@ -30,6 +30,7 @@ const ogImageURL = new URL(image, SITE.url).href;
 
 const isHome = Astro.url.pathname === '/' || Astro.url.pathname === '';
 const gscToken = import.meta.env.PUBLIC_GSC_TOKEN || 'REPLACE_WITH_VERIFICATION_TOKEN';
+const bingToken = import.meta.env.PUBLIC_BING_TOKEN;
 
 const jsonLdArray = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
 
@@ -74,6 +75,7 @@ const websiteSchema = {
 
 <!-- Search console verification placeholder -->
 <meta name="google-site-verification" content={gscToken} />
+{bingToken && <meta name="msvalidate.01" content={bingToken} />}
 
 <!-- Structured Data -->
 {isHome && <script type="application/ld+json" set:html={JSON.stringify(websiteSchema)} />}
