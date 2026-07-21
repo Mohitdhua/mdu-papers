@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'preact/hooks';
+import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 
 interface SeoEntry {
   path: string;
@@ -91,6 +91,13 @@ export default function SerpPreview({ siteUrl, siteName, indexUrl = '/seo-index.
   if (error)
     return <div class="admin-alert error">Failed to load SEO data: {error}</div>;
 
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const clearSearch = () => {
+    setQuery('');
+    inputRef.current?.focus();
+  };
+
   return (
     <div>
       <div class="serp-stats">
@@ -107,13 +114,28 @@ export default function SerpPreview({ siteUrl, siteName, indexUrl = '/seo-index.
               <path d="m21 21-4.3-4.3" />
             </svg>
             <input
+              ref={inputRef}
               type="search"
               class="search-input"
+              style={{ paddingRight: '3rem' }}
               aria-label="Filter SEO entries by path, title or description"
               placeholder="Filter by path, title or description…"
               value={query}
               onInput={(e) => setQuery((e.target as HTMLInputElement).value)}
             />
+            {query.length > 0 && (
+              <button
+                type="button"
+                class="icon-btn"
+                style={{ position: 'absolute', right: '0.25rem' }}
+                aria-label="Clear search"
+                onClick={clearSearch}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M18 6 6 18M6 6l12 12" />
+                </svg>
+              </button>
+            )}
           </div>
         </div>
         <div class="serp-device-toggle" role="group" aria-label="Device">

@@ -1819,3 +1819,7 @@ textarea.form-control {
 .hidden {
   display: none !important;
 }
+.search-input::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+}
