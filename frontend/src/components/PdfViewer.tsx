@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'preact/hooks';
+import { useEffect, useRef, useState } from 'preact/hooks';
 
 interface Props {
   pdfUrl: string;
@@ -14,18 +14,28 @@ interface Props {
  */
 export default function PdfViewer({ pdfUrl, title, paperId, buttonLabel = 'Preview Paper' }: Props) {
   const [open, setOpen] = useState(false);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const wasOpen = useRef(false);
 
   useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setOpen(false);
-    };
-    document.addEventListener('keydown', onKey);
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.removeEventListener('keydown', onKey);
-      document.body.style.overflow = '';
-    };
+    if (open) {
+      wasOpen.current = true;
+      const onKey = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') setOpen(false);
+      };
+      document.addEventListener('keydown', onKey);
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.removeEventListener('keydown', onKey);
+        document.body.style.overflow = '';
+      };
+    } else if (wasOpen.current) {
+      // Restore focus to trigger button after modal closes
+      setTimeout(() => {
+        triggerRef.current?.focus();
+      }, 0);
+      wasOpen.current = false;
+    }
   }, [open]);
 
   const trackDownload = () => {
@@ -47,7 +57,7 @@ export default function PdfViewer({ pdfUrl, title, paperId, buttonLabel = 'Previ
 
   return (
     <>
-      <button type="button" class="btn btn-secondary" onClick={() => setOpen(true)}>
+      <button ref={triggerRef} type="button" class="btn btn-secondary" onClick={() => setOpen(true)}>
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
           <circle cx="12" cy="12" r="3" />
