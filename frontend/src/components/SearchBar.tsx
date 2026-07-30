@@ -32,6 +32,7 @@ export default function SearchBar({
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
   const wrapRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   // Lazy-load the index on first focus / mount for full page.
   const loadIndex = async () => {
@@ -154,6 +155,7 @@ export default function SearchBar({
       <div class="search-input-row">
         {SearchIcon}
         <input
+          ref={inputRef}
           type="search"
           class="search-input"
           value={query}
@@ -172,6 +174,25 @@ export default function SearchBar({
           aria-controls="search-listbox"
           autocomplete="off"
         />
+        {query.length > 0 && (
+          <button
+            type="button"
+            class="icon-btn"
+            style={{ position: 'absolute', right: 'var(--space-2)', top: '50%', transform: 'translateY(-50%)', padding: 'var(--space-1)', width: 'auto', height: 'auto', background: 'transparent' }}
+            aria-label="Clear search"
+            onClick={() => {
+              setQuery('');
+              setOpen(false);
+              setTimeout(() => {
+                  inputRef.current?.focus();
+              }, 0);
+            }}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M18 6 6 18M6 6l12 12" />
+            </svg>
+          </button>
+        )}
       </div>
 
       {/* Dropdown (homepage / header mode) */}
