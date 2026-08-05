@@ -1,1 +1,5 @@
 ## 2026-06-30 - Improve Accessibility in SerpPreview.tsx\n**Learning:** Tab-like buttons in filter lists often lack proper ARIA attributes to communicate their state and function. Missing `role="group"` on filter containers and `aria-pressed` on stateful toggle buttons makes keyboard and screen reader navigation unclear.\n**Action:** Always ensure that custom button groups acting as tabs or filters have an appropriate `role="group"` on their container, and use `aria-pressed` on the buttons themselves to indicate the active state. Add `aria-label` to search inputs lacking visible labels.
+
+## 2026-07-02 - Keyboard Accessibility for CSS Dropdown Menus
+**Learning:** Dropdown menus that activate solely on `:hover` (using CSS) are completely inaccessible to keyboard users navigating with the Tab key.
+**Action:** For CSS-based dropdown menus, always include `:focus-within` on the wrapper element alongside `:hover` (e.g. `.nav-dropdown-wrapper:hover .nav-dropdown-content, .nav-dropdown-wrapper:focus-within .nav-dropdown-content`). This ensures the menu opens and remains open as the user tabs through the nested links.
