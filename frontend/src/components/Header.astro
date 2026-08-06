@@ -141,7 +141,8 @@ const otherCourses = courses.filter((c) => {
   .dropdown-chevron {
     transition: transform 0.2s ease;
   }
-  .nav-dropdown-wrapper:hover .dropdown-chevron {
+  .nav-dropdown-wrapper:hover .dropdown-chevron,
+  .nav-dropdown-wrapper:focus-within .dropdown-chevron {
     transform: rotate(180deg);
   }
 
@@ -164,8 +165,9 @@ const otherCourses = courses.filter((c) => {
     pointer-events: none;
   }
 
-  /* Activate on hover */
-  .nav-dropdown-wrapper:hover .nav-dropdown-content {
+  /* Activate on hover or focus */
+  .nav-dropdown-wrapper:hover .nav-dropdown-content,
+  .nav-dropdown-wrapper:focus-within .nav-dropdown-content {
     display: block;
     opacity: 1;
     transform: translateX(-50%) translateY(6px);
