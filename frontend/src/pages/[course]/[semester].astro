@@ -56,6 +56,9 @@ const semLabel = semesterLabel(semester);
 const subjectNames = visibleSubjects.map((s) => s.name).join(', ');
 const semSlug = semesterToSlug(semester);
 
+// Build semester switcher data
+const allSemesters = Array.from({ length: course.total_semesters }, (_, i) => i + 1);
+
 // Fetch internal linking assets: blogs and other courses
 const allBlogPosts = await getAllBlogPosts();
 const latestBlogs = allBlogPosts.slice(0, 3);
@@ -165,6 +168,19 @@ const breadcrumbJsonLd = {
         <span><Icon name="file-text" size={14} /> {totalPapers} Papers</span>
       </div>
     </header>
+
+    <!-- Semester Switcher -->
+    <nav class="sem-switcher" aria-label="Semester navigation">
+      {allSemesters.map((sem) => (
+        <a
+          href={`/${course.slug}/${semesterToSlug(sem)}/`}
+          class={`sem-switcher-tab ${sem === semester ? 'active' : ''}`}
+          aria-current={sem === semester ? 'page' : undefined}
+        >
+          Sem {sem}
+        </a>
+      ))}
+    </nav>
 
     <!-- Subjects List and Papers (Option B Merge) -->
     <section class="section" style="padding-top: 1rem;">
@@ -473,7 +489,6 @@ const breadcrumbJsonLd = {
     transition: transform 0.2s ease, box-shadow 0.2s ease;
   }
   .course-link-card:hover {
-    transform: translateY(-2px);
     box-shadow: var(--shadow-md);
     border-color: var(--accent-primary);
   }
@@ -503,7 +518,6 @@ const breadcrumbJsonLd = {
     height: 100%;
   }
   .blog-link-card:hover {
-    transform: translateY(-2px);
     box-shadow: var(--shadow-md);
     border-color: var(--accent-primary);
   }
@@ -550,7 +564,7 @@ const breadcrumbJsonLd = {
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    animation: modalFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   }
   .modal-header {
     display: flex;
@@ -588,9 +602,9 @@ const breadcrumbJsonLd = {
     from { opacity: 0; }
     to { opacity: 1; }
   }
-  @keyframes slideUp {
-    from { transform: translateY(20px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
+  @keyframes modalFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
   }
 </style>
 

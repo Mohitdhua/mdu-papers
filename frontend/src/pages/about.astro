@@ -6,53 +6,303 @@ import { SITE } from '@lib/config';
 ---
 
 <BaseLayout
-  title="About Us"
-  description="Learn about MDU Papers — a free, student-built platform for accessing MDU previous year question papers & notes."
+  title="About MDU Papers — Contact, Privacy, Terms"
+  description="Learn about MDU Papers, contact us, and read our privacy policy, terms of service, and disclaimer."
 >
   <div class="container">
     <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'About' }]} />
 
     <header class="page-header">
       <h1><Icon name="info" /> About MDU Papers</h1>
+      <p>Everything you need to know about our platform.</p>
     </header>
 
-    <div class="prose">
-      <p>
-        {SITE.name} is a free, independent educational resource created to help students of
-        Maharshi Dayanand University, Rohtak access previous year question papers for their
-        exam preparation. We believe quality study material should be accessible to everyone,
-        completely free of cost.
-      </p>
+    <div class="sem-switcher sticky-tabs">
+      <a href="#about" class="sem-switcher-tab active" data-tab="about">About</a>
+      <a href="#contact" class="sem-switcher-tab" data-tab="contact">Contact</a>
+      <a href="#privacy" class="sem-switcher-tab" data-tab="privacy">Privacy</a>
+      <a href="#terms" class="sem-switcher-tab" data-tab="terms">Terms</a>
+      <a href="#disclaimer" class="sem-switcher-tab" data-tab="disclaimer">Disclaimer</a>
+    </div>
 
-      <h2>Our Mission</h2>
-      <p>
-        Every year, thousands of MDU students struggle to find reliable previous year papers
-        scattered across WhatsApp groups, photocopy shops and random websites. We built this
-        platform to bring all of them into one clean, fast and searchable place.
-      </p>
+    <div class="prose content-sections">
+      <section id="about" class="tab-section">
+        <h2>Our Mission</h2>
+        <p>
+          {SITE.name} is a free, independent educational resource created to help students of
+          Maharshi Dayanand University, Rohtak access previous year question papers for their
+          exam preparation. We believe quality study material should be accessible to everyone,
+          completely free of cost.
+        </p>
 
-      <h2>What We Offer</h2>
-      <ul>
-        <li>Previous year question papers for 15+ UG and PG courses</li>
-        <li>Organized by course, semester and subject for easy navigation</li>
-        <li>Instant search across the entire collection</li>
-        <li>In-browser PDF preview before you download</li>
-        <li>Study tips and exam guides on our blog</li>
-        <li>100% free, no login required</li>
-      </ul>
+        <p>
+          Every year, thousands of MDU students struggle to find reliable previous year papers
+          scattered across WhatsApp groups, photocopy shops and random websites. We built this
+          platform to bring all of them into one clean, fast and searchable place.
+        </p>
 
-      <h2>Important Note</h2>
-      <p>
-        We are <strong>not</strong> affiliated with or endorsed by Maharshi Dayanand University.
-        For official notifications, results and information, always visit the official website at
-        <a href={SITE.universityUrl} target="_blank" rel="noopener noreferrer">mdu.ac.in</a>.
-      </p>
+        <h3>What We Offer</h3>
+        <ul>
+          <li>Previous year question papers for 15+ UG and PG courses</li>
+          <li>Organized by course, semester and subject for easy navigation</li>
+          <li>Instant search across the entire collection</li>
+          <li>In-browser PDF preview before you download</li>
+          <li>Study tips and exam guides on our blog</li>
+          <li>100% free, no login required</li>
+        </ul>
+      </section>
 
-      <h2>Get In Touch</h2>
-      <p>
-        Have a paper to contribute, found an error, or want to give feedback? We'd love to hear
-        from you. Visit our <a href="/contact/">contact page</a> to reach out.
-      </p>
+      <hr />
+
+      <section id="contact" class="tab-section">
+        <h2><Icon name="mail" /> Contact Us</h2>
+        <p>
+          The fastest way to reach us is by email at
+          <a href={`mailto:${SITE.email}`}>{SITE.email}</a>. You can also use the form below.
+        </p>
+
+        <form
+          class="card"
+          style="margin-top: 1.5rem; margin-bottom: 2rem;"
+          action={`mailto:${SITE.email}`}
+          method="post"
+          enctype="text/plain"
+        >
+          <div class="form-group">
+            <label for="name">Name</label>
+            <input class="form-control" type="text" id="name" name="name" required />
+          </div>
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input class="form-control" type="email" id="email" name="email" required />
+          </div>
+          <div class="form-group">
+            <label for="subject">Subject</label>
+            <input class="form-control" type="text" id="subject" name="subject" required />
+          </div>
+          <div class="form-group">
+            <label for="message">Message</label>
+            <textarea class="form-control" id="message" name="message" required></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">
+            <Icon name="send" size={16} /> Send Message
+          </button>
+        </form>
+
+        <h3>Contribute a Paper</h3>
+        <p>
+          Have a question paper that's not on our site? Send it to us and we'll add it to help
+          fellow students. Include the course, semester, subject and exam year.
+        </p>
+      </section>
+
+      <hr />
+
+      <section id="privacy" class="tab-section">
+        <h2><Icon name="shield-check" /> Privacy Policy</h2>
+        <p class="text-muted" style="margin-top: -1rem; margin-bottom: 1.5rem;">Last updated: January 2025</p>
+        <p>
+          At {SITE.name}, your privacy matters to us. This policy explains what information we
+          collect and how we use it.
+        </p>
+
+        <h3>Information We Collect</h3>
+        <p>
+          We do <strong>not</strong> require you to create an account or provide personal
+          information to use this website. We do not store names, email addresses or any personal
+          data unless you voluntarily contact us.
+        </p>
+
+        <h3>Analytics</h3>
+        <p>
+          We use Google Analytics to understand how visitors use our site (pages visited, time
+          spent, device type). This data is anonymized and aggregated — it cannot be used to
+          personally identify you.
+        </p>
+
+        <h3>Cookies</h3>
+        <p>
+          We use minimal cookies to remember your theme preference (light/dark mode) and for
+          analytics. You can disable cookies in your browser settings at any time.
+        </p>
+
+        <h3>Third-Party Advertising</h3>
+        <p>
+          We display ads through third-party networks such as Google AdSense. These networks may
+          use cookies to serve relevant ads based on your browsing. You can opt out of personalized
+          advertising via
+          <a href="https://www.google.com/settings/ads" target="_blank" rel="noopener noreferrer">Google Ad Settings</a>.
+        </p>
+
+        <h3>Data Security</h3>
+        <p>
+          Since we don't collect or store personal data, there is no personal information at risk.
+          Our site is served over secure HTTPS.
+        </p>
+
+        <h3>Children's Privacy</h3>
+        <p>
+          Our website is intended for university students. We do not knowingly collect data from
+          children under 13.
+        </p>
+      </section>
+
+      <hr />
+
+      <section id="terms" class="tab-section">
+        <h2><Icon name="file-text" /> Terms of Service</h2>
+        <p class="text-muted" style="margin-top: -1rem; margin-bottom: 1.5rem;">Last updated: January 2025</p>
+        <p>
+          By accessing and using {SITE.name}, you agree to the following terms. Please read them
+          carefully.
+        </p>
+
+        <h3>1. Free Educational Use</h3>
+        <p>
+          This website is provided free of charge for educational purposes only. All papers are
+          intended to help students prepare for their examinations.
+        </p>
+
+        <h3>2. No Warranties</h3>
+        <p>
+          The papers and content are provided "as is" without any warranties. We do not guarantee
+          the accuracy, completeness or reliability of any question paper. Use the material at your
+          own discretion and always verify with official sources.
+        </p>
+
+        <h3>3. Not an Official MDU Website</h3>
+        <p>
+          {SITE.name} is an independent platform and is not affiliated with Maharshi Dayanand
+          University.
+        </p>
+
+        <h3>4. Intellectual Property</h3>
+        <p>
+          Question papers are believed to be in the public domain. If you are a copyright holder
+          and believe content should be removed, please contact us with details and we will act promptly.
+        </p>
+
+        <h3>5. Acceptable Use</h3>
+        <p>
+          You agree not to misuse the website, attempt to disrupt its operation, or use automated
+          tools to scrape content at scale. The site is meant for personal study use.
+        </p>
+
+        <h3>6. Third-Party Links and Ads</h3>
+        <p>
+          We are not responsible for the content of third-party websites linked from our site or
+          for advertisements served by ad networks.
+        </p>
+      </section>
+
+      <hr />
+
+      <section id="disclaimer" class="tab-section">
+        <h2><Icon name="alert-triangle" /> Disclaimer</h2>
+        <p>
+          This website ({SITE.name}) is <strong>NOT</strong> the official website of Maharshi
+          Dayanand University, Rohtak. This is an independent educational resource created to help
+          students access previous year question papers for exam preparation.
+        </p>
+        <p>
+          For official information, notifications, and results, please visit the official MDU
+          website at
+          <a href={SITE.universityUrl} target="_blank" rel="noopener noreferrer">mdu.ac.in</a>.
+        </p>
+        <p>
+          All question papers are believed to be in the public domain. If you believe any content
+          infringes on your copyright, please contact us and we will remove it promptly.
+        </p>
+
+        <h3>Accuracy of Content</h3>
+        <p>
+          While we strive to provide accurate and up-to-date papers, we make no guarantees about
+          the completeness, accuracy or reliability of any paper. Always cross-check with official
+          sources and your course material.
+        </p>
+
+        <h3>External Links</h3>
+        <p>
+          Our website may contain links to external sites. We are not responsible for the content
+          or privacy practices of these third-party websites.
+        </p>
+      </section>
     </div>
   </div>
 </BaseLayout>
+
+<style>
+  .sticky-tabs {
+    position: sticky;
+    top: 1rem;
+    z-index: 10;
+    margin: 2rem 0;
+    justify-content: flex-start;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    backdrop-filter: blur(16px);
+    background: rgba(255, 255, 255, 0.03);
+  }
+  :global([data-theme='light']) .sticky-tabs {
+    background: rgba(255, 255, 255, 0.8);
+  }
+  .sticky-tabs::-webkit-scrollbar {
+    display: none;
+  }
+  .tab-section {
+    scroll-margin-top: 5rem;
+  }
+  hr {
+    margin: 3rem 0;
+    border: 0;
+    border-top: 1px solid var(--border-color, #e5e7eb);
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const tabs = document.querySelectorAll('.sem-switcher-tab');
+    const sections = document.querySelectorAll('.tab-section');
+    
+    // Smooth scroll for tabs
+    tabs.forEach(tab => {
+      tab.addEventListener('click', (e) => {
+        e.preventDefault();
+        const targetId = tab.getAttribute('href')?.substring(1);
+        if (targetId) {
+          const targetSection = document.getElementById(targetId);
+          if (targetSection) {
+            targetSection.scrollIntoView({ behavior: 'smooth' });
+          }
+        }
+      });
+    });
+
+    // Intersection Observer for highlighting tabs
+    const observerOptions = {
+      root: null,
+      rootMargin: '-20% 0px -60% 0px',
+      threshold: 0
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const id = entry.target.id;
+          tabs.forEach(tab => {
+            if (tab.getAttribute('data-tab') === id) {
+              tab.classList.add('active');
+            } else {
+              tab.classList.remove('active');
+            }
+          });
+        }
+      });
+    }, observerOptions);
+
+    sections.forEach(section => {
+      observer.observe(section);
+    });
+  });
+</script>

@@ -69,15 +69,17 @@ const otherCourses = courses.filter((c) => {
         </div>
       </div>
 
+      <a href="/mock-tests/" class="nav-item" aria-current={isActive('/mock-tests/') ? 'page' : undefined}>Mock Tests ✨</a>
       <a href="/blog/" class="nav-item" aria-current={isActive('/blog/') ? 'page' : undefined}>Blog</a>
       <a href="/contribute/" class="nav-item" aria-current={isActive('/contribute/') ? 'page' : undefined}>Contribute</a>
       <a href="/about/" class="nav-item" aria-current={isActive('/about/') ? 'page' : undefined}>About</a>
     </nav>
 
     <div class="header-actions">
-      <a href="/search/" class="icon-btn" aria-label="Search papers">
-        <Icon name="search" />
-      </a>
+      <button type="button" class="search-shortcut-btn" id="cmd-k-trigger" aria-label="Search papers (Ctrl+K)">
+        <Icon name="search" size={16} />
+        <span class="kbd">⌘K</span>
+      </button>
       <ThemeToggle client:load />
       <button
         type="button"
@@ -92,18 +94,58 @@ const otherCourses = courses.filter((c) => {
     </div>
   </div>
 
+  <div class="mobile-backdrop" id="mobile-backdrop" aria-hidden="true"></div>
   <nav class="mobile-nav" id="mobile-nav" aria-label="Mobile">
     {NAV_LINKS.map((link) => <a href={link.href}>{link.label}</a>)}
-    <a href="/search/">Search</a>
+    <button type="button" class="mobile-search-btn" id="mobile-cmd-k-trigger">Search / ⌘K</button>
   </nav>
 </header>
 
 <script>
+  // Mobile Nav Drawer Toggle
   const toggle = document.getElementById('mobile-menu-toggle');
   const nav = document.getElementById('mobile-nav');
-  toggle?.addEventListener('click', () => {
+  const backdrop = document.getElementById('mobile-backdrop');
+
+  function toggleMobileMenu() {
     const isOpen = nav?.classList.toggle('open');
-    toggle.setAttribute('aria-expanded', String(Boolean(isOpen)));
+    backdrop?.classList.toggle('open');
+    toggle?.setAttribute('aria-expanded', String(Boolean(isOpen)));
+    document.body.style.overflow = isOpen ? 'hidden' : '';
+  }
+
+  toggle?.addEventListener('click', toggleMobileMenu);
+  backdrop?.addEventListener('click', toggleMobileMenu);
+
+  // Megamenu Click Toggle
+  const dropdownWrapper = document.querySelector('.nav-dropdown-wrapper');
+  const dropdownTrigger = document.querySelector('.dropdown-trigger');
+  
+  dropdownTrigger?.addEventListener('click', (e) => {
+    e.preventDefault();
+    dropdownWrapper?.classList.toggle('open');
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!dropdownWrapper?.contains(e.target as Node)) {
+      dropdownWrapper?.classList.remove('open');
+    }
+  });
+
+  // Global Ctrl+K / Cmd+K keyboard shortcut
+  document.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      e.preventDefault();
+      window.dispatchEvent(new CustomEvent('open-command-palette'));
+    }
+  });
+  // Trigger button click
+  document.getElementById('cmd-k-trigger')?.addEventListener('click', () => {
+    window.dispatchEvent(new CustomEvent('open-command-palette'));
+  });
+  document.getElementById('mobile-cmd-k-trigger')?.addEventListener('click', () => {
+    window.dispatchEvent(new CustomEvent('open-command-palette'));
+    toggleMobileMenu();
   });
 </script>
 
@@ -141,7 +183,8 @@ const otherCourses = courses.filter((c) => {
   .dropdown-chevron {
     transition: transform 0.2s ease;
   }
-  .nav-dropdown-wrapper:hover .dropdown-chevron {
+  .nav-dropdown-wrapper:hover .dropdown-chevron,
+  .nav-dropdown-wrapper.open .dropdown-chevron {
     transform: rotate(180deg);
   }
 
@@ -164,12 +207,67 @@ const otherCourses = courses.filter((c) => {
     pointer-events: none;
   }
 
-  /* Activate on hover */
-  .nav-dropdown-wrapper:hover .nav-dropdown-content {
+  /* Activate on hover or click */
+  .nav-dropdown-wrapper:hover .nav-dropdown-content,
+  .nav-dropdown-wrapper.open .nav-dropdown-content {
     display: block;
     opacity: 1;
     transform: translateX(-50%) translateY(6px);
     pointer-events: auto;
+  }
+
+  /* Command Palette Button */
+  .search-shortcut-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-1.5) var(--space-3);
+    border-radius: var(--radius-full);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--glass-border);
+    color: var(--text-secondary);
+    font-size: var(--text-sm);
+    cursor: pointer;
+    transition: border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+    backdrop-filter: blur(16px);
+  }
+  .search-shortcut-btn:hover {
+    border-color: var(--accent-primary);
+    color: var(--text-primary);
+    box-shadow: 0 0 10px rgba(99, 102, 241, 0.15);
+  }
+  .kbd {
+    font-size: 0.7rem;
+    font-family: inherit;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 0.1rem 0.3rem;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+  }
+
+  /* Mobile Backdrop & Button */
+  .mobile-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 199;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+  .mobile-backdrop.open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .mobile-search-btn {
+    background: none;
+    border: none;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+    text-align: left;
+    padding: 0;
   }
 
   .dropdown-columns {

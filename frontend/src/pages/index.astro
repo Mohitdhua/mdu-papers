@@ -48,6 +48,13 @@ const posts = (await getAllBlogPosts()).slice(0, 2);
           </div>
         </div>
       </div>
+      <div class="hero-stats" style="margin-top: 1rem; display: flex; justify-content: center; gap: 1rem; font-size: 0.9rem; color: var(--text-muted);">
+        <span><strong>{stats.papers}+</strong> Papers</span>
+        <span>&middot;</span>
+        <span><strong>{courses.length}</strong> Courses</span>
+        <span>&middot;</span>
+        <span><strong>100%</strong> Free</span>
+      </div>
     </div>
   </section>
 
@@ -67,6 +74,12 @@ const posts = (await getAllBlogPosts()).slice(0, 2);
           </div>
         ) : (
           <>
+            <div class="quick-filters">
+              {courses.filter(c => c.is_popular).map(c => (
+                <a href={`/${c.slug}/`}>{c.icon_emoji} {c.name}</a>
+              ))}
+            </div>
+
             <div class="course-tabs" role="tablist" aria-label="Course level">
               <button class="course-tab active" role="tab" data-tab="ug" aria-selected="true">
                 <Icon name="book-open" size={16} /> Undergraduate ({ugCourses.length})
@@ -112,11 +125,12 @@ const posts = (await getAllBlogPosts()).slice(0, 2);
             <a href={rp.url} class="card subject-card animate-in">
               <div class="subject-card-main">
                 <h3 style="font-size: 1rem;">
-                  {rp.course.name} — {rp.subject.name}
+                  {rp.course.icon_emoji} {rp.course.name} — {rp.subject.name}
                 </h3>
                 <div class="subject-card-meta">
                   <span class="badge badge-secondary">{rp.paper.exam_session} {rp.paper.year}</span>
                   <span><Icon name="layers" size={14} /> {formatFileSize(rp.paper.pdf_size_kb)}</span>
+                  <span class="text-muted"><Icon name="calendar" size={14} /> Just Added</span>
                 </div>
               </div>
               <Icon name="chevron-right" size={18} class="text-muted" />
