@@ -1,1 +1,5 @@
 ## 2026-06-30 - Improve Accessibility in SerpPreview.tsx\n**Learning:** Tab-like buttons in filter lists often lack proper ARIA attributes to communicate their state and function. Missing `role="group"` on filter containers and `aria-pressed` on stateful toggle buttons makes keyboard and screen reader navigation unclear.\n**Action:** Always ensure that custom button groups acting as tabs or filters have an appropriate `role="group"` on their container, and use `aria-pressed` on the buttons themselves to indicate the active state. Add `aria-label` to search inputs lacking visible labels.
+
+## 2026-07-31 - Focus Restoration on Modal Close
+**Learning:** When modals close, focus is often lost, leaving keyboard and screen reader users confused about their position on the page. Restoring focus to the element that triggered the modal is critical for a smooth accessible experience, but requires tracking previous state to avoid stealing focus on initial mount.
+**Action:** Track previous state using `useRef` when reacting to state changes in `useEffect`, and use `setTimeout` to ensure focus is applied after DOM updates.
