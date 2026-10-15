@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'preact/hooks';
+import { useEffect, useState, useRef } from 'preact/hooks';
 
 interface Props {
   pdfUrl: string;
@@ -14,11 +14,26 @@ interface Props {
  */
 export default function PdfViewer({ pdfUrl, title, paperId, buttonLabel = 'Preview Paper' }: Props) {
   const [open, setOpen] = useState(false);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const closeBtnRef = useRef<HTMLButtonElement>(null);
+
+  const handleClose = () => {
+    setOpen(false);
+    // Return focus to trigger button after modal unmounts
+    setTimeout(() => {
+      triggerRef.current?.focus();
+    }, 0);
+  };
 
   useEffect(() => {
     if (!open) return;
+    // Set initial focus to the close button when modal opens
+    setTimeout(() => {
+      closeBtnRef.current?.focus();
+    }, 0);
+
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setOpen(false);
+      if (e.key === 'Escape') handleClose();
     };
     document.addEventListener('keydown', onKey);
     document.body.style.overflow = 'hidden';
@@ -47,7 +62,7 @@ export default function PdfViewer({ pdfUrl, title, paperId, buttonLabel = 'Previ
 
   return (
     <>
-      <button type="button" class="btn btn-secondary" onClick={() => setOpen(true)}>
+      <button ref={triggerRef} type="button" class="btn btn-secondary" onClick={() => setOpen(true)}>
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
           <circle cx="12" cy="12" r="3" />
@@ -62,7 +77,7 @@ export default function PdfViewer({ pdfUrl, title, paperId, buttonLabel = 'Previ
           aria-modal="true"
           aria-label={`Preview: ${title}`}
           onClick={(e) => {
-            if (e.target === e.currentTarget) setOpen(false);
+            if (e.target === e.currentTarget) handleClose();
           }}
         >
           <div class="pdf-modal">
@@ -78,9 +93,10 @@ export default function PdfViewer({ pdfUrl, title, paperId, buttonLabel = 'Previ
                   Download
                 </button>
                 <button
+                  ref={closeBtnRef}
                   type="button"
                   class="icon-btn"
-                  onClick={() => setOpen(false)}
+                  onClick={handleClose}
                   aria-label="Close preview"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
