@@ -1,1 +1,5 @@
 ## 2026-06-30 - Improve Accessibility in SerpPreview.tsx\n**Learning:** Tab-like buttons in filter lists often lack proper ARIA attributes to communicate their state and function. Missing `role="group"` on filter containers and `aria-pressed` on stateful toggle buttons makes keyboard and screen reader navigation unclear.\n**Action:** Always ensure that custom button groups acting as tabs or filters have an appropriate `role="group"` on their container, and use `aria-pressed` on the buttons themselves to indicate the active state. Add `aria-label` to search inputs lacking visible labels.
+
+## 2024-05-24 - Search Input UX Pattern
+**Learning:** For extensive search functionalities, especially those relying on long user queries and fuzzy matching (like `fuse.js`), a clear button is a vital micro-UX addition that significantly reduces interaction friction for restarting searches. Placing it inline prevents UI bloat.
+**Action:** When creating any custom search input component with dynamic state updates, inherently include an internal state clearing mechanism (an `x` button) and programmatically restore user focus to the input (`ref.current?.focus()`) after clearing.
