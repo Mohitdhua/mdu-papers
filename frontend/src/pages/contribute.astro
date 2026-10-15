@@ -155,8 +155,8 @@ const coursesData = courses.map((c) => ({
         <!-- File Upload Dropzone -->
         <div class="input-group mt-6">
           <label>PDF Document <span class="required">*</span></label>
-          <div class="upload-dropzone" id="upload-dropzone">
-            <input type="file" id="pdf-input" accept="application/pdf" style="display: none;" required />
+          <div class="upload-dropzone" id="upload-dropzone" role="button" tabindex="0" aria-label="Upload PDF question paper">
+            <input type="file" id="pdf-input" accept="application/pdf" style="display: none;" required tabindex="-1" />
             <div class="dropzone-prompt">
               <svg class="dropzone-svg" xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
@@ -295,6 +295,13 @@ const coursesData = courses.map((c) => ({
   // 4. File Dropzone Actions
   uploadDropzone.addEventListener('click', () => {
     pdfInput.click();
+  });
+
+  uploadDropzone.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      pdfInput.click();
+    }
   });
 
   uploadDropzone.addEventListener('dragover', (e) => {
