@@ -167,36 +167,27 @@ const breadcrumbJsonLd = {
         <span><Icon name="book" size={14} /> {visibleSubjects.length} Subjects</span>
         <span><Icon name="file-text" size={14} /> {totalPapers} Papers</span>
       </div>
+
+      {
+        visibleSubjects.length > 0 && (
+          <nav class="subject-quick-nav" aria-label="Subjects Quick Links" style="margin-top: 1rem; margin-bottom: 0;">
+            {visibleSubjects.map((s) => (
+              <a href={`#${s.slug}`} class="quick-nav-pill">
+                <Icon name="book" size={12} /> {s.name}
+              </a>
+            ))}
+          </nav>
+        )
+      }
     </header>
 
-    <!-- Semester Switcher -->
-    <nav class="sem-switcher" aria-label="Semester navigation">
-      {allSemesters.map((sem) => (
-        <a
-          href={`/${course.slug}/${semesterToSlug(sem)}/`}
-          class={`sem-switcher-tab ${sem === semester ? 'active' : ''}`}
-          aria-current={sem === semester ? 'page' : undefined}
-        >
-          Sem {sem}
-        </a>
-      ))}
-    </nav>
-
-    <!-- Subjects List and Papers (Option B Merge) -->
+    <!-- Subjects List and Papers -->
     <section class="section" style="padding-top: 1rem;">
       <h2 class="section-title"><Icon name="book-open" /> Available Subjects & Papers</h2>
       
       {
         visibleSubjects.length > 0 ? (
-          <>
-            <nav class="subject-quick-nav" aria-label="Subjects Quick Links">
-              {visibleSubjects.map((s) => (
-                <a href={`#${s.slug}`} class="quick-nav-pill">
-                  <Icon name="book" size={12} /> {s.name}
-                </a>
-              ))}
-            </nav>
-            <div class="subjects-list">
+          <div class="subjects-list">
             {visibleSubjects.map((s) => (
               <div id={s.slug} class="card subject-section-card animate-in">
                 <div class="subject-header">
@@ -243,7 +234,6 @@ const breadcrumbJsonLd = {
               </div>
             ))}
           </div>
-          </>
         ) : (
           <div class="empty-state">
             <div class="empty-icon">📭</div>

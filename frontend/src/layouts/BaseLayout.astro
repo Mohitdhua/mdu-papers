@@ -28,8 +28,7 @@ const { title, description, image, type, noindex, jsonLd, publishedTime, appendB
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
     <meta name="theme-color" content="#4F46E5" />
-
-
+    <meta name="monetag" content="f869de09b62e2f9f4071af27360d5e78" />
 
     <SEO
       title={title}
@@ -61,7 +60,7 @@ const { title, description, image, type, noindex, jsonLd, publishedTime, appendB
         justify-content: center;
         align-items: flex-start;
         width: 100%;
-        max-width: 1600px;
+        max-width: 1400px;
         margin: 0 auto;
         gap: 1.5rem;
         padding-inline: 1rem;
@@ -94,15 +93,10 @@ const { title, description, image, type, noindex, jsonLd, publishedTime, appendB
   <body>
     <a href="#main-content" class="skip-link">Skip to content</a>
     <div class="mesh-bg" aria-hidden="true"></div>
+
     <Header />
     <main id="main-content">
       <div class="site-layout-wrapper">
-        <aside class="sidebar-ad left-ad" aria-label="Sidebar Ad Left">
-          <div class="ad-sticky-container">
-            <AdBanner slot="left-skyscraper" label="Skyscraper Left" />
-          </div>
-        </aside>
-
         <div class="main-content-area">
           <slot />
         </div>
