@@ -18,3 +18,8 @@
 # Favicon and images
 /favicon.svg
   Cache-Control: public, max-age=86400
+
+# Service Worker for Monetag Push Notifications
+/sw.js
+  Cache-Control: public, max-age=0, must-revalidate
+  Service-Worker-Allowed: /
